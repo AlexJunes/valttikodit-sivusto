@@ -10,6 +10,36 @@ document.addEventListener('DOMContentLoaded', async () => {
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     const path = window.location.pathname;
 
+    // --- BASIC STATIC AUTH CHECK ---
+    if (path.includes('/admin/')) {
+        const isLoginPage = path.endsWith('index.html') || path.endsWith('/admin/') || path.endsWith('/admin');
+        
+        if (!isLoginPage) {
+            if (sessionStorage.getItem('valtti_admin_auth') !== 'secured') {
+                window.location.href = 'index.html';
+                return;
+            }
+        } else {
+            sessionStorage.removeItem('valtti_admin_auth');
+            const loginForm = document.getElementById('admin-login-form');
+            if (loginForm) {
+                loginForm.onsubmit = (e) => {
+                    e.preventDefault();
+                    const u = document.getElementById('username')?.value;
+                    const p = document.getElementById('password')?.value;
+                    
+                    if (u === 'vinhainvest' && p === 'Vinhetie8') {
+                        sessionStorage.setItem('valtti_admin_auth', 'secured');
+                        window.location.href = 'projects.html';
+                    } else {
+                        alert('Väärä käyttäjätunnus tai salasana!');
+                    }
+                };
+            }
+            return;
+        }
+    }
+
     async function uploadToSupabaseStorage(file) {
         if (!file) return null;
         const fileExt = file.name.split('.').pop();
