@@ -11,14 +11,22 @@ document.addEventListener('DOMContentLoaded', async () => {
     // CMS DATA INJECTION (FOR APPLICABLE PUBLIC PAGES)
     if (supabase) {
         // Detect current page slug from URL
-        let slug = window.location.pathname.split('/').pop().replace('.html', '') || 'index';
-        if (slug === '' || slug === '/') slug = 'index';
+        let slug;
+        const urlParams = new URLSearchParams(window.location.search);
+        
+        if (window.location.pathname.includes('kohde.html')) {
+            // Uusi dynaaminen projekti reititin
+            slug = urlParams.get('kohde');
+        } else {
+            slug = window.location.pathname.split('/').pop().replace('.html', '') || 'index';
+            if (slug === '' || slug === '/') slug = 'index';
+        }
 
-        const isProjectPage = window.location.pathname.includes('/kohdesivut/');
+        const isProjectPage = window.location.pathname.includes('kohde.html');
 
         try {
-            if (isProjectPage) {
-                // Ladataan kohteen tiedot tietokannasta
+            if (isProjectPage && slug) {
+                // Ladataan kohteen tiedot tietokannasta url-parametrin perusteella
                 const { data: project, error } = await supabase.from('projects').select('*').eq('slug', slug).maybeSingle();
                 if (project && !error) {
                     
@@ -158,7 +166,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     const safeSlug = (project.slug || 'default').toString().trim().toLowerCase().replace(/\s+/g, '-');
 
                     const cardHtml = `
-                        <a href="kohdesivut/${safeSlug}.html" class="card" style="text-decoration: none; color: inherit;">
+                        <a href="kohde.html?kohde=${safeSlug}" class="card" style="text-decoration: none; color: inherit;">
                             <div class="card-img" style="${bgStyle}">
                                 ${statusFi ? `<span class="card-badge ${statusClass}">${statusFi}</span>` : ''}
                             </div>
