@@ -155,8 +155,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                         ? `background-color: #f3f4f6; background-image: url('${project.hero_image}'); background-size: cover; background-position: center;` 
                         : `background-color: #f3f4f6;`;
 
+                    const safeSlug = (project.slug || 'default').toString().trim().toLowerCase().replace(/\s+/g, '-');
+
                     const cardHtml = `
-                        <a href="kohdesivut/${project.slug || 'default'}.html" class="card" style="text-decoration: none; color: inherit;">
+                        <a href="kohdesivut/${safeSlug}.html" class="card" style="text-decoration: none; color: inherit;">
                             <div class="card-img" style="${bgStyle}">
                                 ${statusFi ? `<span class="card-badge ${statusClass}">${statusFi}</span>` : ''}
                             </div>

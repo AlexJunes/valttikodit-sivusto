@@ -300,7 +300,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     
                     const projectData = {
                         title: getVal(0),
-                        slug: getVal(1),
+                        slug: getVal(1) ? getVal(1).toString().trim().toLowerCase().replace(/\s+/g, '-') : '',
                         location: getVal(2),
                         address: getVal(3),
                         area: getVal(4),
