@@ -28,8 +28,15 @@
 <body>
 
     <header class="site-header">
-        <div class="container header-inner">
+        <div class="container header-inner" style="display: flex; justify-content: space-between; align-items: center;">
             <a href="index.html" class="logo">Valttikodit</a>
+            
+            <button class="mobile-menu-btn" aria-label="Avaa valikko">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
+
             <nav class="nav-links">
                 <a href="kohteet.html">Myytävät kohteet</a>
                 <a href="valtti-tapa.html">Tarinamme</a>
@@ -62,8 +69,7 @@
 
         <!-- 2. "Koti on tunne" Section -->
         <section class="py-16" style="background-color: #fff;">
-            <div class="container"
-                style="display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center;">
+            <div class="container grid-split" style="align-items: center;">
                 <div>
                     <h2 style="font-size: 3rem; margin-bottom: 1.5rem; letter-spacing: -0.02em;" data-cms="Tunnelaatikko Otsikko">Koti on tunne.</h2>
                     <p style="font-size: 1.25rem; color: var(--text-muted); margin-bottom: 2rem; line-height: 1.8;" data-cms="Tunnelaatikko Teksti">
@@ -92,7 +98,7 @@
                 </p>
             </div>
 
-            <div class="container" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 2.5rem;">
+            <div class="container grid-3">
                 <div
                     style="background: var(--card-bg); padding: 2.5rem; border-radius: var(--radius); box-shadow: 0 4px 6px rgba(0,0,0,0.02); text-align: center;">
                     <div

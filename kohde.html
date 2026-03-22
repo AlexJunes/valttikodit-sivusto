@@ -19,8 +19,15 @@
 <body>
 
     <header class="site-header">
-        <div class="container header-inner">
+        <div class="container header-inner" style="display: flex; justify-content: space-between; align-items: center;">
             <a href="index.html" class="logo">Valttikodit</a>
+
+            <button class="mobile-menu-btn" aria-label="Avaa valikko">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
+
             <nav class="nav-links">
                 <a href="kohteet.html" style="color: var(--primary); font-weight: 600;">Myytävät kohteet</a>
                 <a href="valtti-tapa.html">Tarinamme</a>
@@ -46,7 +53,7 @@
                 &larr; Paluu kohteisiin
             </a>
 
-            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 4rem;">
+            <div class="project-layout">
 
                 <!-- Vasen: Kuvaus js Galleria -->
                 <div>
@@ -74,7 +81,7 @@
 
                     <h2 style="font-size: 1.5rem; margin-top: 2rem; margin-bottom: 1.5rem;">Kuvagalleria</h2>
                     <!-- JavaScript syöttää tänne uudet img-elementit kohteen galleriasta -->
-                    <div id="project-gallery" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div id="project-gallery" class="grid-gallery">
                         <p style="color: var(--text-muted);">Ladataan galleriaa...</p>
                     </div>
 
@@ -82,7 +89,7 @@
 
                 <!-- Oikea: Perustiedot & CTA -->
                 <div>
-                    <div
+                    <div class="sticky-card"
                         style="background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 2.5rem; position: sticky; top: 6rem; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05);">
                         <h2 style="font-size: 1.25rem; margin-bottom: 1.5rem;">Kohde lyhyesti</h2>
 

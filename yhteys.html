@@ -18,8 +18,15 @@
 <body>
 
     <header class="site-header">
-        <div class="container header-inner">
+        <div class="container header-inner" style="display: flex; justify-content: space-between; align-items: center;">
             <a href="index.html" class="logo">Valttikodit</a>
+
+            <button class="mobile-menu-btn" aria-label="Avaa valikko">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
+
             <nav class="nav-links">
                 <a href="kohteet.html">Myytävät kohteet</a>
                 <a href="valtti-tapa.html">Tarinamme</a>
@@ -30,7 +37,7 @@
 
     <main>
         <div class="container" style="padding: 4rem 1.5rem;">
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 4rem;">
+            <div class="grid-form">
 
                 <!-- Yhteystiedot -->
                 <div>
