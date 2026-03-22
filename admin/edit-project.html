@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="fi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Muokkaa: Kotiranta | Valttikodit Admin</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/admin.css">
+    <!-- Supabase CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body class="admin-layout">
+
+    <aside class="admin-sidebar" id="sidebar">
+        <div class="admin-brand">Valttikodit Admin</div>
+        <nav class="admin-nav">
+            <a href="dashboard.html">Dashboard</a>
+            <a href="projects.html" class="active">Kohteet</a>
+            <a href="#">Referenssit</a>
+            <a href="#">Sivut</a>
+            <a href="#">Liidit</a>
+            <a href="#">Asetukset</a>
+        </nav>
+        <div style="padding: 1rem; border-top: 1px solid var(--border);">
+            <div
+                style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">
+                admin@valttikodit.local</div>
+            <a href="index.html" style="color: red; font-size: 0.875rem; font-weight: 500;">Kirjaudu ulos</a>
+        </div>
+    </aside>
+
+    <main class="admin-main">
+        <div style="margin-bottom: 2rem;">
+            <a href="projects.html" style="font-size: 0.875rem; color: var(--text-muted); text-decoration: none;">&larr;
+                Takaisin kohteisiin</a>
+            <h1 style="font-size: 1.875rem; margin-top: 0.5rem;">Muokkaa kohdetta</h1>
+        </div>
+
+        <div class="admin-card" style="max-width: 800px;">
+            <form id="edit-project-form">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                    <div class="form-group mb-0">
+                        <label class="form-label">Otsikko</label>
+                        <input type="text" class="form-input" value="As Oy Limingan Kotiranta">
+                    </div>
+                    <div class="form-group mb-0">
+                        <label class="form-label">Polkutunniste (URL, esim. kotiranta.html)</label>
+                        <input type="text" class="form-input" value="kotiranta">
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                    <div class="form-group mb-0">
+                        <label class="form-label">Sijaintikunta</label>
+                        <input type="text" class="form-input" value="Liminka">
+                    </div>
+                    <div class="form-group mb-0">
+                        <label class="form-label">Tarkka osoite</label>
+                        <input type="text" class="form-input" value="Sudenkorento 6, 91900 Liminka">
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                    <div class="form-group mb-0">
+                        <label class="form-label">Asuinpinta-ala (m²)</label>
+                        <input type="text" class="form-input" value="82,5">
+                    </div>
+                    <div class="form-group mb-0">
+                        <label class="form-label">Muut tilat (m²)</label>
+                        <input type="text" class="form-input" value="2,5">
+                    </div>
+                    <div class="form-group mb-0">
+                        <label class="form-label">Tyyppi</label>
+                        <input type="text" class="form-input" value="Erillistalo">
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                    <div class="form-group mb-0">
+                        <label class="form-label">Hinta (€)</label>
+                        <input type="text" class="form-input" value="249000">
+                    </div>
+                    <div class="form-group mb-0">
+                        <label class="form-label">Tila</label>
+                        <select class="form-input">
+                            <option value="MARKETING" selected>Ennakkomarkkinointi</option>
+                            <option value="AVAILABLE">Myynnissä</option>
+                            <option value="CONSTRUCTION">Rakenteilla</option>
+                            <option value="SOLD">Myyty</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Huonejako</label>
+                    <input type="text" class="form-input" value="4h+k+kph+s+vh+khh+var">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Ingressi (Alaotsikko/esittelyteksti URL-korttiin)</label>
+                    <textarea class="form-input" rows="2">Liminka • Erillistalo • 82,5 m² • A vapaa, B myyty!</textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Täysi kuvausteksti (HTML tuettu)</label>
+                    <textarea class="form-input"
+                        rows="4">Limingan Kotirantaan rakentuva kohde koostuu kahdesta erillistalosta ja samankokoisesta tontista. Puurakenteisen kodin suunnittelussa on tehty kestäviä ja laadukkaita valintoja... Tontti rajautuu kahdelta sivulta puistokaistaan ja yhdeltä sivulta metsään.</textarea>
+                </div>
+
+                <!-- Kartta ja Sijainti -->
+                <h3
+                    style="margin-top: 3rem; margin-bottom: 1.5rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border);">
+                    Sijainti ja Kartta</h3>
+                <div class="form-group">
+                    <label class="form-label">Sijainnin otsikko</label>
+                    <input type="text" class="form-input"
+                        value="Rauhallinen sijainti Limingan pientalovaltaisella asuinalueella.">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Sijainnin kuvaus</label>
+                    <textarea class="form-input"
+                        rows="3">Tontti on erityisellä alueella koska tontti rajautuu kahdelta sivulta puistokaistaan ja yhdeltä sivulta metsään. Kotiranta on omakotiasumisen unelmakohde keskellä kaunista maaseutua, mutta samalla aivan Limingan keskustan palveluiden äärellä. Kotiranta tarjoaa omakotiasujalle erinomaiset tontit, joista pääsee suoraan luontopoluille ja hiihtomaan.</textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Google Maps Embed HTML (iframe src -urli)</label>
+                    <textarea class="form-input" rows="2"
+                        style="font-family: monospace; font-size: 0.75rem;">https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1712.5971946002772!2d25.3957!3d64.8143!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4681cf43d9ec6b09%3A0xe549bd8b57bd1931!2sSudenkorento%206%2C%2091900%20Liminka!5e0!3m2!1sfi!2sfi!4v1709214713781!5m2!1sfi!2sfi</textarea>
+                </div>
+
+                <!-- Perustiedot taulukot -->
+                <h3
+                    style="margin-top: 3rem; margin-bottom: 1.5rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border);">
+                    Asunnon perustiedot (Taulukko)</h3>
+
+                <h4 style="margin-bottom: 1rem; color: var(--text-muted); font-size: 1rem;">Perustiedot</h4>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                    <div class="form-group mb-0"><label class="form-label">Tyyppi</label><input type="text"
+                            class="form-input" value="Erillistalo (kiinteistö)"></div>
+                    <div class="form-group mb-0"><label class="form-label">Omistusmuoto</label><input type="text"
+                            class="form-input" value="Omistusasunto"></div>
+                    <div class="form-group mb-0"><label class="form-label">Huoneistoselitelmä</label><input type="text"
+                            class="form-input" value="4h + k + kph + s + vh + khh + var"></div>
+                    <div class="form-group mb-0"><label class="form-label">Huoneita</label><input type="text"
+                            class="form-input" value="4 huonetta"></div>
+                    <div class="form-group mb-0"><label class="form-label">Asuintilojen pinta-ala</label><input
+                            type="text" class="form-input" value="82,5 m²"></div>
+                    <div class="form-group mb-0"><label class="form-label">Muiden tilojen pinta-ala</label><input
+                            type="text" class="form-input" value="2,5 m²"></div>
+                    <div class="form-group mb-0"><label class="form-label">Kokonaispinta-ala</label><input type="text"
+                            class="form-input" value="85,0 m²"></div>
+                    <div class="form-group mb-0"><label class="form-label">Asuinkerrosten määrä</label><input
+                            type="text" class="form-input" value="1"></div>
+                    <div class="form-group mb-0"><label class="form-label">Rakennusvuosi</label><input type="text"
+                            class="form-input" value="2026"></div>
+                    <div class="form-group mb-0"><label class="form-label">Vapautuminen</label><input type="text"
+                            class="form-input" value="Sopimuksen mukaan."></div>
+                </div>
+
+                <h4 style="margin-bottom: 1rem; color: var(--text-muted); font-size: 1rem;">Lisätiedot</h4>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                    <div class="form-group mb-0"><label class="form-label">Sauna</label><input type="text"
+                            class="form-input" value="Kyllä"></div>
+                    <div class="form-group mb-0"><label class="form-label">Asuntoon kuuluu</label><input type="text"
+                            class="form-input" value="Varasto"></div>
+                    <div class="form-group mb-0"><label class="form-label">Kohteen lisätiedot</label><input type="text"
+                            class="form-input" value="Asunnossa on terassi"></div>
+                    <div class="form-group mb-0"><label class="form-label">Asunnon kunto</label><input type="text"
+                            class="form-input" value="Uusi"></div>
+                    <div class="form-group mb-0"><label class="form-label">Lisätietoa kunnosta</label><input type="text"
+                            class="form-input" value="Uudisrakennus"></div>
+                    <div class="form-group mb-0"><label class="form-label">Energialuokka</label><input type="text"
+                            class="form-input" value="A (2018)"></div>
+                    <div class="form-group mb-0"><label class="form-label">Vesijohto</label><input type="text"
+                            class="form-input" value="Kunnan vesijohto"></div>
+                </div>
+
+                <h4 style="margin-bottom: 1rem; color: var(--text-muted); font-size: 1rem;">Asunnon tilat ja materiaalit
+                </h4>
+                <div style="display: grid; grid-template-columns: 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                    <div class="form-group mb-0"><label class="form-label">Rakennus- ja pintamateriaalit</label><input
+                            type="text" class="form-input" value="Pääasiallinen rakennusmateriaali: Puu"></div>
+                    <div class="form-group mb-0"><label class="form-label">Keittiön kuvaus</label><input type="text"
+                            class="form-input"
+                            value="Seinämateriaalit: Maalattu seinä. Varusteet: Jääkaappi, Pakastin, Astianpesukone. Työtaso: Laminaattitaso. Liesi: Induktioliesi, Erillisuuni. Liesituuletin">
+                    </div>
+                    <div class="form-group mb-0"><label class="form-label">Kylpyhuoneen kuvaus</label><input type="text"
+                            class="form-input" value="Seinämateriaali: Kaakeli/Laatta. Lattiamateriaali: Laattalattia.">
+                    </div>
+                    <div class="form-group mb-0"><label class="form-label">WC-tilojen kuvaus</label><input type="text"
+                            class="form-input"
+                            value="Seinämateriaali: Maalattu seinä. Lattiamateriaali: Laattalattia. Varusteet: Lattiaan asennettu WC, Bidee, Allaskaappi, Peili">
+                    </div>
+                    <div class="form-group mb-0"><label class="form-label">Saunan kuvaus</label><input type="text"
+                            class="form-input"
+                            value="Seinämateriaali: Paneeliseinä. Lattiamateriaali: Laattalattia. Varusteet: Sähkökiuas">
+                    </div>
+                    <div class="form-group mb-0"><label class="form-label">Kodinhoitohuoneen kuvaus</label><input
+                            type="text" class="form-input"
+                            value="Seinämateriaali: Maalattu seinä. Lattiamateriaali: Laattalattia. Varusteet: Pesukoneliitäntä, Pyykkikaapit, siivouskaappi. Lattiakaivo. Pöytätaso">
+                    </div>
+                    <div class="form-group mb-0"><label class="form-label">Olohuoneen kuvaus</label><input type="text"
+                            class="form-input"
+                            value="Lattiamateriaalit perusvalinta laminaatti tai asiakkaan valinnan mukaan. Maalatut seinät. Katto MDF-paneelia.">
+                    </div>
+                    <div class="form-group mb-0"><label class="form-label">Muiden huoneiden kuvaus</label><input
+                            type="text" class="form-input"
+                            value="Lattiamateriaalit perusvalinta laminaatti tai asiakkaan valinnan mukaan. Maalatut seinät. Katto MDF-paneelia.">
+                    </div>
+                </div>
+
+                <h4 style="margin-bottom: 1rem; color: var(--text-muted); font-size: 1rem;">Asunnon tontti</h4>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                    <div class="form-group mb-0"><label class="form-label">Tontin omistus</label><input type="text"
+                            class="form-input" value="Vuokra"></div>
+                    <div class="form-group mb-0"><label class="form-label">Kiinteistötunnus</label><input type="text"
+                            class="form-input" value="425-402-8-115"></div>
+                    <div class="form-group mb-0"><label class="form-label">Tontin pinta-ala</label><input type="text"
+                            class="form-input" value="1 380 m²"></div>
+                    <div class="form-group mb-0"><label class="form-label">Rakennusoikeuden pinta-ala</label><input
+                            type="text" class="form-input" value="245 m²"></div>
+                    <div class="form-group mb-0"><label class="form-label">Tontin vuokraaja</label><input type="text"
+                            class="form-input" value="Limingan kunta"></div>
+                    <div class="form-group mb-0"><label class="form-label">Tontin vuokra</label><input type="text"
+                            class="form-input" value="1 159,20 € / vuosi"></div>
+                    <div class="form-group mb-0" style="grid-column: span 2;"><label class="form-label">Lisätietoja
+                            tontista</label><textarea class="form-input"
+                            rows="2">Asuntojen tontin hallinta-alue on molemmilla asunnoilla 690m2.</textarea></div>
+                </div>
+
+                <!-- Kuvien hallinta -->
+                <h3
+                    style="margin-top: 3rem; margin-bottom: 1.5rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border);">
+                    Kuvien hallinta</h3>
+
+                <div class="form-group">
+                    <label class="form-label">Pääkuva (Hero-tausta ja listauskortit)</label>
+                    <div style="display: flex; align-items: flex-start; gap: 1rem; flex-wrap: wrap;">
+                        <img src="../assets/img/Kotiranta_olohuone.jpeg"
+                            style="width: 160px; height: 100px; object-fit: cover; border-radius: 4px; border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                        <div style="flex: 1; min-width: 200px;">
+                            <input type="file" class="form-input mb-2" accept="image/*">
+                            <button type="button" class="btn btn-outline"
+                                style="font-size: 0.875rem; padding: 0.5rem 1rem;">Lataa uusi pääkuva</button>
+                            <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem;">Suositeltu
+                                koko: 1920x1080px (Kuvasuhde 16:9)</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-top: 2rem;">
+                    <label class="form-label">Kuvagalleria & Järjestys</label>
+                    <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 1rem;">Raahaa kuvioita
+                        muuttaaksesi järjestystä. Nämä kuvat näytetään kohdesivun 'Kuvagalleria' -osiossa.</p>
+
+                    <div
+                        style="border: 1px solid var(--border); border-radius: 4px; background: #fafafa; padding: 1rem;">
+
+                        <!-- Drag-n-drop tyylinen mock -->
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; padding: 0.5rem; background: white; border: 1px solid var(--border); margin-bottom: 0.5rem; border-radius: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+                            <div style="display: flex; align-items: center; gap: 1rem;">
+                                <span
+                                    style="color: var(--text-muted); cursor: grab; font-size: 1.25rem;">&#x2630;</span>
+                                <img src="../assets/img/Kotiranta_etu.jpeg"
+                                    style="width: 60px; height: 40px; object-fit: cover; border-radius: 2px;">
+                                <span style="font-size: 0.875rem; font-weight: 500;">Olohuone & Keittiö</span>
+                            </div>
+                            <button type="button"
+                                style="color: #ef4444; border: none; background: none; cursor: pointer; font-size: 0.875rem; font-weight: 600;">Poista</button>
+                        </div>
+
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; padding: 0.5rem; background: white; border: 1px solid var(--border); margin-bottom: 0.5rem; border-radius: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+                            <div style="display: flex; align-items: center; gap: 1rem;">
+                                <span
+                                    style="color: var(--text-muted); cursor: grab; font-size: 1.25rem;">&#x2630;</span>
+                                <img src="../assets/img/Kotiranta_olohuone.jpeg"
+                                    style="width: 60px; height: 40px; object-fit: cover; border-radius: 2px;">
+                                <span style="font-size: 0.875rem; font-weight: 500;">Takkahuone fiilis</span>
+                            </div>
+                            <button type="button"
+                                style="color: #ef4444; border: none; background: none; cursor: pointer; font-size: 0.875rem; font-weight: 600;">Poista</button>
+                        </div>
+
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; padding: 0.5rem; background: white; border: 1px solid var(--border); margin-bottom: 0.5rem; border-radius: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+                            <div style="display: flex; align-items: center; gap: 1rem;">
+                                <span
+                                    style="color: var(--text-muted); cursor: grab; font-size: 1.25rem;">&#x2630;</span>
+                                <img src="../assets/img/Kotiranta_keittio.jpeg"
+                                    style="width: 60px; height: 40px; object-fit: cover; border-radius: 2px;">
+                                <span style="font-size: 0.875rem; font-weight: 500;">Keittiö</span>
+                            </div>
+                            <button type="button"
+                                style="color: #ef4444; border: none; background: none; cursor: pointer; font-size: 0.875rem; font-weight: 600;">Poista</button>
+                        </div>
+
+                        <div
+                            style="margin-top: 1rem; padding-top: 1rem; border-top: 1px dashed #d1d5db; display: flex; align-items: center; gap: 1rem;">
+                            <input type="file" class="form-input" style="flex: 1;" accept="image/*" multiple>
+                            <button type="button" class="btn btn-outline">+ Lisää kuvia galleriaan</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div
+                    style="display: flex; align-items: center; margin-top: 2rem; margin-bottom: 2rem; padding: 1rem; background: #f3f4f6; border-radius: 4px;">
+                    <input type="checkbox" id="published" checked
+                        style="margin-right: 0.5rem; width: 1.25rem; height: 1.25rem;">
+                    <label for="published" style="font-weight: 500;">Julkaistu (Näkyy julkisilla sivuilla)</label>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; gap: 1rem;">
+                    <button type="button" class="btn btn-outline"
+                        onclick="window.location.href='projects.html'">Peruuta</button>
+                    <button type="button" class="btn btn-primary"
+                        onclick="alert('Tallennus simuloitu onnistuneesti! Supabase käytössä tämä päivittäisi kannan ja julkaisisi JSON payloadin julkiselle SPA:lle/staattiselle kääntäjälle.')">Tallenna
+                        muutokset</button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <script type="module" src="../assets/js/admin.js"></script>
+</body>
+
+</html>

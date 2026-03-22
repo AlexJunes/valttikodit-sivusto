@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="fi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Myytävät kohteet | Valttikodit</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <!-- Supabase CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body>
+
+    <header class="site-header">
+        <div class="container header-inner">
+            <a href="index.html" class="logo">Valttikodit</a>
+            <nav class="nav-links">
+                <a href="kohteet.html" style="color: var(--primary); font-weight: 600;">Myytävät kohteet</a>
+                <a href="valtti-tapa.html">Tarinamme</a>
+                <a href="yhteys.html">Ota yhteyttä</a>
+            </nav>
+            <a href="yhteys.html" class="btn btn-primary d-none md-block">Ota yhteyttä</a>
+        </div>
+    </header>
+
+    <main>
+        <div class="container" style="padding: 4rem 1.5rem;">
+            <h1 style="margin-bottom: 1rem;">Myytävät kohteet</h1>
+            <p class="lead mb-8">
+                Tutustu uusiin ja rakenteilla oleviin Valttikoteihin. Varaamalla ajoissa varmistat
+                rakentamisen aloituksen ja pääset vaikuttamaan tulevan kotisi sisustukseen.
+            </p>
+
+            <div class="card-grid" id="project-list">
+                <!-- Dynaamiset kohteet haetaan Supabasesta (main.js) -->
+                <p>Ladataan kohteita...</p>
+            </div>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container">
+            <div
+                style="border-top: 1px solid var(--border); padding-top: 1.5rem; font-size: 0.75rem; color: var(--text-muted); display: flex; justify-content: space-between;">
+                <span>© 2026 Valttikodit Oy</span>
+            </div>
+        </div>
+    </footer>
+
+    <script type="module" src="assets/js/main.js"></script>
+</body>
+
+</html>

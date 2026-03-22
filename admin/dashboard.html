@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="fi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | Valttikodit</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/admin.css">
+    <!-- Supabase CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body class="admin-layout">
+
+    <aside class="admin-sidebar" id="sidebar">
+        <!-- Renderöidään JS:llä ylläpidon puolella tai suoraan HTMlL:ssä. Tässä suoraan HTML lokaalin yksinkertaisuuden vuoksi -->
+        <div class="admin-brand">Valttikodit Admin</div>
+        <nav class="admin-nav">
+            <a href="dashboard.html" class="active">Dashboard</a>
+            <a href="projects.html">Kohteet</a>
+            <a href="#">Referenssit</a>
+            <a href="#">Sivut</a>
+            <a href="#">Liidit</a>
+            <a href="#">Asetukset</a>
+        </nav>
+        <div style="padding: 1rem; border-top: 1px solid var(--border);">
+            <div
+                style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">
+                admin@valttikodit.local</div>
+            <a href="index.html" style="color: red; font-size: 0.875rem; font-weight: 500;">Kirjaudu ulos</a>
+        </div>
+    </aside>
+
+    <main class="admin-main">
+        <h1 style="font-size: 1.875rem; margin-bottom: 2rem;">Dashboard</h1>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
+            <div class="admin-card">
+                <h3 style="font-size: 1.125rem; font-weight: 500; margin-bottom: 0.5rem; color: var(--text-muted);">
+                    Myytävät kohteet</h3>
+                <p style="font-size: 2.25rem; font-weight: 700;">12</p>
+            </div>
+            <div class="admin-card" style="border-left: 4px solid var(--primary);">
+                <h3 style="font-size: 1.125rem; font-weight: 500; margin-bottom: 0.5rem; color: var(--text-muted);">
+                    Uudet liidit</h3>
+                <p style="font-size: 2.25rem; font-weight: 700;">5</p>
+                <a href="#" style="font-size: 0.875rem; margin-top: 1rem; display: inline-block;">Käsittele &rarr;</a>
+            </div>
+            <div class="admin-card">
+                <h3 style="font-size: 1.125rem; font-weight: 500; margin-bottom: 0.5rem; color: var(--text-muted);">
+                    Sivukatselut (7 pv)</h3>
+                <p style="font-size: 2.25rem; font-weight: 700;">4 213</p>
+            </div>
+        </div>
+    </main>
+
+    <script type="module" src="../assets/js/admin.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="fi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Muokkaa: Kotiranta | Valttikodit Admin</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/admin.css">
+    <!-- Supabase CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body class="admin-layout">
+
+    <aside class="admin-sidebar" id="sidebar">
+        <div class="admin-brand">Valttikodit Admin</div>
+        <nav class="admin-nav">
+            <a href="dashboard.html">Dashboard</a>
+            <a href="projects.html">Kohteet</a>
+            <a href="#" class="active">Sivut</a>
+            <a href="#">Referenssit</a>
+            <a href="#">Liidit</a>
+            <a href="#">Asetukset</a>
+        </nav>
+        <div style="padding: 1rem; border-top: 1px solid var(--border);">
+            <div
+                style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">
+                admin@valttikodit.local</div>
+            <a href="index.html" style="color: red; font-size: 0.875rem; font-weight: 500;">Kirjaudu ulos</a>
+        </div>
+    </aside>
+
+    <main class="admin-main">
+        <div style="margin-bottom: 2rem;">
+            <a href="dashboard.html"
+                style="font-size: 0.875rem; color: var(--text-muted); text-decoration: none;">&larr; Takaisin
+                pages-listaan</a>
+            <h1 style="font-size: 1.875rem; margin-top: 0.5rem;">Sivun muokkaus: Etusivu</h1>
+        </div>
+
+        <div class="admin-card" style="max-width: 800px;">
+            <form id="edit-project-form">
+                <!-- 1. HERO -->
+                <h3 style="margin-bottom: 1.5rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border);">1.
+                    Pääkuva ja Otsikko (Hero)</h3>
+
+                <div class="form-group">
+                    <label class="form-label">Hero Taustakuva</label>
+                    <div style="display: flex; align-items: flex-start; gap: 1rem;">
+                        <img src="../assets/img/hero-bg.jpg"
+                            style="width: 160px; height: 100px; object-fit: cover; border-radius: 4px; border: 1px solid var(--border);">
+                        <div>
+                            <input type="file" class="form-input mb-2" accept="image/*">
+                            <button type="button" class="btn btn-outline"
+                                style="font-size: 0.875rem; padding: 0.5rem 1rem;">Päivitä taustakuva</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Hero Otsikko (HTML rivinvaihdot `<br>` sallittu)</label>
+                    <input type="text" class="form-input" value="Enemmän kuin talo.<br>Hyvinvointisi perusta.">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Hero Alaotsikko</label>
+                    <textarea class="form-input"
+                        rows="2">Rakennamme laadukkaita, kustannustehokkaita ja tyylikkäistä skandinaavisia koteja elämän kaikkiin vaiheisiin.</textarea>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                    <div class="form-group mb-0">
+                        <label class="form-label">CTA Nappi 1: Teksti</label>
+                        <input type="text" class="form-input" value="KATSO MYYTÄVÄT KOHTEET">
+                    </div>
+                </div>
+
+                <!-- 2. KOTI ON TUNNE -->
+                <h3
+                    style="margin-top: 3rem; margin-bottom: 1.5rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border);">
+                    2. Koti on tunne -osio</h3>
+
+                <div class="form-group">
+                    <label class="form-label">Muut osion tekstit</label>
+                    <div style="display: grid; gap: 1rem;">
+                        <input type="text" class="form-input" value="Koti on tunne." placeholder="Pääotsikko">
+                        <textarea class="form-input" rows="2"
+                            placeholder="Leipäteksti">Se on paikka, jossa hengähdät syvään. Valttikodit suunnitellaan todellista elämää varten.</textarea>
+                        <textarea class="form-input" rows="2"
+                            placeholder="Lainaus">"Emme rakenna vain neliöitä, vaan puitteet hyvälle elämälle."</textarea>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Osion Kuva</label>
+                    <div style="display: flex; align-items: flex-start; gap: 1rem;">
+                        <img src="../assets/img/intro-image.jpg"
+                            style="width: 100px; height: 100px; object-fit: cover; border-radius: 4px; border: 1px solid var(--border);">
+                        <div>
+                            <input type="file" class="form-input mb-2" accept="image/*">
+                            <button type="button" class="btn btn-outline"
+                                style="font-size: 0.875rem; padding: 0.5rem 1rem;">Päivitä kuva</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. KESTÄVÄ ASUMINEN -->
+                <h3
+                    style="margin-top: 3rem; margin-bottom: 1.5rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border);">
+                    3. Palvelut / Kestävä asuminen</h3>
+
+                <div class="form-group">
+                    <label class="form-label">Pääotsikko ja johdanto</label>
+                    <input type="text" class="form-input mb-2" value="Lähtökohtana kestävä asuminen">
+                    <textarea class="form-input"
+                        rows="3">Haluamme suunnitella ja toteuttaa kauniita ja fiksuja pientaloja joihin asiakkaalla on varaa ja asumiskulujen jälkeen jää enemmän rahaa muuhun elämiseen. Asuttavuus ja asiakaslähtöisyys on toimintamme ytimessä.</textarea>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                    <!-- Card 1 -->
+                    <div
+                        style="background: #fafafa; padding: 1rem; border: 1px solid var(--border); border-radius: 4px;">
+                        <label class="form-label">Palvelu 1 Otsikko</label>
+                        <input type="text" class="form-input mb-2" value="Yksilöllinen Suunnittelu">
+                        <label class="form-label">Teksti</label>
+                        <textarea class="form-input"
+                            rows="3">Ammattilaiset muokkaavat mallistomme kodit tonttisi ja toiveidesi mukaan. Tai suunnittelemme täysin alusta.</textarea>
+                    </div>
+                    <!-- Card 2 -->
+                    <div
+                        style="background: #fafafa; padding: 1rem; border: 1px solid var(--border); border-radius: 4px;">
+                        <label class="form-label">Palvelu 2 Otsikko</label>
+                        <input type="text" class="form-input mb-2" value="Laadukas Rakentaminen">
+                        <label class="form-label">Teksti</label>
+                        <textarea class="form-input"
+                            rows="3">Omat, luotettavat asentajamme ja tarkoin valitut kumppanit takaavat teknisen laadun ja pysyvyyden.</textarea>
+                    </div>
+                    <!-- Card 3 -->
+                    <div
+                        style="background: #fafafa; padding: 1rem; border: 1px solid var(--border); border-radius: 4px;">
+                        <label class="form-label">Palvelu 3 Otsikko</label>
+                        <input type="text" class="form-input mb-2" value="Projektinjohto">
+                        <label class="form-label">Teksti</label>
+                        <textarea class="form-input"
+                            rows="3">Hoidamme luvat, kilpailutukset ja aikataulutuksen. Sinulle jää vain päätöksenteko ja uuteen kotiin muuton valmistelu.</textarea>
+                    </div>
+                </div>
+
+                <!-- 4. FOOTER / ALOITETAAN KESKUSTELU -->
+                <h3
+                    style="margin-top: 3rem; margin-bottom: 1.5rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border);">
+                    4. Ota yhteyttä -banneri (Footer)</h3>
+
+                <div class="form-group">
+                    <label class="form-label">Bannerin otsikko</label>
+                    <input type="text" class="form-input" value="Aloitetaan keskustelu">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Bannerin teksti</label>
+                    <textarea class="form-input"
+                        rows="2">Haluatko kuulla lisää? Lupaamme rennon jutteluhetken ilman myyntipuheita.</textarea>
+                </div>
+
+                <div
+                    style="display: flex; align-items: center; margin-top: 2rem; margin-bottom: 2rem; padding: 1rem; background: #f3f4f6; border-radius: 4px;">
+                    <input type="checkbox" id="published" checked
+                        style="margin-right: 0.5rem; width: 1.25rem; height: 1.25rem;">
+                    <label for="published" style="font-weight: 500;">Julkaistu (Näkyy julkisilla sivuilla)</label>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; gap: 1rem;">
+                    <button type="button" class="btn btn-outline"
+                        onclick="window.location.href='dashboard.html'">Peruuta</button>
+                    <button type="button" class="btn btn-primary"
+                        onclick="alert('Etusivun päivitys simuloitu onnistuneesti!')">Tallenna muutokset</button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <script type="module" src="../assets/js/admin.js"></script>
+</body>
+
+</html>

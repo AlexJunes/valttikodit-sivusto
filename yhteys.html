@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="fi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ota yhteyttä | Valttikodit</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+
+<body>
+
+    <header class="site-header">
+        <div class="container header-inner">
+            <a href="index.html" class="logo">Valttikodit</a>
+            <nav class="nav-links">
+                <a href="kohteet.html">Myytävät kohteet</a>
+                <a href="valtti-tapa.html">Tarinamme</a>
+                <a href="yhteys.html" style="color: var(--primary); font-weight: 600;">Ota yhteyttä</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="container" style="padding: 4rem 1.5rem;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 4rem;">
+
+                <!-- Yhteystiedot -->
+                <div>
+                    <h1 style="margin-bottom: 1rem;">Ota yhteyttä</h1>
+                    <p class="lead mb-8">
+                        Oletko kiinnostunut Valttikodeista? Jätä viesti tai soita meille,
+                        niin keskustellaan siitä, miten voimme auttaa asuntounelmiesi toteuttamisessa.
+                    </p>
+
+                    <div>
+                        <h3 style="margin-bottom: 0.5rem; font-size: 1.25rem;">Myynti ja tiedustelut</h3>
+                        <p style="color: var(--text-muted); line-height: 1.8;">
+                            Valttikodit Oy<br>
+                            Kotkansiipi 1<br>
+                            891900 Liminka
+                        </p>
+                        <p style="margin-top: 1rem; font-weight: 600;">
+                            <a href="mailto:info@valttikodit.fi" style="color: var(--primary);">info@valttikodit.fi</a>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Web3Forms lomake tai Supabase integrointi -->
+                <div
+                    style="background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 2rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
+                    <h2 style="font-size: 1.5rem; margin-bottom: 1.5rem;">Jätä yhteydenottopyyntö</h2>
+
+                    <form action="https://api.web3forms.com/submit" method="POST" id="contact-form">
+                        <!-- Tähän laitetaan asiakkaan Web3Forms ACCESS KEY (Placeholder nyt) -->
+                        <input type="hidden" name="access_key" value="YOUR_ACCESS_KEY_HERE">
+
+                        <!-- Pakollinen konfiguraatio -->
+                        <input type="hidden" name="subject" value="Uusi yhteydenottopyyntö Valttikodit sivuilta">
+                        <input type="hidden" name="redirect" value="https://valttikodit.fi/kiitos.html">
+
+                        <div class="form-group">
+                            <label for="name" class="form-label">Nimi *</label>
+                            <input type="text" id="name" name="name" class="form-input" required
+                                placeholder="Etu- ja sukunimi">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="email" class="form-label">Sähköposti *</label>
+                            <input type="email" id="email" name="email" class="form-input" required
+                                placeholder="matti@esimerkki.fi">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="phone" class="form-label">Puhelinnumero</label>
+                            <input type="tel" id="phone" name="phone" class="form-input" placeholder="040 123 4567">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="message" class="form-label">Viesti</label>
+                            <textarea id="message" name="message" class="form-input" rows="4"
+                                placeholder="Mistä kohteesta olet kiinnostunut?"></textarea>
+                        </div>
+
+                        <!-- Web3Forms Honeypot roskapostin estoon -->
+                        <input type="checkbox" name="botcheck" class="d-none" style="display: none;">
+
+                        <button type="submit" class="btn btn-primary" style="width: 100%;">Lähetä viesti</button>
+                        <p style="font-size: 0.75rem; color: var(--text-muted); text-align: center; margin-top: 1rem;">
+                            Lähettämällä lomakkeen hyväksyt tietosuojaselosteemme.
+                        </p>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container">
+            <div
+                style="border-top: 1px solid var(--border); padding-top: 1.5rem; font-size: 0.75rem; color: var(--text-muted); display: flex; justify-content: space-between;">
+                <span>© 2026 Valttikodit Oy</span>
+            </div>
+        </div>
+    </footer>
+
+</body>
+
+</html>

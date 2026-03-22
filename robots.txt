@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+Disallow: /admin/
+Disallow: /kiitos.html
+
+Sitemap: https://valttikodit.fi/sitemap.xml

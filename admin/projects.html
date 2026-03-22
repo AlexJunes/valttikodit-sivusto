@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="fi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kohteet Hallinta | Valttikodit Admin</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/admin.css">
+    <!-- Supabase CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body class="admin-layout">
+
+    <aside class="admin-sidebar" id="sidebar">
+        <div class="admin-brand">Valttikodit Admin</div>
+        <nav class="admin-nav">
+            <a href="dashboard.html">Dashboard</a>
+            <a href="projects.html" class="active">Kohteet</a>
+            <a href="#">Referenssit</a>
+            <a href="#">Sivut</a>
+            <a href="#">Liidit</a>
+            <a href="#">Asetukset</a>
+        </nav>
+        <div style="padding: 1rem; border-top: 1px solid var(--border);">
+            <div
+                style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">
+                admin@valttikodit.local</div>
+            <a href="index.html" style="color: red; font-size: 0.875rem; font-weight: 500;">Kirjaudu ulos</a>
+        </div>
+    </aside>
+
+    <main class="admin-main">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <h1 style="font-size: 1.875rem; margin-bottom: 0;">Kohteet</h1>
+            <button class="btn btn-primary" onclick="window.location.href='edit-project.html'">Lisää uusi kohde</button>
+        </div>
+
+        <div class="admin-card" style="padding: 0; overflow-x: auto;">
+            <table class="admin-table" id="projects-table">
+                <thead>
+                    <tr>
+                        <th>Otsikko</th>
+                        <th>Sijainti</th>
+                        <th>Tila</th>
+                        <th>Julkaistu</th>
+                        <th style="text-align: right;">Toiminnot</th>
+                    </tr>
+                </thead>
+                <tbody id="projects-tbody">
+                    <!-- Data haetaan admin.js kautta, tämä on staattinen placeholder -->
+                    <tr>
+                        <td style="font-weight: 500;">As Oy Limingan Kotiranta</td>
+                        <td>Liminka</td>
+                        <td><span
+                                style="background: var(--accent); padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem;">RAKENTEILLA</span>
+                        </td>
+                        <td><span style="color: green; font-weight: 600;">Kyllä</span></td>
+                        <td style="text-align: right;">
+                            <button class="btn btn-outline"
+                                style="padding: 0.25rem 0.75rem; font-size: 0.75rem;">Muokkaa</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <!-- JS Tila -->
+    <script type="module" src="../assets/js/admin.js"></script>
+    <script>
+        function openNewProjectModal() {
+            alert("Tässä avautuisi modal uuden kohteen luomiseksi tai siirtyminen /admin/new-project.html -näkymään. Supabasella tähän kytketään normaali HTML Form -> supabase.from('projects').insert(...)");
+        }
+    </script>
+</body>
+
+</html>
