@@ -3,11 +3,6 @@ const SUPABASE_URL = 'https://xbeonksexpjvekqjxoph.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_yfN0ScRrJr-P2Nfa8yRJRw_x_1RM9Tn';
 
 document.addEventListener('DOMContentLoaded', async () => {
-    if (!window.supabase) {
-        console.error("Supabase library not loaded.");
-        return;
-    }
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     const path = window.location.pathname;
 
     // --- BASIC STATIC AUTH CHECK ---
@@ -39,6 +34,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
     }
+
+    if (!window.supabase) {
+        console.error("Supabase library not loaded.");
+        return;
+    }
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     async function uploadToSupabaseStorage(file) {
         if (!file) return null;
