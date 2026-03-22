@@ -1,9 +1,13 @@
-import { config } from './config.js';
+// assets/js/admin.js
+const SUPABASE_URL = 'https://xbeonksexpjvekqjxoph.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_yfN0ScRrJr-P2Nfa8yRJRw_x_1RM9Tn';
 
 document.addEventListener('DOMContentLoaded', async () => {
-    const supabase = config.initSupabase();
-    if (!supabase) return;
-
+    if (!window.supabase) {
+        console.error("Supabase library not loaded.");
+        return;
+    }
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     const path = window.location.pathname;
 
     async function uploadToSupabaseStorage(file) {
@@ -93,76 +97,76 @@ document.addEventListener('DOMContentLoaded', async () => {
         const getVal = (index) => inputs[index] ? inputs[index].value : '';
         const setVal = (index, val) => { if(inputs[index]) inputs[index].value = val; };
 
-        // File inputs handling
         const fileInputs = editProjectForm.querySelectorAll('input[type="file"]');
         const heroInput = fileInputs[0];
         const galleryInput = editProjectForm.querySelector('input[type="file"][multiple]');
         
         let pendingHeroFile = null;
         let existingHeroUrl = '';
-        let currentGallery = []; // Array of objects: { url: string, file: File|null }
+        let currentGallery = [];
 
-        // UI Setup for Hero Image
-        const heroImgElement = heroInput.parentElement.parentElement.querySelector('img');
-        heroInput.addEventListener('change', (e) => {
-            if (e.target.files.length > 0) {
-                pendingHeroFile = e.target.files[0];
-                heroImgElement.src = URL.createObjectURL(pendingHeroFile);
-                heroImgElement.style.display = 'block';
-            }
-        });
+        const heroImgElement = heroInput ? heroInput.parentElement.parentElement.querySelector('img') : null;
+        if (heroInput && heroImgElement) {
+            heroInput.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    pendingHeroFile = e.target.files[0];
+                    heroImgElement.src = URL.createObjectURL(pendingHeroFile);
+                    heroImgElement.style.display = 'block';
+                }
+            });
+        }
 
-        // UI Setup for Gallery
-        const galleryParent = galleryInput.parentElement.parentElement;
-        galleryParent.querySelectorAll('div:not(:last-child)').forEach(mock => mock.remove());
-        
+        let renderGallery = () => {};
+        const galleryParent = galleryInput ? galleryInput.parentElement.parentElement : null;
         const dynamicGalleryContainer = document.createElement('div');
-        galleryParent.insertBefore(dynamicGalleryContainer, galleryParent.lastElementChild);
 
-        const renderGallery = () => {
-            dynamicGalleryContainer.innerHTML = '';
-            currentGallery.forEach((item, index) => {
-                const itemDiv = document.createElement('div');
-                itemDiv.style.cssText = "display: flex; justify-content: space-between; align-items: center; padding: 0.5rem; background: white; border: 1px solid var(--border); margin-bottom: 0.5rem; border-radius: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);";
-                itemDiv.innerHTML = `
-                    <div style="display: flex; align-items: center; gap: 1rem;">
-                        <img src="${item.url}" style="width: 60px; height: 40px; object-fit: cover; border-radius: 2px;">
-                        <span style="font-size: 0.875rem; font-weight: 500;">Kuva ${index + 1}</span>
-                        <button type="button" class="btn btn-outline mx-2" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;" onclick="moveItem(${index}, -1)">&#x25B2;</button>
-                        <button type="button" class="btn btn-outline" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;" onclick="moveItem(${index}, 1)">&#x25BC;</button>
-                    </div>
-                    <button type="button" style="color: #ef4444; border: none; background: none; cursor: pointer; font-size: 0.875rem; font-weight: 600;" onclick="removeItem(${index})">Poista</button>
-                `;
-                dynamicGalleryContainer.appendChild(itemDiv);
-            });
-        };
+        if (galleryInput && galleryParent) {
+            galleryParent.querySelectorAll('div:not(:last-child)').forEach(mock => mock.remove());
+            galleryParent.insertBefore(dynamicGalleryContainer, galleryParent.lastElementChild);
 
-        window.moveItem = (index, dir) => {
-            if (index + dir >= 0 && index + dir < currentGallery.length) {
-                const temp = currentGallery[index];
-                currentGallery[index] = currentGallery[index + dir];
-                currentGallery[index + dir] = temp;
-                renderGallery();
-            }
-        };
-
-        window.removeItem = (index) => {
-            currentGallery.splice(index, 1);
-            renderGallery();
-        };
-
-        galleryInput.addEventListener('change', (e) => {
-            Array.from(e.target.files).forEach(file => {
-                currentGallery.push({
-                    url: URL.createObjectURL(file), // Local preview
-                    file: file // Store explicitly to upload later
+            renderGallery = () => {
+                dynamicGalleryContainer.innerHTML = '';
+                currentGallery.forEach((item, index) => {
+                    const itemDiv = document.createElement('div');
+                    itemDiv.style.cssText = "display: flex; justify-content: space-between; align-items: center; padding: 0.5rem; background: white; border: 1px solid var(--border); margin-bottom: 0.5rem; border-radius: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);";
+                    itemDiv.innerHTML = `
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <img src="${item.url}" style="width: 60px; height: 40px; object-fit: cover; border-radius: 2px;">
+                            <span style="font-size: 0.875rem; font-weight: 500;">Kuva ${index + 1}</span>
+                            <button type="button" class="btn btn-outline mx-2" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;" onclick="moveItem(${index}, -1)">&#x25B2;</button>
+                            <button type="button" class="btn btn-outline" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;" onclick="moveItem(${index}, 1)">&#x25BC;</button>
+                        </div>
+                        <button type="button" style="color: #ef4444; border: none; background: none; cursor: pointer; font-size: 0.875rem; font-weight: 600;" onclick="removeItem(${index})">Poista</button>
+                    `;
+                    dynamicGalleryContainer.appendChild(itemDiv);
                 });
+            };
+
+            window.moveItem = (index, dir) => {
+                if (index + dir >= 0 && index + dir < currentGallery.length) {
+                    const temp = currentGallery[index];
+                    currentGallery[index] = currentGallery[index + dir];
+                    currentGallery[index + dir] = temp;
+                    renderGallery();
+                }
+            };
+
+            window.removeItem = (index) => {
+                currentGallery.splice(index, 1);
+                renderGallery();
+            };
+
+            galleryInput.addEventListener('change', (e) => {
+                Array.from(e.target.files).forEach(file => {
+                    currentGallery.push({
+                        url: URL.createObjectURL(file),
+                        file: file
+                    });
+                });
+                renderGallery();
             });
-            renderGallery();
-        });
+        }
 
-
-        // Clear text fields if new
         if (!projectId) {
             for(let i=0; i<15; i++) setVal(i, '');
         } else {
@@ -182,18 +186,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                     setVal(10, data.ingress || '');
                     setVal(11, data.description || '');
 
-                    if (data.hero_image) {
+                    if (data.hero_image && heroImgElement) {
                         existingHeroUrl = data.hero_image;
                         heroImgElement.src = existingHeroUrl;
                         heroImgElement.style.display = 'block';
                     }
 
                     if (data.gallery_images && Array.isArray(data.gallery_images)) {
-                        // DB returns URLs directly. Transform to our object representation
-                        currentGallery = data.gallery_images.map(url => ({
-                            url: url,
-                            file: null
-                        }));
+                        currentGallery = data.gallery_images.map(url => ({ url: url, file: null }));
                         renderGallery();
                     }
 
@@ -213,20 +213,17 @@ document.addEventListener('DOMContentLoaded', async () => {
                 saveBtn.disabled = true;
 
                 try {
-                    // Upload hero if altered
                     let finalHeroUrl = existingHeroUrl;
                     if (pendingHeroFile) {
                         finalHeroUrl = await uploadToSupabaseStorage(pendingHeroFile);
                     }
 
-                    // Upload gallery
                     const finalGallery = [];
                     for (const item of currentGallery) {
                         if (item.file) {
-                            const uploadedUrl = await uploadToSupabaseStorage(item.file);
-                            finalGallery.push(uploadedUrl);
+                            finalGallery.push(await uploadToSupabaseStorage(item.file));
                         } else {
-                            finalGallery.push(item.url); // already uploaded
+                            finalGallery.push(item.url);
                         }
                     }
 
@@ -271,48 +268,160 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    // --- EDIT-INDEX.HTML ---
-    if (path.includes('edit-index.html')) {
-        const editIndexForm = document.getElementById('edit-project-form');
-        if (editIndexForm) {
-            const fileInputs = editIndexForm.querySelectorAll('input[type="file"]');
+    // --- EDIT-PAGE.HTML (Dynamic CMS) ---
+    const editPageForm = document.getElementById('edit-page-form');
+    if (path.includes('edit-page.html') && editPageForm) {
+        const urlParams = new URLSearchParams(window.location.search);
+        const pageSlug = urlParams.get('slug');
+        if (!pageSlug) {
+            alert('Virheellinen sivu (slug puuttuu)');
+            window.location.href = 'pages.html';
+            return;
+        }
+
+        document.getElementById('page-title').textContent = 'Sivun muokkaus: ' + pageSlug;
+
+        const container = document.getElementById('dynamic-fields-container');
+        let currentContent = {};
+        let pendingFiles = {}; // Store Map of key -> File object for uploads
+
+        try {
+            // First, try loading existing from Supabase
+            const { data, error } = await supabase.from('pages').select('content').eq('slug', pageSlug).maybeSingle();
             
-            // Add preview listeners
-            fileInputs.forEach(input => {
-                input.addEventListener('change', (e) => {
-                    const imgPreview = input.parentElement.parentElement.querySelector('img');
-                    if (e.target.files.length > 0 && imgPreview) {
-                        imgPreview.src = URL.createObjectURL(e.target.files[0]);
+            const defaultSchemas = {
+                'index': {
+                    "Hero Taustakuva": "",
+                    "Hero Otsikko": "Enemmän kuin talo.",
+                    "Hero Teksti": "Rakennamme laadukkaita, kustannustehokkaita ja tyylikkäitä skandinaavisia koteja elämän kaikkiin vaiheisiin.",
+                    "Tunnelaatikko Otsikko": "Koti on tunne.",
+                    "Tunnelaatikko Teksti": "Se on paikka, jossa hengähdät syvään. Valttikodit suunnitellaan todellista elämää varten.",
+                    "Tunnelaatikko Lainaus": "Emme rakenna vain neliöitä, vaan puitteet hyvälle elämälle.",
+                    "Tunnelaatikko Kuva": "",
+                    "Palvelut Otsikko": "Lähtökohtana kestävä asuminen",
+                    "Palvelut Teksti": "Haluamme suunnitella ja toteuttaa kauniita ja fiksuja pientaloja...",
+                    "Palvelu 1 Otsikko": "Yksilöllinen Suunnittelu",
+                    "Palvelu 1 Teksti": "Ammattilaiset muokkaavat mallistomme kodit tonttisi ja toiveidesi mukaan.",
+                    "Palvelu 2 Otsikko": "Laadukas Rakentaminen",
+                    "Palvelu 2 Teksti": "Omat, luotettavat asentajamme ja tarkoin valitut kumppanit takaavat teknisen laadun ja pysyvyyden.",
+                    "Palvelu 3 Otsikko": "Projektinjohto",
+                    "Palvelu 3 Teksti": "Hoidamme luvat, kilpailutukset ja aikataulutuksen. Sinulle jää vain päätöksenteko.",
+                    "Kohteet Otsikko": "Myytävät kohteet",
+                    "Kohteet Teksti": "Löydä uusi kotisi huolella valituista kohteistamme.",
+                    "Keskustelu Otsikko": "Aloitetaan keskustelu",
+                    "Keskustelu Teksti": "Haluatko kuulla lisää? Lupaamme rennon jutteluhetken ilman myyntipuheita."
+                },
+                'valtti-tapa': {
+                    "Tarinamme Otsikko": "Valtti-tapa",
+                    "Tarinamme Ingressi": "Kotimme rakennetaan kestämään elämää, aikaa ja katseita...",
+                    "Ensimmäinen Otsikko": "Asiakaskeskeisyys",
+                    "Ensimmäinen Teksti": "Tavoitteenamme ei ole vain rakentaa taloa, vaan rakentaa koti juuri sinun tarpeisiisi...",
+                    "Toinen Otsikko": "Laatu ja Ekologisuus",
+                    "Toinen Teksti": "Hyödynnämme moderneja teknologioita ja ekologisia rakennustapoja...",
+                    "Kolmas Otsikko": "Turvallisuus",
+                    "Kolmas Teksti": "Olemme sitoutuneet laadukkaaseen rakentamiseen kaikissa vaiheissa..."
+                },
+                'yhteys': {
+                    "Otsikko": "Ota yhteyttä",
+                    "Kuvaus": "Oletko kiinnostunut Valttikodeista? Jätä viesti tai soita meille...",
+                    "Yhteystiedot Otsikko": "Myynti ja tiedustelut",
+                    "Osoite": "Valttikodit Oy\nKotkansiipi 18\n91900 Liminka",
+                    "Sähköposti": "info@valttikodit.fi",
+                    "Lomake Otsikko": "Jätä yhteydenottopyyntö"
+                }
+            };
+
+            const baseSchema = defaultSchemas[pageSlug] || {};
+
+            if (data && data.content && Object.keys(data.content).length > 0) {
+                // Yhdistetään tietokannan vanha data ja uudet HTML-puolella näkyvät kenttäavaimet.
+                currentContent = { ...baseSchema, ...data.content };
+            } else {
+                currentContent = baseSchema;
+                await supabase.from('pages').insert([{ slug: pageSlug, content: currentContent }]);
+            }
+            
+            container.innerHTML = '';
+            
+            // Build dynamic fields based on keys
+            Object.keys(currentContent).forEach(key => {
+                const val = currentContent[key] || '';
+                const isImage = key.toLowerCase().includes('kuva') || key.toLowerCase().includes('image') || val.startsWith('http');
+                const isLargeText = val.length > 50 || key.toLowerCase().includes('teksti');
+                
+                const group = document.createElement('div');
+                group.className = 'form-group mb-4';
+                group.innerHTML = `<label class="form-label">${key}</label>`;
+                
+                if (isImage) {
+                    group.innerHTML += `
+                        <div style="display: flex; align-items: flex-start; gap: 1rem;">
+                            <img src="${val}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 4px; border: 1px solid var(--border); ${!val && 'display:none;'}">
+                            <div>
+                                <input type="file" class="form-input mb-2 dynamic-file-input" data-key="${key}" accept="image/*">
+                            </div>
+                        </div>
+                    `;
+                } else if (isLargeText) {
+                    group.innerHTML += `<textarea class="form-input dynamic-text-input" data-key="${key}" rows="4">${val}</textarea>`;
+                } else {
+                    group.innerHTML += `<input type="text" class="form-input dynamic-text-input" data-key="${key}" value="${val}">`;
+                }
+                
+                container.appendChild(group);
+            });
+
+            // Attach listeners to file inputs for preview
+            container.querySelectorAll('.dynamic-file-input').forEach(fileInput => {
+                fileInput.addEventListener('change', (e) => {
+                    if (e.target.files.length > 0) {
+                        const file = e.target.files[0];
+                        pendingFiles[fileInput.dataset.key] = file;
+                        const imgEl = fileInput.parentElement.parentElement.querySelector('img');
+                        imgEl.src = URL.createObjectURL(file);
+                        imgEl.style.display = 'block';
                     }
                 });
             });
 
-            const saveBtn = editIndexForm.querySelector('.btn-primary');
-            if (saveBtn) {
-                saveBtn.onclick = async (e) => {
-                    e.preventDefault();
-                    saveBtn.textContent = 'Tallennetaan (Kuvat ladataan)...';
-                    saveBtn.disabled = true;
+        } catch(err) {
+            console.error(err);
+            container.innerHTML = '<p style="color:red;">Virhe ladattaessa sivun CMS tietoja.</p>';
+        }
 
-                    try {
-                        for (let input of fileInputs) {
-                            if (input.files.length > 0) {
-                                await uploadToSupabaseStorage(input.files[0]);
-                            }
+        const saveBtn = editPageForm.querySelector('#save-page-btn');
+        if (saveBtn) {
+            editPageForm.onsubmit = async (e) => {
+                e.preventDefault();
+                saveBtn.textContent = 'Tallennetaan...';
+                saveBtn.disabled = true;
+
+                try {
+                    // Update text values
+                    container.querySelectorAll('.dynamic-text-input').forEach(input => {
+                        currentContent[input.dataset.key] = input.value;
+                    });
+
+                    // Upload pending files
+                    for (const key of Object.keys(pendingFiles)) {
+                        const newUrl = await uploadToSupabaseStorage(pendingFiles[key]);
+                        if (newUrl) {
+                            currentContent[key] = newUrl;
                         }
-                        
-                        setTimeout(() => {
-                            alert('Etusivun sisällöt tallennettu onnistuneesti! (Kuvat ladattu)');
-                            saveBtn.textContent = 'Tallenna muutokset';
-                            saveBtn.disabled = false;
-                        }, 500);
-                    } catch(err) {
-                        alert('Tallennus epäonnistui: ' + err.message);
-                        saveBtn.textContent = 'Tallenna muutokset';
-                        saveBtn.disabled = false;
                     }
+
+                    const { error } = await supabase.from('pages').update({ content: currentContent }).eq('slug', pageSlug);
+                    if (error) throw error;
+
+                    alert('Sivun tiedot päivitetty onnistuneesti!');
+                    // window.location.href = 'pages.html'; // Optionally redirect
+                } catch(err) {
+                    alert('Tallennus epäonnistui: ' + err.message);
+                } finally {
+                    saveBtn.textContent = 'Tallenna muutokset';
+                    saveBtn.disabled = false;
                 }
-            }
+            };
         }
     }
 });

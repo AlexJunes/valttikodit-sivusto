@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sivut Hallinta | Valttikodit Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/admin.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="admin-layout">
+    <aside class="admin-sidebar" id="sidebar">
+        <div class="admin-brand">Valttikodit Admin</div>
+        <nav class="admin-nav">
+            <a href="dashboard.html">Dashboard</a>
+            <a href="projects.html">Kohteet</a>
+            <a href="pages.html" class="active">Sivut</a>
+        </nav>
+        <div style="padding: 1rem; border-top: 1px solid var(--border);">
+            <div style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">admin@valttikodit.local</div>
+            <a href="index.html" style="color: red; font-size: 0.875rem; font-weight: 500;">Kirjaudu ulos</a>
+        </div>
+    </aside>
+
+    <main class="admin-main">
+        <div style="margin-bottom: 2rem;">
+            <h1 style="font-size: 1.875rem; margin-bottom: 0;">Sivut</h1>
+            <p style="color: var(--text-muted); margin-top: 0.5rem;">Muokkaa julkisten sivujen tekstejä ja kuvia valitsemalla sivu alta.</p>
+        </div>
+
+        <div class="admin-card" style="padding: 0; overflow-x: auto;">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Sivun nimi</th>
+                        <th>Tunniste (Slug)</th>
+                        <th style="text-align: right;">Toiminnot</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="font-weight: 500;">Etusivu</td>
+                        <td>index</td>
+                        <td style="text-align: right;">
+                            <a href="edit-page.html?slug=index" class="btn btn-outline" style="padding: 0.25rem 0.75rem; font-size: 0.75rem; text-decoration: none;">Muokkaa</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: 500;">Tarinamme</td>
+                        <td>valtti-tapa</td>
+                        <td style="text-align: right;">
+                            <a href="edit-page.html?slug=valtti-tapa" class="btn btn-outline" style="padding: 0.25rem 0.75rem; font-size: 0.75rem; text-decoration: none;">Muokkaa</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: 500;">Ota yhteyttä</td>
+                        <td>yhteys</td>
+                        <td style="text-align: right;">
+                            <a href="edit-page.html?slug=yhteys" class="btn btn-outline" style="padding: 0.25rem 0.75rem; font-size: 0.75rem; text-decoration: none;">Muokkaa</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <!-- Changed from type=module to avoid local CORS issues! -->
+    <script src="../assets/js/admin.js"></script>
+</body>
+</html>

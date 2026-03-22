@@ -10,6 +10,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/style.css">
+    
+    <!-- Supabase JS needed for rendering public pages dynamically -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
 <body>
@@ -31,21 +34,21 @@
 
                 <!-- Yhteystiedot -->
                 <div>
-                    <h1 style="margin-bottom: 1rem;">Ota yhteyttä</h1>
-                    <p class="lead mb-8">
+                    <h1 style="margin-bottom: 1rem;" data-cms="Otsikko">Ota yhteyttä</h1>
+                    <p class="lead mb-8" data-cms="Kuvaus">
                         Oletko kiinnostunut Valttikodeista? Jätä viesti tai soita meille,
                         niin keskustellaan siitä, miten voimme auttaa asuntounelmiesi toteuttamisessa.
                     </p>
 
                     <div>
-                        <h3 style="margin-bottom: 0.5rem; font-size: 1.25rem;">Myynti ja tiedustelut</h3>
-                        <p style="color: var(--text-muted); line-height: 1.8;">
+                        <h3 style="margin-bottom: 0.5rem; font-size: 1.25rem;" data-cms="Yhteystiedot Otsikko">Myynti ja tiedustelut</h3>
+                        <p style="color: var(--text-muted); line-height: 1.8;" data-cms="Osoite">
                             Valttikodit Oy<br>
-                            Kotkansiipi 1<br>
-                            891900 Liminka
+                            Kotkansiipi 18<br>
+                            91900 Liminka
                         </p>
                         <p style="margin-top: 1rem; font-weight: 600;">
-                            <a href="mailto:info@valttikodit.fi" style="color: var(--primary);">info@valttikodit.fi</a>
+                            <a href="mailto:info@valttikodit.fi" style="color: var(--primary);" data-cms="Sähköposti">info@valttikodit.fi</a>
                         </p>
                     </div>
                 </div>
@@ -53,11 +56,11 @@
                 <!-- Web3Forms lomake tai Supabase integrointi -->
                 <div
                     style="background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 2rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
-                    <h2 style="font-size: 1.5rem; margin-bottom: 1.5rem;">Jätä yhteydenottopyyntö</h2>
+                    <h2 style="font-size: 1.5rem; margin-bottom: 1.5rem;" data-cms="Lomake Otsikko">Jätä yhteydenottopyyntö</h2>
 
                     <form action="https://api.web3forms.com/submit" method="POST" id="contact-form">
                         <!-- Tähän laitetaan asiakkaan Web3Forms ACCESS KEY (Placeholder nyt) -->
-                        <input type="hidden" name="access_key" value="YOUR_ACCESS_KEY_HERE">
+                        <input type="hidden" name="access_key" value="fa637672-a5ba-4717-8464-d1d29719c87b">
 
                         <!-- Pakollinen konfiguraatio -->
                         <input type="hidden" name="subject" value="Uusi yhteydenottopyyntö Valttikodit sivuilta">
@@ -109,6 +112,8 @@
         </div>
     </footer>
 
+    <!-- JS muutettu ei-moduuliksi (CORS-korjaus) -->
+    <script src="assets/js/main.js"></script>
 </body>
 
 </html>

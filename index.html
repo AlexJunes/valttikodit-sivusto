@@ -20,6 +20,9 @@
     <meta property="og:title" content="Valttikodit | Enemmän kuin talo.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://valttikodit.fi">
+
+    <!-- Supabase JS needed for rendering public pages dynamically -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
 <body>
@@ -38,14 +41,14 @@
 
     <main>
         <!-- 1. Hero Section -->
-        <section class="hero"
+        <section class="hero" data-cms="Hero Taustakuva"
             style="background-image: url('assets/img/hero-bg.jpg'); background-size: cover; background-position: center;">
             <div class="hero-bg" style="background-color: rgba(253, 251, 251, 0.45); backdrop-filter: blur(2px);"></div>
             <div class="container hero-content"
                 style="text-align: center; max-width: 900px; margin: 0 auto; color: var(--text-color);">
-                <h1 style="margin-bottom: 1.5rem; text-shadow: 0 2px 10px rgba(255,255,255,0.8);">Enemmän kuin
+                <h1 style="margin-bottom: 1.5rem; text-shadow: 0 2px 10px rgba(255,255,255,0.8);" data-cms="Hero Otsikko">Enemmän kuin
                     talo.<br>Hyvinvointisi perusta.</h1>
-                <p class="lead mb-8"
+                <p class="lead mb-8" data-cms="Hero Teksti"
                     style="margin-left: auto; margin-right: auto; color: var(--text-color); font-weight: 500; font-size: 1.25rem; text-shadow: 0 1px 5px rgba(255,255,255,0.9);">
                     Rakennamme laadukkaita, kustannustehokkaita ja tyylikkäistä skandinaavisia koteja elämän kaikkiin
                     vaiheisiin.
@@ -62,17 +65,17 @@
             <div class="container"
                 style="display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center;">
                 <div>
-                    <h2 style="font-size: 3rem; margin-bottom: 1.5rem; letter-spacing: -0.02em;">Koti on tunne.</h2>
-                    <p style="font-size: 1.25rem; color: var(--text-muted); margin-bottom: 2rem; line-height: 1.8;">
+                    <h2 style="font-size: 3rem; margin-bottom: 1.5rem; letter-spacing: -0.02em;" data-cms="Tunnelaatikko Otsikko">Koti on tunne.</h2>
+                    <p style="font-size: 1.25rem; color: var(--text-muted); margin-bottom: 2rem; line-height: 1.8;" data-cms="Tunnelaatikko Teksti">
                         Se on paikka, jossa hengähdät syvään. Valttikodit suunnitellaan todellista elämää varten.
                     </p>
-                    <blockquote
+                    <blockquote data-cms="Tunnelaatikko Lainaus"
                         style="font-size: 1.125rem; font-style: italic; border-left: 4px solid var(--primary); padding-left: 1.5rem; margin-bottom: 2.5rem; color: var(--text-color);">
                         "Emme rakenna vain neliöitä, vaan puitteet hyvälle elämälle."
                     </blockquote>
                 </div>
                 <div style="position: relative;">
-                    <img src="assets/img/intro-image.jpg" alt="Skandinaavinen olohuone"
+                    <img src="assets/img/intro-image.jpg" data-cms="Tunnelaatikko Kuva" alt="Skandinaavinen olohuone"
                         style="width: 100%; border-radius: var(--radius); box-shadow: 0 20px 40px -10px rgba(0,0,0,0.1);">
                 </div>
             </div>
@@ -81,8 +84,8 @@
         <!-- 3. Palvelumme (Kestävä asuminen) -->
         <section class="py-16" style="background-color: var(--accent);">
             <div class="container text-center" style="max-width: 900px; margin: 0 auto 4rem;">
-                <h2 style="font-size: 2.5rem; margin-bottom: 1.5rem;">Lähtökohtana kestävä asuminen</h2>
-                <p style="font-size: 1.125rem; color: var(--text-muted); line-height: 1.8;">
+                <h2 style="font-size: 2.5rem; margin-bottom: 1.5rem;" data-cms="Palvelut Otsikko">Lähtökohtana kestävä asuminen</h2>
+                <p style="font-size: 1.125rem; color: var(--text-muted); line-height: 1.8;" data-cms="Palvelut Teksti">
                     Haluamme suunnitella ja toteuttaa kauniita ja fiksuja pientaloja joihin asiakkaalla on varaa ja
                     asumiskulujen jälkeen jää enemmän rahaa muuhun elämiseen. Asuttavuus ja asiakaslähtöisyys on
                     toimintamme ytimessä.
@@ -99,8 +102,8 @@
                             <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
                         </svg>
                     </div>
-                    <h3 style="font-size: 1.25rem; margin-bottom: 1rem;">Yksilöllinen Suunnittelu</h3>
-                    <p style="color: var(--text-muted); font-size: 0.875rem; line-height: 1.7;">Ammattilaiset muokkaavat
+                    <h3 style="font-size: 1.25rem; margin-bottom: 1rem;" data-cms="Palvelu 1 Otsikko">Yksilöllinen Suunnittelu</h3>
+                    <p style="color: var(--text-muted); font-size: 0.875rem; line-height: 1.7;" data-cms="Palvelu 1 Teksti">Ammattilaiset muokkaavat
                         mallistomme kodit tonttisi ja toiveidesi mukaan. Tai suunnittelemme täysin alusta.</p>
                 </div>
 
@@ -114,8 +117,8 @@
                             <polyline points="9 22 9 12 15 12 15 22"></polyline>
                         </svg>
                     </div>
-                    <h3 style="font-size: 1.25rem; margin-bottom: 1rem;">Laadukas Rakentaminen</h3>
-                    <p style="color: var(--text-muted); font-size: 0.875rem; line-height: 1.7;">Omat, luotettavat
+                    <h3 style="font-size: 1.25rem; margin-bottom: 1rem;" data-cms="Palvelu 2 Otsikko">Laadukas Rakentaminen</h3>
+                    <p style="color: var(--text-muted); font-size: 0.875rem; line-height: 1.7;" data-cms="Palvelu 2 Teksti">Omat, luotettavat
                         asentajamme ja tarkoin valitut kumppanit takaavat teknisen laadun ja pysyvyyden.</p>
                 </div>
 
@@ -131,8 +134,8 @@
                             </path>
                         </svg>
                     </div>
-                    <h3 style="font-size: 1.25rem; margin-bottom: 1rem;">Projektinjohto</h3>
-                    <p style="color: var(--text-muted); font-size: 0.875rem; line-height: 1.7;">Hoidamme luvat,
+                    <h3 style="font-size: 1.25rem; margin-bottom: 1rem;" data-cms="Palvelu 3 Otsikko">Projektinjohto</h3>
+                    <p style="color: var(--text-muted); font-size: 0.875rem; line-height: 1.7;" data-cms="Palvelu 3 Teksti">Hoidamme luvat,
                         kilpailutukset ja aikataulutuksen. Sinulle jää vain päätöksenteko ja uuteen kotiin muuton
                         valmistelu.</p>
                 </div>
@@ -143,97 +146,24 @@
         <section class="py-16 container" style="margin-top: 4rem;">
             <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 3rem;">
                 <div>
-                    <h2 style="font-size: 2.5rem; margin-bottom: 0.5rem;">Myytävät kohteet</h2>
-                    <p style="color: var(--text-muted); font-size: 1.125rem;">Löydä uusi kotisi huolella valituista
+                    <h2 style="font-size: 2.5rem; margin-bottom: 0.5rem;" data-cms="Kohteet Otsikko">Myytävät kohteet</h2>
+                    <p style="color: var(--text-muted); font-size: 1.125rem;" data-cms="Kohteet Teksti">Löydä uusi kotisi huolella valituista
                         kohteistamme.</p>
                 </div>
                 <a href="kohteet.html" class="btn btn-outline">NÄYTÄ KAIKKI KOHTEET</a>
             </div>
 
+            <!-- Latautuu main.js kautta lennosta kohteet taulusta...  -->
             <div class="card-grid" id="latest-projects"
                 style="grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));">
-
-                <!-- Kohde 1: Kotiranta A -->
-                <a href="kohdesivut/kotiranta.html" class="card" style="text-decoration: none; color: inherit;">
-                    <div class="card-img"
-                        style="background-image: url('assets/img/Kotiranta_olohuone.jpeg'); background-size: cover; background-position: center;">
-                        <span class="card-badge">RAKENTEILLA</span>
-                    </div>
-                    <div class="card-content">
-                        <div
-                            style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 0.5rem; font-weight: 500;">
-                            Liminka</div>
-                        <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem;">Kotiranta, koti A</h3>
-                        <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1.5rem; flex: 1;">
-                            Valmiusaste 30%
-                        </p>
-                        <div style="font-weight: 700; font-size: 1.125rem;">Alk. 235 000 €</div>
-                    </div>
-                </a>
-
-                <!-- Kohde 2: Saunaranta A -->
-                <a href="#" class="card" style="text-decoration: none; color: inherit;">
-                    <div class="card-img"
-                        style="background-image: url('assets/img/Tupos_Saunaranta.jpg'); background-size: cover; background-position: center;">
-                        <span class="card-badge" style="background: var(--text-color);">ENNAKKOMARKKINOINTI</span>
-                    </div>
-                    <div class="card-content">
-                        <div
-                            style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 0.5rem; font-weight: 500;">
-                            Tupos, Liminka</div>
-                        <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem;">Saunaranta, koti A</h3>
-                        <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1.5rem; flex: 1;">
-                            Tulossa uusi, upea paritalokohde Tupokseen.
-                        </p>
-                        <div style="font-weight: 700; font-size: 1.125rem;">Alk. 255 000 €</div>
-                    </div>
-                </a>
-
-                <!-- Kohde 3: Saunaranta B -->
-                <a href="#" class="card" style="text-decoration: none; color: inherit;">
-                    <div class="card-img"
-                        style="background-image: url('assets/img/Tupos_Saunaranta.jpg'); background-size: cover; background-position: center;">
-                        <span class="card-badge" style="background: var(--text-color);">ENNAKKOMARKKINOINTI</span>
-                    </div>
-                    <div class="card-content">
-                        <div
-                            style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 0.5rem; font-weight: 500;">
-                            Tupos, Liminka</div>
-                        <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem;">Saunaranta, koti B</h3>
-                        <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1.5rem; flex: 1;">
-                            Tulossa uusi, upea paritalokohde Tupokseen.
-                        </p>
-                        <div style="font-weight: 700; font-size: 1.125rem;">Alk. 255 000 €</div>
-                    </div>
-                </a>
-
-                <!-- Kohde 4: Kotiranta B -->
-                <a href="kohdesivut/kotiranta.html" class="card"
-                    style="text-decoration: none; color: inherit; opacity: 0.8;">
-                    <div class="card-img"
-                        style="background-image: url('assets/img/Kotiranta_olohuone.jpeg'); background-size: cover; background-position: center;">
-                        <span class="card-badge sold" style="background: #ef4444;">MYYTY</span>
-                    </div>
-                    <div class="card-content">
-                        <div
-                            style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 0.5rem; font-weight: 500;">
-                            Liminka</div>
-                        <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem;">Kotiranta, koti B</h3>
-                        <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1.5rem; flex: 1;">
-                            Valmiusaste 30%
-                        </p>
-                        <div style="font-weight: 700; font-size: 1.125rem;">Alk. 235 000 €</div>
-                    </div>
-                </a>
-
             </div>
         </section>
 
         <!-- Aloitetaan keskustelu -->
         <section class="py-16" style="background-color: var(--primary); color: white; text-align: center;">
             <div class="container" style="max-width: 700px; margin: 0 auto;">
-                <h2 style="font-size: 2.5rem; margin-bottom: 1.5rem; color: white;">Aloitetaan keskustelu</h2>
-                <p style="font-size: 1.125rem; margin-bottom: 2.5rem; color: rgba(255,255,255,0.8); line-height: 1.8;">
+                <h2 style="font-size: 2.5rem; margin-bottom: 1.5rem; color: white;" data-cms="Keskustelu Otsikko">Aloitetaan keskustelu</h2>
+                <p style="font-size: 1.125rem; margin-bottom: 2.5rem; color: rgba(255,255,255,0.8); line-height: 1.8;" data-cms="Keskustelu Teksti">
                     Haluatko kuulla lisää? Lupaamme rennon jutteluhetken ilman myyntipuheita.
                 </p>
                 <a href="yhteys.html" class="btn"
@@ -278,9 +208,8 @@
         </div>
     </footer>
 
-    <!-- Supabase CDN (Valinnainen dataa varten) -->
-    <!-- <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script> -->
-    <script type="module" src="assets/js/main.js"></script>
+    <!-- JS muutettu ei-moduuliksi (CORS-korjaus) -->
+    <script src="assets/js/main.js"></script>
 </body>
 
 </html>

@@ -20,10 +20,7 @@
         <nav class="admin-nav">
             <a href="dashboard.html">Dashboard</a>
             <a href="projects.html" class="active">Kohteet</a>
-            <a href="#">Referenssit</a>
-            <a href="#">Sivut</a>
-            <a href="#">Liidit</a>
-            <a href="#">Asetukset</a>
+            <a href="pages.html">Sivut</a>
         </nav>
         <div style="padding: 1rem; border-top: 1px solid var(--border);">
             <div
@@ -70,7 +67,7 @@
     </main>
 
     <!-- JS Tila -->
-    <script type="module" src="../assets/js/admin.js"></script>
+    <script src="../assets/js/admin.js"></script>
     <script>
         function openNewProjectModal() {
             alert("Tässä avautuisi modal uuden kohteen luomiseksi tai siirtyminen /admin/new-project.html -näkymään. Supabasella tähän kytketään normaali HTML Form -> supabase.from('projects').insert(...)");

@@ -10,6 +10,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/style.css">
+    
+    <!-- Supabase JS needed for rendering public pages dynamically -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
 <body>
@@ -27,28 +30,28 @@
 
     <main>
         <div class="container" style="padding: 4rem 1.5rem; max-width: 800px;">
-            <h1 style="margin-bottom: 1rem;">Valtti-tapa</h1>
-            <p class="lead mb-8">
+            <h1 style="margin-bottom: 1rem;" data-cms="Tarinamme Otsikko">Valtti-tapa</h1>
+            <p class="lead mb-8" data-cms="Tarinamme Ingressi">
                 Kotimme rakennetaan kestämään elämää, aikaa ja katseita.
                 Meille koti ei ole vain seiniä, vaan paikka jossa on hyvä asua.
             </p>
 
             <div style="color: var(--text-muted); line-height: 1.8; font-size: 1.125rem;">
-                <h2 style="color: var(--primary); margin-top: 2.5rem; font-size: 1.75rem;">Asiakaskeskeisyys</h2>
-                <p class="mb-4">
+                <h2 style="color: var(--primary); margin-top: 2.5rem; font-size: 1.75rem;" data-cms="Ensimmäinen Otsikko">Asiakaskeskeisyys</h2>
+                <p class="mb-4" data-cms="Ensimmäinen Teksti">
                     Tavoitteenamme ei ole vain rakentaa taloa, vaan rakentaa koti juuri sinun tarpeisiisi.
                     Avoimuus ja selkeä viestintä koko rakennusprojektin ajan takaavat sen, että tiedät
                     aina missä mennään.
                 </p>
 
-                <h2 style="color: var(--primary); margin-top: 2.5rem; font-size: 1.75rem;">Laatu ja Ekologisuus</h2>
-                <p class="mb-4">
+                <h2 style="color: var(--primary); margin-top: 2.5rem; font-size: 1.75rem;" data-cms="Toinen Otsikko">Laatu ja Ekologisuus</h2>
+                <p class="mb-4" data-cms="Toinen Teksti">
                     Hyödynnämme moderneja teknologioita ja ekologisia rakennustapoja. Materiaalivalintamme
                     perustuvat pitkäikäisyyteen ja vähäpäästöisyyteen, ja ratkaisumme ovat aina energiatehokkaita.
                 </p>
 
-                <h2 style="color: var(--primary); margin-top: 2.5rem; font-size: 1.75rem;">Turvallisuus</h2>
-                <p>
+                <h2 style="color: var(--primary); margin-top: 2.5rem; font-size: 1.75rem;" data-cms="Kolmas Otsikko">Turvallisuus</h2>
+                <p data-cms="Kolmas Teksti">
                     Olemme sitoutuneet laadukkaaseen rakentamiseen kaikissa vaiheissa. Valttikodeissa
                     panostetaan aina asianmukaiseen kosteudenhallintaan ja turvallisiin rakenneratkaisuihin.
                 </p>
@@ -65,6 +68,8 @@
         </div>
     </footer>
 
+    <!-- JS muutettu ei-moduuliksi (CORS-korjaus) -->
+    <script src="assets/js/main.js"></script>
 </body>
 
 </html>
