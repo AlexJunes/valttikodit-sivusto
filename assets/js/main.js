@@ -26,8 +26,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         try {
             if (isProjectPage && slug) {
-                // Ladataan kohteen tiedot tietokannasta url-parametrin perusteella
-                const { data: project, error } = await supabase.from('projects').select('*').eq('slug', slug).maybeSingle();
+                // Ladataan kohteen tiedot tietokannasta url-parametrin perusteella (case-insensitive for legacy slugs)
+                const { data: project, error } = await supabase.from('projects').select('*').ilike('slug', slug).maybeSingle();
                 if (project && !error) {
                     
                     document.querySelectorAll('[data-project]').forEach(el => {
