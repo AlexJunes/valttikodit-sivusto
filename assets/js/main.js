@@ -25,6 +25,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                     document.querySelectorAll('[data-project]').forEach(el => {
                         const key = el.getAttribute('data-project');
                         let val = project[key];
+                        
+                        if (key.startsWith('details_') && project.details) {
+                            const detailKey = key.replace('details_', '');
+                            val = project.details[detailKey];
+                        }
+
                         if (val !== undefined && val !== null) {
                             if (key === 'status') {
                                 if (val === 'MARKETING') val = 'ENNAKKOMARKKINOINTI';
@@ -37,6 +43,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                             }
                             
                             if (el.tagName.toLowerCase() === 'img') {
+                                el.src = val;
+                            } else if (el.tagName.toLowerCase() === 'iframe') {
                                 el.src = val;
                             } else if (key === 'hero_image') {
                                 el.style.backgroundImage = `url('${val}')`;

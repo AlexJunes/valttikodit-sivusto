@@ -186,6 +186,44 @@ document.addEventListener('DOMContentLoaded', async () => {
                     setVal(10, data.ingress || '');
                     setVal(11, data.description || '');
 
+                    if (data.details) {
+                        setVal(12, data.details["Sijainnin otsikko"]);
+                        setVal(13, data.details["Sijainnin kuvaus"]);
+                        setVal(14, data.details["Google Maps Embed"]);
+                        setVal(15, data.details["Tyyppi"]);
+                        setVal(16, data.details["Omistusmuoto"]);
+                        setVal(17, data.details["Huoneistoselitelmä"]);
+                        setVal(18, data.details["Huoneita"]);
+                        setVal(19, data.details["Asuintilojen pinta-ala"]);
+                        setVal(20, data.details["Muiden tilojen pinta-ala"]);
+                        setVal(21, data.details["Kokonaispinta-ala"]);
+                        setVal(22, data.details["Asuinkerrosten määrä"]);
+                        setVal(23, data.details["Rakennusvuosi"]);
+                        setVal(24, data.details["Vapautuminen"]);
+                        setVal(25, data.details["Sauna"]);
+                        setVal(26, data.details["Asuntoon kuuluu"]);
+                        setVal(27, data.details["Kohteen lisätiedot"]);
+                        setVal(28, data.details["Asunnon kunto"]);
+                        setVal(29, data.details["Lisätietoa kunnosta"]);
+                        setVal(30, data.details["Energialuokka"]);
+                        setVal(31, data.details["Vesijohto"]);
+                        setVal(32, data.details["Rakennus- ja pintamateriaalit"]);
+                        setVal(33, data.details["Keittiön kuvaus"]);
+                        setVal(34, data.details["Kylpyhuoneen kuvaus"]);
+                        setVal(35, data.details["WC-tilojen kuvaus"]);
+                        setVal(36, data.details["Saunan kuvaus"]);
+                        setVal(37, data.details["Kodinhoitohuoneen kuvaus"]);
+                        setVal(38, data.details["Olohuoneen kuvaus"]);
+                        setVal(39, data.details["Muiden huoneiden kuvaus"]);
+                        setVal(40, data.details["Tontin omistus"]);
+                        setVal(41, data.details["Kiinteistötunnus"]);
+                        setVal(42, data.details["Tontin pinta-ala"]);
+                        setVal(43, data.details["Rakennusoikeuden pinta-ala"]);
+                        setVal(44, data.details["Tontin vuokraaja"]);
+                        setVal(45, data.details["Tontin vuokra"]);
+                        setVal(46, data.details["Lisätietoja tontista"]);
+                    }
+
                     if (data.hero_image && heroImgElement) {
                         existingHeroUrl = data.hero_image;
                         heroImgElement.src = existingHeroUrl;
@@ -244,7 +282,44 @@ document.addEventListener('DOMContentLoaded', async () => {
                         description: getVal(11),
                         published: pubCheck ? pubCheck.checked : false,
                         hero_image: finalHeroUrl,
-                        gallery_images: finalGallery
+                        gallery_images: finalGallery,
+                        details: {
+                            "Sijainnin otsikko": getVal(12),
+                            "Sijainnin kuvaus": getVal(13),
+                            "Google Maps Embed": getVal(14),
+                            "Tyyppi": getVal(15),
+                            "Omistusmuoto": getVal(16),
+                            "Huoneistoselitelmä": getVal(17),
+                            "Huoneita": getVal(18),
+                            "Asuintilojen pinta-ala": getVal(19),
+                            "Muiden tilojen pinta-ala": getVal(20),
+                            "Kokonaispinta-ala": getVal(21),
+                            "Asuinkerrosten määrä": getVal(22),
+                            "Rakennusvuosi": getVal(23),
+                            "Vapautuminen": getVal(24),
+                            "Sauna": getVal(25),
+                            "Asuntoon kuuluu": getVal(26),
+                            "Kohteen lisätiedot": getVal(27),
+                            "Asunun kunto": getVal(28),
+                            "Lisätietoa kunnosta": getVal(29),
+                            "Energialuokka": getVal(30),
+                            "Vesijohto": getVal(31),
+                            "Rakennus- ja pintamateriaalit": getVal(32),
+                            "Keittiön kuvaus": getVal(33),
+                            "Kylpyhuoneen kuvaus": getVal(34),
+                            "WC-tilojen kuvaus": getVal(35),
+                            "Saunan kuvaus": getVal(36),
+                            "Kodinhoitohuoneen kuvaus": getVal(37),
+                            "Olohuoneen kuvaus": getVal(38),
+                            "Muiden huoneiden kuvaus": getVal(39),
+                            "Tontin omistus": getVal(40),
+                            "Kiinteistötunnus": getVal(41),
+                            "Tontin pinta-ala": getVal(42),
+                            "Rakennusoikeuden pinta-ala": getVal(43),
+                            "Tontin vuokraaja": getVal(44),
+                            "Tontin vuokra": getVal(45),
+                            "Lisätietoja tontista": getVal(46)
+                        }
                     };
 
                     let res;
