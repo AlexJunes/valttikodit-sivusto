@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     const u = document.getElementById('username')?.value?.trim()?.toLowerCase();
                     const p = document.getElementById('password')?.value?.trim();
                     
-                    if (u === 'vinhainvest' && p === 'Vinhetie8') {
+                    if (u === 'vinhainvest' && p === 'Vihnetie8') {
                         sessionStorage.setItem('valtti_admin_auth', 'secured');
                         window.location.href = 'projects.html';
                     } else {
