@@ -261,6 +261,19 @@ h3 {
     display: none !important;
 }
 
+/* Rich text injected components (CMS) */
+[data-project="description"] iframe,
+[data-cms] iframe,
+.project-layout iframe {
+    display: block;
+    width: 100% !important;
+    max-width: 100%;
+    margin: 2rem 0;
+    border-radius: var(--radius);
+    border: none;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+}
+
 /* Grid Cards */
 .card-grid {
     display: grid;
