@@ -48,6 +48,16 @@ document.addEventListener('DOMContentLoaded', async () => {
                                 el.src = val;
                             } else if (key === 'hero_image') {
                                 el.style.backgroundImage = `url('${val}')`;
+                            } else if (el.tagName.toLowerCase() === 'a') {
+                                const trimVal = String(val).trim();
+                                if (trimVal.includes('@') && !trimVal.startsWith('http')) {
+                                    el.href = 'mailto:' + trimVal;
+                                } else if (trimVal.match(/^[0-9\-\+\s]+$/)) {
+                                    el.href = 'tel:' + trimVal.replace(/\s/g, '');
+                                } else {
+                                    el.href = val;
+                                }
+                                el.textContent = val;
                             } else {
                                 el.innerHTML = val;
                             }

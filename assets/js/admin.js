@@ -402,6 +402,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     "Yhteystiedot Otsikko": "Myynti ja tiedustelut",
                     "Osoite": "Valttikodit Oy\nKotkansiipi 18\n91900 Liminka",
                     "Sähköposti": "info@valttikodit.fi",
+                    "Puhelinnumero": "040 123 4567",
                     "Lomake Otsikko": "Jätä yhteydenottopyyntö"
                 }
             };
