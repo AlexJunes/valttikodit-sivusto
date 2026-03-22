@@ -389,6 +389,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 'valtti-tapa': {
                     "Tarinamme Otsikko": "Valtti-tapa",
                     "Tarinamme Ingressi": "Kotimme rakennetaan kestämään elämää, aikaa ja katseita...",
+                    "Tarinan Kuva": "",
                     "Ensimmäinen Otsikko": "Asiakaskeskeisyys",
                     "Ensimmäinen Teksti": "Tavoitteenamme ei ole vain rakentaa taloa, vaan rakentaa koti juuri sinun tarpeisiisi...",
                     "Toinen Otsikko": "Laatu ja Ekologisuus",

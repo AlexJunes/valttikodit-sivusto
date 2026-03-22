@@ -98,6 +98,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         if (content[key]) {
                             if (el.tagName.toLowerCase() === 'img') {
                                 el.src = content[key];
+                                el.style.display = 'block';
                             } else if (el.style.backgroundImage) {
                                 el.style.backgroundImage = `url('${content[key]}')`;
                             } else {
