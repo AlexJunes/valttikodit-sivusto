@@ -183,4 +183,36 @@ document.addEventListener('DOMContentLoaded', async () => {
             targetList.innerHTML = '<p style="color: red;">Virhe ladattaessa kohteita.</p>';
         }
     }
+
+    // --- GLOBAALI ALATUNNISTE LATAUS (FOOTER) ---
+    if (supabase) {
+        try {
+            const { data: globalData } = await supabase.from('pages').select('content').eq('slug', 'index').maybeSingle();
+            if (globalData && globalData.content) {
+                const content = globalData.content;
+                document.querySelectorAll('[data-global-cms]').forEach(el => {
+                    const key = el.getAttribute('data-global-cms');
+                    const val = content[key];
+                    if (val) {
+                        if (el.tagName.toLowerCase() === 'a') {
+                            if (key.toLowerCase().includes('sähköposti') || (val.includes('@') && !val.includes('http'))) {
+                                el.href = `mailto:${val.trim()}`;
+                                el.textContent = val;
+                            } else if (key.toLowerCase().includes('puhelin')) {
+                                el.href = `tel:${val.replace(/[\s-]/g, '')}`;
+                                el.textContent = val;
+                            } else {
+                                el.href = val; 
+                                // Do not overwrite textContent for social links so standard labels like "Instagram" stay intact
+                            }
+                        } else {
+                            el.innerHTML = val.replace(/\n/g, '<br>');
+                        }
+                    }
+                });
+            }
+        } catch(e) {
+            console.error("Global Footer load error:", e);
+        }
+    }
 });

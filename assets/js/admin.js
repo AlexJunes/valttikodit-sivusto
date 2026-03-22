@@ -415,7 +415,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                     "Kohteet Otsikko": "Myytävät kohteet",
                     "Kohteet Teksti": "Löydä uusi kotisi huolella valituista kohteistamme.",
                     "Keskustelu Otsikko": "Aloitetaan keskustelu",
-                    "Keskustelu Teksti": "Haluatko kuulla lisää? Lupaamme rennon jutteluhetken ilman myyntipuheita."
+                    "Keskustelu Teksti": "Haluatko kuulla lisää? Lupaamme rennon jutteluhetken ilman myyntipuheita.",
+                    "Alatunniste: Osoite": "Kotkansiipi 18",
+                    "Alatunniste: Postitoimipaikka": "91900 Liminka",
+                    "Alatunniste: Sähköposti": "info@valttikodit.fi",
+                    "Alatunniste: Puhelinnumero": "040 123 4567",
+                    "Alatunniste: Instagram-linkki": "",
+                    "Alatunniste: Facebook-linkki": "",
+                    "Alatunniste: LinkedIn-linkki": ""
                 },
                 'valtti-tapa': {
                     "Tarinamme Otsikko": "Valtti-tapa",
