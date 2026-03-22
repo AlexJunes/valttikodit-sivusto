@@ -118,9 +118,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    // KOHTEET.HTML PROJECTS LIST
+    // KOHTEET.HTML AND INDEX.HTML PROJECTS LIST
     const projectList = document.getElementById('project-list');
-    if (supabase && projectList) {
+    const latestProjectsList = document.getElementById('latest-projects');
+    const targetList = projectList || latestProjectsList;
+
+    if (supabase && targetList) {
         try {
             const { data: projects, error } = await supabase
                 .from('projects')
@@ -129,7 +132,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 .order('id', { ascending: false });
 
             if (error) throw error;
-            projectList.innerHTML = '';
+            targetList.innerHTML = '';
 
             if (projects && projects.length > 0) {
                 projects.forEach(project => {
@@ -170,14 +173,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                     const wrapper = document.createElement('div');
                     wrapper.innerHTML = cardHtml.trim();
-                    projectList.appendChild(wrapper.firstChild);
+                    targetList.appendChild(wrapper.firstChild);
                 });
             } else {
-                 projectList.innerHTML = '<p>Ei julkaistuja kohteita tällä hetkellä.</p>';
+                 targetList.innerHTML = '<p>Ei julkaistuja kohteita tällä hetkellä.</p>';
             }
         } catch (e) {
             console.error("Error loading projects: ", e);
-            projectList.innerHTML = '<p style="color: red;">Virhe ladattaessa kohteita.</p>';
+            targetList.innerHTML = '<p style="color: red;">Virhe ladattaessa kohteita.</p>';
         }
     }
 });
