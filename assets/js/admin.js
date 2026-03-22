@@ -253,6 +253,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         setVal(44, data.details["Tontin vuokraaja"] !== undefined ? data.details["Tontin vuokraaja"] : '');
                         setVal(45, data.details["Tontin vuokra"] !== undefined ? data.details["Tontin vuokra"] : '');
                         setVal(46, data.details["Lisätietoja tontista"] !== undefined ? data.details["Lisätietoja tontista"] : '');
+                        setVal(47, data.details["Valmiusaste (%)"] !== undefined ? data.details["Valmiusaste (%)"] : '');
                     }
 
                     if (data.hero_image && heroImgElement) {
@@ -349,7 +350,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                             "Rakennusoikeuden pinta-ala": getVal(43),
                             "Tontin vuokraaja": getVal(44),
                             "Tontin vuokra": getVal(45),
-                            "Lisätietoja tontista": getVal(46)
+                            "Lisätietoja tontista": getVal(46),
+                            "Valmiusaste (%)": getVal(47)
                         }
                     };
 

@@ -44,7 +44,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                                 if (val === 'MARKETING') val = 'ENNAKKOMARKKINOINTI';
                                 else if (val === 'AVAILABLE') val = 'MYYNNISSÄ';
                                 else if (val === 'CONSTRUCTION') val = 'RAKENTEILLA';
-                                else if (val === 'SOLD') val = 'MYYTY';
+                                else if (val === 'SOLD') {
+                                    val = 'MYYTY';
+                                    el.style.backgroundColor = '#10b981';
+                                    el.style.color = 'white';
+                                }
                             }
                             if (key === 'price') {
                                 val = Number(val).toLocaleString('fi-FI') + ' €';
@@ -71,6 +75,23 @@ document.addEventListener('DOMContentLoaded', async () => {
                             }
                         }
                     });
+
+                    // Trigger target specific logic outside universal loop (Progressbar)
+                    const valmiusRaw = project.details ? project.details['Valmiusaste (%)'] : null;
+                    if (valmiusRaw !== null && valmiusRaw !== undefined && valmiusRaw !== '') {
+                        const valmObj = parseInt(valmiusRaw);
+                        if (!isNaN(valmObj)) {
+                            const valCon = document.getElementById('kohde-valmiusaste-container');
+                            if (valCon) {
+                                valCon.style.display = 'block';
+                                document.getElementById('kohde-valmiusaste-text').textContent = valmObj + '%';
+                                // Anime-viive tehosteelle
+                                setTimeout(() => {
+                                    document.getElementById('kohde-valmiusaste-bar').style.width = valmObj + '%';
+                                }, 300);
+                            }
+                        }
+                    }
 
                     // Kuvagalleria luonti asunnoille
                     const galleryContainer = document.getElementById('project-gallery');
@@ -165,17 +186,37 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                     const safeSlug = (project.slug || 'default').toString().trim().toLowerCase().replace(/\s+/g, '-');
 
+                    let progressBarHtml = '';
+                    const valmiusRaw = project.details ? project.details['Valmiusaste (%)'] : null;
+                    if (valmiusRaw !== null && valmiusRaw !== undefined && valmiusRaw !== '') {
+                        const valm = parseInt(valmiusRaw);
+                        if (!isNaN(valm)) {
+                            progressBarHtml = `
+                                <div style="margin-bottom: 1rem; margin-top: auto;">
+                                    <div style="display: flex; justify-content: space-between; font-size: 0.75rem; margin-bottom: 0.35rem; font-weight: 600;">
+                                        <span style="color: var(--text-color);">Valmiusaste</span>
+                                        <span style="color: #10b981;">${valm}%</span>
+                                    </div>
+                                    <div style="width: 100%; background-color: #e5e7eb; border-radius: 9999px; height: 6px; overflow: hidden;">
+                                        <div style="background-color: #10b981; height: 100%; border-radius: 9999px; width: ${valm}%;"></div>
+                                    </div>
+                                </div>
+                            `;
+                        }
+                    }
+
                     const cardHtml = `
-                        <a href="kohde.html?kohde=${safeSlug}" class="card" style="text-decoration: none; color: inherit;">
+                        <a href="kohde.html?kohde=${safeSlug}" class="card" style="text-decoration: none; color: inherit; display: flex; flex-direction: column;">
                             <div class="card-img" style="${bgStyle}">
-                                ${statusFi ? `<span class="card-badge ${statusClass}">${statusFi}</span>` : ''}
+                                ${statusFi ? `<span class="card-badge ${statusClass}" ${project.status === 'SOLD' ? 'style="background-color: #10b981; color: white;"' : ''}>${statusFi}</span>` : ''}
                             </div>
-                            <div class="card-content">
+                            <div class="card-content" style="display: flex; flex-direction: column; flex: 1;">
                                 <div style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 0.5rem;">${project.location || ''}</div>
                                 <h3 style="transition: color 0.2s;">${project.title || 'Nimetön kohde'}</h3>
-                                <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1rem; flex: 1;">
+                                <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1rem;">
                                     ${project.ingress || project.description || ''}
                                 </p>
+                                ${progressBarHtml}
                                 <div style="font-weight: 600;">${priceStr}</div>
                             </div>
                         </a>

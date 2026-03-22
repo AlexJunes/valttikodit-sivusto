@@ -55,6 +55,17 @@
                         <span data-project="location"></span> • <span data-project="type"></span> • <span data-project="area"></span>
                     </p>
 
+                    <!-- Valmiusaste säiliö kohdesivulla -->
+                    <div id="kohde-valmiusaste-container" style="margin-bottom: 2rem; display: none;">
+                        <div style="display: flex; justify-content: space-between; font-size: 0.875rem; margin-bottom: 0.5rem; font-weight: 600;">
+                            <span style="color: var(--text-color);">Kohteen valmiusaste</span>
+                            <span id="kohde-valmiusaste-text" style="color: #10b981;">0%</span>
+                        </div>
+                        <div style="width: 100%; background-color: #e5e7eb; border-radius: 9999px; height: 8px; overflow: hidden;">
+                            <div id="kohde-valmiusaste-bar" style="background-color: #10b981; height: 100%; border-radius: 9999px; width: 0%; transition: width 1s ease-in-out;"></div>
+                        </div>
+                    </div>
+
                     <div style="font-size: 1.125rem; color: var(--text-color); line-height: 1.8;">
                         <h2 data-project="ingress" style="font-size: 1.5rem; margin-bottom: 1rem; color: var(--primary);">Ladataan tietoja...</h2>
                         <!-- Renderöityy vapaamuotoisena Admin Editorin tekstikenttänä (Tukee HTML) -->
