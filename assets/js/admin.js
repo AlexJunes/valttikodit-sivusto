@@ -20,8 +20,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (loginForm) {
                 loginForm.onsubmit = (e) => {
                     e.preventDefault();
-                    const u = document.getElementById('username')?.value;
-                    const p = document.getElementById('password')?.value;
+                    const u = document.getElementById('username')?.value?.trim()?.toLowerCase();
+                    const p = document.getElementById('password')?.value?.trim();
                     
                     if (u === 'vinhainvest' && p === 'Vinhetie8') {
                         sessionStorage.setItem('valtti_admin_auth', 'secured');
