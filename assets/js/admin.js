@@ -7,11 +7,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // --- BASIC STATIC AUTH CHECK ---
     if (path.includes('/admin/')) {
-        const isLoginPage = path.endsWith('index.html') || path.endsWith('/admin/') || path.endsWith('/admin');
+        const isLoginPage = path.endsWith('login.html') || path.endsWith('/admin/') || path.endsWith('/admin');
         
         if (!isLoginPage) {
             if (sessionStorage.getItem('valtti_admin_auth') !== 'secured') {
-                window.location.href = 'index.html';
+                window.location.href = 'login.html';
                 return;
             }
         } else {

@@ -8,6 +8,67 @@ document.addEventListener('DOMContentLoaded', async () => {
         supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     }
 
+    // Contact Form Sanitization Intercept
+    const contactForm = document.getElementById('contact-form');
+    if (contactForm) {
+        contactForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+            
+            const btn = contactForm.querySelector('button[type="submit"]');
+            btn.textContent = 'Lähetetään...';
+            btn.disabled = true;
+
+            const sanitizeHtml = (str) => {
+                const temp = document.createElement('div');
+                temp.textContent = str;
+                return temp.innerHTML;
+            };
+
+            const formData = new FormData(contactForm);
+            
+            // XSS Prevention Check
+            let safe = true;
+            for (let [key, value] of formData.entries()) {
+                if (typeof value === 'string') {
+                    const sanitized = sanitizeHtml(value);
+                    formData.set(key, sanitized);
+                    if (value.includes('<') || value.includes('>') || value.includes('script')) safe = false;
+                }
+            }
+
+            if (!safe) {
+                alert('Virheellinen syöte evätty turvallisuussyistä.');
+                btn.textContent = 'Lähetä viesti';
+                btn.disabled = false;
+                return;
+            }
+
+            fetch(contactForm.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.success) {
+                    window.location.href = "kiitos.html";
+                } else {
+                    alert('Lomakkeen lähetys epäonnistui. Kokeile myöhemmin uudelleen.');
+                    btn.textContent = 'Lähetä viesti';
+                    btn.disabled = false;
+                }
+            })
+            .catch(error => {
+                console.error(error);
+                alert('Tapahtui odottamaton verkkovirhe.');
+                btn.textContent = 'Lähetä viesti';
+                btn.disabled = false;
+            });
+        });
+    }
+
     // CMS DATA INJECTION (FOR APPLICABLE PUBLIC PAGES)
     if (supabase) {
         // Detect current page slug from URL
@@ -92,6 +153,50 @@ document.addEventListener('DOMContentLoaded', async () => {
                             }
                         }
                     }
+
+                    // Dynamically set Meta tags for SEO & AI & Social Shares
+                    document.title = project.title + " | Valttikodit Kohteet";
+                    const metaDesc = document.createElement('meta');
+                    metaDesc.name = "description";
+                    metaDesc.content = (project.ingress || project.description || "").substring(0, 155) + "...";
+                    
+                    const ogTitle = document.createElement('meta');
+                    ogTitle.property = "og:title";
+                    ogTitle.content = project.title;
+                    
+                    const ogImage = document.createElement('meta');
+                    if (project.hero_image) {
+                        ogImage.property = "og:image";
+                        ogImage.content = project.hero_image.startsWith('http') ? project.hero_image : window.location.origin + '/' + project.hero_image;
+                    }
+
+                    document.head.append(metaDesc, ogTitle, ogImage);
+
+                    // Generate AI-Ready JSON-LD Schema.org Data
+                    const schema = {
+                        "@context": "https://schema.org",
+                        "@type": "SingleFamilyResidence",
+                        "name": project.title || "Valttikodit Asunto",
+                        "description": project.description || project.ingress || "",
+                        "url": window.location.href,
+                        "image": project.hero_image ? (project.hero_image.startsWith('http') ? project.hero_image : window.location.origin + '/' + project.hero_image) : "",
+                        "address": {
+                            "@type": "PostalAddress",
+                            "streetAddress": project.address || "",
+                            "addressLocality": project.location || "",
+                            "addressRegion": "Pohjois-Pohjanmaa",
+                            "addressCountry": "FI"
+                        },
+                        "floorSize": {
+                            "@type": "QuantitativeValue",
+                            "value": project.area ? parseFloat(project.area.replace(',', '.')) : 0,
+                            "unitCode": "MTK"
+                        }
+                    };
+                    const jsonLdScript = document.createElement('script');
+                    jsonLdScript.type = "application/ld+json";
+                    jsonLdScript.text = JSON.stringify(schema);
+                    document.head.appendChild(jsonLdScript);
 
                     // Kuvagalleria luonti asunnoille
                     const galleryContainer = document.getElementById('project-gallery');
