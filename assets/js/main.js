@@ -91,7 +91,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                             } else if (el.style.backgroundImage) {
                                 el.style.backgroundImage = `url('${content[key]}')`;
                             } else {
-                                el.innerHTML = content[key];
+                                const val = content[key];
+                                if (typeof val === 'string' && val.startsWith('http') && (val.match(/\.(jpeg|jpg|gif|png|webp)/i) || val.includes('supabase.co/storage'))) {
+                                    el.innerHTML = `<img src="${val}" style="max-width: 100%; height: auto; border-radius: 8px; margin-top: 1rem; margin-bottom: 1rem; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">`;
+                                } else {
+                                    el.innerHTML = val;
+                                }
                             }
                         }
                     });
