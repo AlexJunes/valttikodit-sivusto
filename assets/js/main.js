@@ -14,24 +14,68 @@ document.addEventListener('DOMContentLoaded', async () => {
         let slug = window.location.pathname.split('/').pop().replace('.html', '') || 'index';
         if (slug === '' || slug === '/') slug = 'index';
 
+        const isProjectPage = window.location.pathname.includes('/kohdesivut/');
+
         try {
-            const { data: pageData, error } = await supabase.from('pages').select('content').eq('slug', slug).maybeSingle();
-            if (pageData && pageData.content) {
-                const content = pageData.content;
-                // Query all elements with data-cms property
-                document.querySelectorAll('[data-cms]').forEach(el => {
-                    const key = el.getAttribute('data-cms');
-                    if (content[key]) {
-                        // Check if it's an image by looking at the tag or style
-                        if (el.tagName.toLowerCase() === 'img') {
-                            el.src = content[key];
-                        } else if (el.style.backgroundImage) {
-                            el.style.backgroundImage = `url('${content[key]}')`;
-                        } else {
-                            el.innerHTML = content[key]; // Allow HTML (like <br>) in text
+            if (isProjectPage) {
+                // Ladataan kohteen tiedot tietokannasta
+                const { data: project, error } = await supabase.from('projects').select('*').eq('slug', slug).maybeSingle();
+                if (project && !error) {
+                    
+                    document.querySelectorAll('[data-project]').forEach(el => {
+                        const key = el.getAttribute('data-project');
+                        let val = project[key];
+                        if (val !== undefined && val !== null) {
+                            if (key === 'status') {
+                                if (val === 'MARKETING') val = 'ENNAKKOMARKKINOINTI';
+                                else if (val === 'AVAILABLE') val = 'MYYNNISSÄ';
+                                else if (val === 'CONSTRUCTION') val = 'RAKENTEILLA';
+                                else if (val === 'SOLD') val = 'MYYTY';
+                            }
+                            if (key === 'price') {
+                                val = Number(val).toLocaleString('fi-FI') + ' €';
+                            }
+                            
+                            if (el.tagName.toLowerCase() === 'img') {
+                                el.src = val;
+                            } else if (key === 'hero_image') {
+                                el.style.backgroundImage = `url('${val}')`;
+                            } else {
+                                el.innerHTML = val;
+                            }
                         }
+                    });
+
+                    // Kuvagalleria luonti asunnoille
+                    const galleryContainer = document.getElementById('project-gallery');
+                    if (galleryContainer && project.gallery_images && Array.isArray(project.gallery_images)) {
+                        galleryContainer.innerHTML = '';
+                        project.gallery_images.forEach(imgUrl => {
+                            const img = document.createElement('img');
+                            img.src = imgUrl;
+                            img.style.cssText = "width: 100%; aspect-ratio: 4/3; object-fit: cover; border-radius: 4px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);";
+                            galleryContainer.appendChild(img);
+                        });
                     }
-                });
+                }
+            } else {
+                // Ladataan tavalliset CMS sivut (etusivu, jne)
+                const { data: pageData, error } = await supabase.from('pages').select('content').eq('slug', slug).maybeSingle();
+                if (pageData && pageData.content) {
+                    const content = pageData.content;
+                    document.querySelectorAll('[data-cms]').forEach(el => {
+                        const key = el.getAttribute('data-cms');
+                        if (content[key]) {
+                            if (el.tagName.toLowerCase() === 'img') {
+                                el.src = content[key];
+                            } else if (el.style.backgroundImage) {
+                                el.style.backgroundImage = `url('${content[key]}')`;
+                            } else {
+                                el.innerHTML = content[key];
+                            }
+                        }
+                    });
+                }
             }
         } catch (e) {
             console.error("CMS load error:", e);

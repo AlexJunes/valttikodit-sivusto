@@ -4,15 +4,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>As Oy Limingan Kotiranta - Paritalo | Valttikodit</title>
+    <!-- Dynaaminen tietenkin jättää tittelin entiselleen, mutta skripti täyttää näkyvän sisällön. -->
+    <title>Valttikodit Ennakkokohde</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/style.css">
 
-    <meta property="og:title" content="As Oy Limingan Kotiranta - Paritalo | Valttikodit">
-    <meta property="og:image" content="https://valttikodit.fi/assets/img/Kotiranta_olohuone.jpeg">
+    <!-- Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
 <body>
@@ -30,12 +31,12 @@
     </header>
 
     <main>
-        <!-- Kohde Hero -->
-        <div
-            style="width: 100%; height: 60vh; min-height: 400px; background-color: #f3f4f6; position: relative; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid var(--border); background-image: url('../assets/img/Kotiranta_olohuone.jpeg'); background-size: cover; background-position: center;  box-shadow: inset 0 0 0 2000px rgba(0,0,0,0.15);">
-            <div
+        <!-- Kohde Hero (background-image päivittyy dynaamisesti) -->
+        <div data-project="hero_image"
+            style="width: 100%; height: 60vh; min-height: 400px; background-color: #f3f4f6; position: relative; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid var(--border); background-size: cover; background-position: center;  box-shadow: inset 0 0 0 2000px rgba(0,0,0,0.15);">
+            <div data-project="status"
                 style="position: absolute; top: 2rem; left: 2rem; background: #121212; color: white; padding: 0.5rem 1rem; font-size: 1.125rem; font-weight: 700; border-radius: 4px; z-index: 10;">
-                ENNAKKO
+                LADATAAN...
             </div>
         </div>
 
@@ -49,52 +50,23 @@
 
                 <!-- Vasen: Kuvaus js Galleria -->
                 <div>
-                    <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem;">As Oy Limingan Kotiranta</h1>
-                    <p style="font-size: 1.125rem; color: var(--text-muted); margin-bottom: 2rem;">Liminka • Erillistalo
-                        • 82,5 m² • A vapaa, B myyty!</p>
+                    <h1 data-project="title" style="font-size: 2.5rem; margin-bottom: 0.5rem;">Ladataan Asuntoa...</h1>
+                    <p style="font-size: 1.125rem; color: var(--text-muted); margin-bottom: 2rem;">
+                        <span data-project="location"></span> • <span data-project="type"></span> • <span data-project="area"></span>
+                    </p>
 
                     <div style="font-size: 1.125rem; color: var(--text-color); line-height: 1.8;">
-                        <h2 style="font-size: 1.5rem; margin-bottom: 1rem;">Luonnonrauhaa ja modernia arkkitehtuuria.
-                        </h2>
-                        <p class="mb-4">
-                            Limingan Kotirantaan rakentuva kohde koostuu kahdesta erillistalosta ja samankokoisesta
-                            tontista. Puurakenteisen kodin suunnittelussa on tehty kestäviä ja laadukkaita valintoja...
-                            Tontti rajautuu kahdelta sivulta puistokaistaan ja yhdeltä sivulta metsään.
-                        </p>
-                        <p class="mb-8" style="font-style: italic; color: var(--text-muted);">
-                            "Räätälöi koti arkeesi sopivaksi. Asiantuntijoidemme valitseman sisäväri-, pintamateriaali–
-                            ja kiintokalustevalikoiman avulla jokainen asukas voi rakentaa oman näköisensä kodin."
-                        </p>
+                        <h2 data-project="ingress" style="font-size: 1.5rem; margin-bottom: 1rem; color: var(--primary);">Ladataan tietoja...</h2>
+                        <!-- Renderöityy vapaamuotoisena Admin Editorin tekstikenttänä (Tukee HTML) -->
+                        <div data-project="description" class="mb-4" style="white-space: pre-line;"></div>
                     </div>
 
                     <h2 style="font-size: 1.5rem; margin-top: 2rem; margin-bottom: 1.5rem;">Kuvigalleria</h2>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                        <img src="../assets/img/Kotiranta_etu.jpeg" alt="Julkisivu"
-                            style="width: 100%; aspect-ratio: 4/3; object-fit: cover; border-radius: 4px;">
-                        <img src="../assets/img/Kotiranta_olohuone.jpeg" alt="Olohuone"
-                            style="width: 100%; aspect-ratio: 4/3; object-fit: cover; border-radius: 4px;">
-                        <img src="../assets/img/Kotiranta_keittio.jpeg" alt="Keittiö"
-                            style="width: 100%; aspect-ratio: 4/3; object-fit: cover; border-radius: 4px;">
+                    <!-- JavaScript syöttää tänne uudet img-elementit kohteen galleriasta -->
+                    <div id="project-gallery" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <p style="color: var(--text-muted);">Ladataan galleriaa...</p>
                     </div>
 
-                    <h2 style="font-size: 1.5rem; margin-top: 3rem; margin-bottom: 1.5rem;">Pohjakuva ja asemapiirros
-                    </h2>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                        <div>
-                            <img src="../assets/img/Kotiranta_pohjakuva.jpeg" alt="Pohjakuva"
-                                style="width: 100%; border-radius: 4px; border: 1px solid var(--border);">
-                            <p
-                                style="text-align: center; font-size: 0.875rem; color: var(--text-muted); margin-top: 0.5rem;">
-                                Pohjakuva</p>
-                        </div>
-                        <div>
-                            <img src="../assets/img/Kotiranta_kaava.jpeg" alt="Asemakaava"
-                                style="width: 100%; border-radius: 4px; border: 1px solid var(--border);">
-                            <p
-                                style="text-align: center; font-size: 0.875rem; color: var(--text-muted); margin-top: 0.5rem;">
-                                Asemakaava</p>
-                        </div>
-                    </div>
                 </div>
 
                 <!-- Oikea: Perustiedot & CTA -->
@@ -107,22 +79,27 @@
                             <div
                                 style="display: flex; justify-content: space-between; padding-bottom: 1rem; border-bottom: 1px solid var(--border); margin-bottom: 1rem;">
                                 <dt style="color: var(--text-muted);">Hinta</dt>
-                                <dd style="font-weight: 700; font-size: 1.125rem;">249 000 €</dd>
+                                <dd data-project="price" style="font-weight: 700; font-size: 1.125rem;">-</dd>
                             </div>
                             <div
                                 style="display: flex; justify-content: space-between; padding-bottom: 0.5rem; margin-bottom: 0.5rem;">
                                 <dt style="color: var(--text-muted);">Asuinpinta-ala</dt>
-                                <dd style="font-weight: 500;">82,5 m²</dd>
+                                <dd data-project="area" style="font-weight: 500;">- m²</dd>
+                            </div>
+                            <div
+                                style="display: flex; justify-content: space-between; padding-bottom: 0.5rem; margin-bottom: 0.5rem;">
+                                <dt style="color: var(--text-muted);">Kok.pinta-ala</dt>
+                                <dd data-project="area_other" style="font-weight: 500;">-</dd>
                             </div>
                             <div
                                 style="display: flex; justify-content: space-between; padding-bottom: 0.5rem; margin-bottom: 0.5rem;">
                                 <dt style="color: var(--text-muted);">Huoneita</dt>
-                                <dd style="font-weight: 500;">4h+k+kph+s+vh+khh+var</dd>
+                                <dd data-project="room_setup" style="font-weight: 500;">-</dd>
                             </div>
                             <div
                                 style="display: flex; justify-content: space-between; padding-bottom: 0.5rem; margin-bottom: 0.5rem;">
-                                <dt style="color: var(--text-muted);">Valmistuminen</dt>
-                                <dd style="font-weight: 500;">2026</dd>
+                                <dt style="color: var(--text-muted);">Osoite</dt>
+                                <dd data-project="address" style="font-weight: 500;"></dd>
                             </div>
                         </dl>
 
@@ -131,215 +108,14 @@
                         <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 1.5rem;">
                             Ota yhteyttä ja varaa oma esittely tai kysy lisätietoa ammattilaisiltamme.
                         </p>
-                        <a href="../yhteys.html?kohde=kotiranta" class="btn btn-primary" style="width: 100%;">Ota
+                        <!-- Yhteys-nappi koodattu viemään kohtuu reitillä Ota yhteyttä osioon -->
+                        <a href="../yhteys.html" class="btn btn-primary" style="width: 100%;">Ota
                             yhteyttä myyntiin</a>
                     </div>
                 </div>
 
             </div>
         </div>
-
-        <!-- Asunnon perustiedot - Täysi taulukko -->
-        <section class="details-section">
-            <div class="container">
-                <h2 class="details-title">Asunnon perustiedot</h2>
-
-                <!-- Perustiedot -->
-                <div class="details-group">
-                    <div class="details-group-title">Perustiedot</div>
-                    <div class="details-table">
-                        <div class="details-row">
-                            <div class="details-term">Tyyppi</div>
-                            <div class="details-desc">Erillistalo (kiinteistö)</div>
-                        </div>
-                        <div class="details-row">
-                            <div class="details-term">Omistusmuoto</div>
-                            <div class="details-desc">Omistusasunto</div>
-                        </div>
-                        <div class="details-row">
-                            <div class="details-term">Huoneistoselitelmä</div>
-                            <div class="details-desc">4h + k + kph + s + vh + khh + var</div>
-                        </div>
-                        <div class="details-row">
-                            <div class="details-term">Huoneita</div>
-                            <div class="details-desc">4 huonetta</div>
-                        </div>
-                        <div class="details-row">
-                            <div class="details-term">Asuintilojen pinta-ala</div>
-                            <div class="details-desc">82,5 m²</div>
-                        </div>
-                        <div class="details-row">
-                            <div class="details-term">Muiden tilojen pinta-ala</div>
-                            <div class="details-desc">2,5 m²</div>
-                        </div>
-                        <div class="details-row">
-                            <div class="details-term">Kokonaispinta-ala</div>
-                            <div class="details-desc">85,0 m²</div>
-                        </div>
-                        <div class="details-row">
-                            <div class="details-term">Asuinkerrosten määrä</div>
-                            <div class="details-desc">1</div>
-                        </div>
-                        <div class="details-row">
-                            <div class="details-term">Rakennusvuosi</div>
-                            <div class="details-desc">2026</div>
-                        </div>
-                        <div class="details-row">
-                            <div class="details-term">Vapautuminen</div>
-                            <div class="details-desc">Sopimuksen mukaan. Sovitaan kaupanteon yhteydessä.</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Lisätiedot -->
-                <div class="details-group">
-                    <div class="details-group-title">Lisätiedot</div>
-                    <div class="details-table">
-                        <div class="details-row">
-                            <div class="details-term">Sauna</div>
-                            <div class="details-desc">Kyllä</div>
-                        </div>
-                        <div class="details-row">
-                            <div class="details-term">Asuntoon kuuluu</div>
-                            <div class="details-desc">Varasto</div>
-                        </div>
-                        <div class="details-row">
-                            <div class="details-term">Kohteen lisätiedot</div>
-                            <div class="details-desc">Asunnossa on terassi</div>
-                        </div>
-                        <div class="details-row">
-                            <div class="details-term">Asunnon kunto</div>
-                            <div class="details-desc">Uusi</div>
-                        </div>
-                        <div class="details-row">
-                            <div class="details-term">Lisätietoa kunnosta</div>
-                            <div class="details-desc">Uudisrakennus</div>
-                        </div>
-                        <div class="details-row">
-                            <div class="details-term">Energialuokka</div>
-                            <div class="details-desc">A (2018)</div>
-                        </div>
-                        <div class="details-row">
-                            <div class="details-term">Vesijohto</div>
-                            <div class="details-desc">Kunnan vesijohto</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Asunnon tilat ja materiaalit -->
-                <div class="details-group">
-                    <div class="details-group-title">Asunnon tilat ja materiaalit</div>
-                    <div class="details-table">
-                        <div class="details-row">
-                            <div class="details-term">Rakennus- ja pintamateriaalit</div>
-                            <div class="details-desc">Pääasiallinen rakennusmateriaali: Puu</div>
-                        </div>
-                        <div class="details-row">
-                            <div class="details-term">Keittiön kuvaus</div>
-                            <div class="details-desc">Seinämateriaalit: Maalattu seinä. Varusteet: Jääkaappi, Pakastin,
-                                Astianpesukone. Työtaso: Laminaattitaso. Liesi: Induktioliesi, Erillisuuni.
-                                Liesituuletin</div>
-                        </div>
-                        <div class="details-row">
-                            <div class="details-term">Kylpyhuoneen kuvaus</div>
-                            <div class="details-desc">Seinämateriaali: Kaakeli/Laatta. Lattiamateriaali: Laattalattia.
-                            </div>
-                        </div>
-                        <div class="details-row">
-                            <div class="details-term">WC-tilojen kuvaus</div>
-                            <div class="details-desc">Seinämateriaali: Maalattu seinä. Lattiamateriaali: Laattalattia.
-                                Varusteet: Lattiaan asennettu WC, Bidee, Allaskaappi, Peili</div>
-                        </div>
-                        <div class="details-row">
-                            <div class="details-term">Saunan kuvaus</div>
-                            <div class="details-desc">Seinämateriaali: Paneeliseinä. Lattiamateriaali: Laattalattia.
-                                Varusteet: Sähkökiuas</div>
-                        </div>
-                        <div class="details-row">
-                            <div class="details-term">Kodinhoitohuoneen kuvaus</div>
-                            <div class="details-desc">Seinämateriaali: Maalattu seinä. Lattiamateriaali: Laattalattia.
-                                Varusteet: Pesukoneliitäntä, Pyykkikaapit, siivouskaappi. Lattiakaivo. Pöytätaso</div>
-                        </div>
-                        <div class="details-row">
-                            <div class="details-term">Olohuoneen kuvaus</div>
-                            <div class="details-desc">Lattiamateriaalit perusvalinta laminaatti tai asiakkaan valinnan
-                                mukaan. Maalatut seinät. Katto MDF-paneelia.</div>
-                        </div>
-                        <div class="details-row">
-                            <div class="details-term">Muiden huoneiden kuvaus</div>
-                            <div class="details-desc">Lattiamateriaalit perusvalinta laminaatti tai asiakkaan valinnan
-                                mukaan. Maalatut seinät. Katto MDF-paneelia.</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Asunnon tontti -->
-                <div class="details-group">
-                    <div class="details-group-title">Asunnon tontti</div>
-                    <div class="details-table">
-                        <div class="details-row">
-                            <div class="details-term">Tontin omistus</div>
-                            <div class="details-desc">Vuokra</div>
-                        </div>
-                        <div class="details-row">
-                            <div class="details-term">Kiinteistötunnus</div>
-                            <div class="details-desc">425-402-8-115</div>
-                        </div>
-                        <div class="details-row">
-                            <div class="details-term">Tontin pinta-ala</div>
-                            <div class="details-desc">1 380 m²</div>
-                        </div>
-                        <div class="details-row">
-                            <div class="details-term">Lisätietoja tontista</div>
-                            <div class="details-desc">Asuntojen tontin hallinta-alue on molemmilla asunnoilla 690m2.
-                                Lisäksi molemmilla asunnoilla on 20m2 yhteiskäyttöalue johon kuuluu tontin
-                                sisääntuloliittymä ja roska-katosalue. Tontille laaditaan hallinnanjakosopimus jossa
-                                kukin hallinta-alue vastaa omista kustannuksista sekä yhteiset kustannukset jaetaan
-                                tasan hallinnanjakosopimuksen mukaisesti.</div>
-                        </div>
-                        <div class="details-row">
-                            <div class="details-term">Rakennusoikeuden pinta-ala</div>
-                            <div class="details-desc">245 m²</div>
-                        </div>
-                        <div class="details-row">
-                            <div class="details-term">Tontin vuokraaja</div>
-                            <div class="details-desc">Limingan kunta</div>
-                        </div>
-                        <div class="details-row">
-                            <div class="details-term">Tontin vuokra</div>
-                            <div class="details-desc">1 159,20 € / vuosi</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Sijainti -->
-        <section class="location-section container">
-            <div class="location-grid">
-                <div class="map-wrapper">
-                    <iframe
-                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1712.5971946002772!2d25.3957!3d64.8143!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4681cf43d9ec6b09%3A0xe549bd8b57bd1931!2sSudenkorento%206%2C%2091900%20Liminka!5e0!3m2!1sfi!2sfi!4v1709214713781!5m2!1sfi!2sfi"
-                        loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-                </div>
-                <div>
-                    <h2 style="font-size: 2rem; margin-bottom: 1rem; letter-spacing: -0.02em;">Rauhallinen sijainti
-                        Limingan pientalovaltaisella asuinalueella.</h2>
-                    <p style="font-weight: 600; font-size: 1rem; margin-bottom: 1.5rem;">Osoite: <u
-                            style="text-decoration-thickness: 2px;">Sudenkorento 6, 91900 Liminka</u></p>
-                    <p style="color: var(--text-color); font-size: 0.875rem; line-height: 1.8;">
-                        Tontti on erityisellä alueella koska tontti rajautuu kahdelta sivulta puistokaistaan ja yhdeltä
-                        sivulta metsään. Kotiranta on omakotiasumisen unelmakohde keskellä kaunista maaseutua, mutta
-                        samalla aivan Limingan keskustan palveluiden äärellä. Kotiranta tarjoaa omakotiasujalle
-                        erinomaiset tontit, joista pääsee suoraan luontopoluille ja hiihtomaan. Kotiranta sijaitsee
-                        Limingan keskustan kupeessa erinomaisten liikenneyhteyksien varrella, kahdenkymmenen minuutin
-                        ajomatkan päässä Oulusta. Kaikki mitä tarvitset helppoon arkeen aivan käden ulottuvilla: kaupat,
-                        kirjasto, terveyskeskus, koulut ja päiväkodit. Lähialueella on tarjolla monipuoliset
-                        harrastusmahdollisuudet, jotka löytyvät kävely- tai pyöräilymatkan päästä.
-                    </p>
-                </div>
-            </div>
-        </section>
     </main>
 
     <footer class="site-footer">
@@ -347,11 +123,13 @@
             <div
                 style="border-top: 1px solid var(--border); padding-top: 1.5rem; font-size: 0.75rem; color: var(--text-muted); display: flex; justify-content: space-between;">
                 <span>© 2026 Valttikodit Oy</span>
-                <a href="mailto:jani.junes@valttikodit.fi">jani.junes@valttikodit.fi</a>
+                <a href="mailto:info@valttikodit.fi">info@valttikodit.fi</a>
             </div>
         </div>
     </footer>
 
-</body>
+    <!-- CSS/JS - Ei modulia jotta CORS-esteet estetään -->
+    <script src="../assets/js/main.js"></script>
 
+</body>
 </html>
