@@ -53,7 +53,19 @@ document.addEventListener('DOMContentLoaded', async () => {
                         project.gallery_images.forEach(imgUrl => {
                             const img = document.createElement('img');
                             img.src = imgUrl;
-                            img.style.cssText = "width: 100%; aspect-ratio: 4/3; object-fit: cover; border-radius: 4px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);";
+                            img.style.cssText = "width: 100%; aspect-ratio: 4/3; object-fit: cover; border-radius: 4px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); cursor: pointer; transition: transform 0.2s;";
+                            img.onmouseover = () => img.style.transform = 'scale(1.02)';
+                            img.onmouseout = () => img.style.transform = 'scale(1)';
+                            img.onclick = () => {
+                                const modal = document.createElement('div');
+                                modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.9); display: flex; align-items: center; justify-content: center; z-index: 9999; cursor: pointer; padding: 2rem; box-sizing: border-box;';
+                                const modalImg = document.createElement('img');
+                                modalImg.src = imgUrl;
+                                modalImg.style.cssText = 'max-width: 100%; max-height: 100%; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); object-fit: contain;';
+                                modal.appendChild(modalImg);
+                                modal.onclick = () => document.body.removeChild(modal);
+                                document.body.appendChild(modal);
+                            };
                             galleryContainer.appendChild(img);
                         });
                     }

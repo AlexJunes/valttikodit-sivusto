@@ -61,7 +61,7 @@
                         <div data-project="description" class="mb-4" style="white-space: pre-line;"></div>
                     </div>
 
-                    <h2 style="font-size: 1.5rem; margin-top: 2rem; margin-bottom: 1.5rem;">Kuvigalleria</h2>
+                    <h2 style="font-size: 1.5rem; margin-top: 2rem; margin-bottom: 1.5rem;">Kuvagalleria</h2>
                     <!-- JavaScript syöttää tänne uudet img-elementit kohteen galleriasta -->
                     <div id="project-gallery" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                         <p style="color: var(--text-muted);">Ladataan galleriaa...</p>
@@ -116,6 +116,107 @@
 
             </div>
         </div>
+    </main>
+
+        <!-- Asunnon perustiedot - Täysi taulukko -->
+        <section class="details-section">
+            <div class="container">
+                <h2 class="details-title">Asunnon perustiedot</h2>
+
+                <!-- Perustiedot -->
+                <div class="details-group">
+                    <div class="details-group-title">Perustiedot</div>
+                    <div class="details-table">
+                        <div class="details-row">
+                            <div class="details-term">Tyyppi</div>
+                            <div class="details-desc" data-project="type">Erillistalo (kiinteistö)</div>
+                        </div>
+                        <div class="details-row">
+                            <div class="details-term">Sijainti</div>
+                            <div class="details-desc" data-project="location">Liminka</div>
+                        </div>
+                        <div class="details-row">
+                            <div class="details-term">Osoite</div>
+                            <div class="details-desc" data-project="address">Osoite puuttuu</div>
+                        </div>
+                        <div class="details-row">
+                            <div class="details-term">Huoneistoselitelmä</div>
+                            <div class="details-desc" data-project="room_setup">4h + k + kph + s + vh + khh + var</div>
+                        </div>
+                        <div class="details-row">
+                            <div class="details-term">Asuintilojen pinta-ala</div>
+                            <div class="details-desc" data-project="area">82,5 m²</div>
+                        </div>
+                        <div class="details-row">
+                            <div class="details-term">Kokonaispinta-ala</div>
+                            <div class="details-desc" data-project="area_other">85,0 m²</div>
+                        </div>
+                        <div class="details-row">
+                            <div class="details-term">Rakennusvuosi</div>
+                            <div class="details-desc">2026</div>
+                        </div>
+                        <div class="details-row">
+                            <div class="details-term">Vapautuminen</div>
+                            <div class="details-desc">Sopimuksen mukaan. Sovitaan kaupanteon yhteydessä.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Asunnon tilat ja materiaalit -->
+                <div class="details-group">
+                    <div class="details-group-title">Asunnon tilat ja materiaalit</div>
+                    <div class="details-table">
+                        <div class="details-row">
+                            <div class="details-term">Rakennus- ja pintamateriaalit</div>
+                            <div class="details-desc">Pääasiallinen rakennusmateriaali: Puu</div>
+                        </div>
+                        <div class="details-row">
+                            <div class="details-term">Keittiön kuvaus</div>
+                            <div class="details-desc">Seinämateriaalit: Maalattu seinä. Varusteet: Jääkaappi, Pakastin,
+                                Astianpesukone. Työtaso: Laminaattitaso. Liesi: Induktioliesi, Erillisuuni.
+                                Liesituuletin</div>
+                        </div>
+                        <div class="details-row">
+                            <div class="details-term">Kylpyhuoneen kuvaus</div>
+                            <div class="details-desc">Seinämateriaali: Kaakeli/Laatta. Lattiamateriaali: Laattalattia.
+                            </div>
+                        </div>
+                        <div class="details-row">
+                            <div class="details-term">Saunan kuvaus</div>
+                            <div class="details-desc">Seinämateriaali: Paneeliseinä. Lattiamateriaali: Laattalattia.
+                                Varusteet: Sähkökiuas</div>
+                        </div>
+                        <div class="details-row">
+                            <div class="details-term">Kodinhoitohuoneen kuvaus</div>
+                            <div class="details-desc">Seinämateriaali: Maalattu seinä. Lattiamateriaali: Laattalattia.
+                                Varusteet: Pesukoneliitäntä. Lattiakaivo. Pöytätaso</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sijainti -->
+        <section class="location-section container">
+            <div class="location-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; padding: 4rem 0;">
+                <div class="map-wrapper">
+                    <!-- Staattinen kartta esimerkin vuoksi -->
+                    <iframe
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1712.5971946002772!2d25.3957!3d64.8143!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4681cf43d9ec6b09%3A0xe549bd8b57bd1931!2sSudenkorento%206%2C%2091900%20Liminka!5e0!3m2!1sfi!2sfi!4v1709214713781!5m2!1sfi!2sfi"
+                        loading="lazy" referrerpolicy="no-referrer-when-downgrade" style="width: 100%; height: 400px; border: 0; border-radius: 8px;"></iframe>
+                </div>
+                <div style="display: flex; flex-direction: column; justify-content: center;">
+                    <h2 style="font-size: 2rem; margin-bottom: 1rem; letter-spacing: -0.02em;">Sijainti ja Ympäristö</h2>
+                    <p style="font-weight: 600; font-size: 1rem; margin-bottom: 1.5rem;">Osoite: <u
+                            data-project="address" style="text-decoration-thickness: 2px;">Osoite pyydettäessä</u></p>
+                    <p style="color: var(--text-color); font-size: 0.875rem; line-height: 1.8;">
+                        Nauti rauhallisesta asumisesta erinomaisten kulkuyhteyksien ja luonnon läheisyydessä. 
+                        Tämä asunto sijaitsee arvostetulla pientaloalueella, tarjoten kaikki helpon arjen vaatimukset: 
+                        kaupat, koulut, päiväkodit ja upeat ulkoilumaastot aivan nurkan takana. 
+                    </p>
+                </div>
+            </div>
+        </section>
     </main>
 
     <footer class="site-footer">
