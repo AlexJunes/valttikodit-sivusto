@@ -151,59 +151,6 @@
     <!-- Footer scripts -->
     <script src="assets/js/config.js"></script>
     <script src="assets/js/main.js"></script>
-    
-    <!-- Liidi-integraatiokaappaus (Supabase & Web3Forms) -->
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const contactForm = document.getElementById('contact-form');
-            if (contactForm) {
-                contactForm.addEventListener('submit', async function(e) {
-                    e.preventDefault();
-                    const submitBtn = contactForm.querySelector('button[type="submit"]');
-                    const originalText = submitBtn.textContent;
-                    submitBtn.textContent = 'Lähetetään...';
-                    submitBtn.disabled = true;
-
-                    const formData = new FormData(contactForm);
-                    
-                    try {
-                        // 1. Tallenna liidi Supabaseen analytiikkaa ja Dashboardia varten
-                        if (window.supabase) {
-                            await window.supabase.from('leads').insert([{
-                                name: formData.get('name'),
-                                email: formData.get('email'),
-                                phone: formData.get('phone') || '',
-                                message: formData.get('message') || ''
-                            }]);
-                        }
-                    } catch(err) {
-                        console.error('Virhe tallennettaessa liidiä kantaan:', err);
-                    }
-
-                    // 2. Lähetä data Web3Forms -rajapintaan (Sähköposti-ilmoitus)
-                    try {
-                        const response = await fetch('https://api.web3forms.com/submit', {
-                            method: 'POST',
-                            body: formData
-                        });
-                        const data = await response.json();
-                        if (data.success) {
-                            window.location.href = contactForm.querySelector('input[name="redirect"]').value || 'https://valttikodit.fi/kiitos.html';
-                        } else {
-                            alert('Viestin lähetyksessä tapahtui virhe. Yritä myöhemmin uudelleen.');
-                            submitBtn.textContent = originalText;
-                            submitBtn.disabled = false;
-                        }
-                    } catch(err) {
-                        console.error('Web3Forms Error:', err);
-                        alert('Bugin vuoksi viestin lähetys epäonnistui.');
-                        submitBtn.textContent = originalText;
-                        submitBtn.disabled = false;
-                    }
-                });
-            }
-        });
-    </script>
 </body>
 
 </html>

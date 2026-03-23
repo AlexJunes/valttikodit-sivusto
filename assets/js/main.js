@@ -75,6 +75,20 @@ document.addEventListener('DOMContentLoaded', async () => {
                 return;
             }
 
+            // Tallenna liidi Supabaseen analytiikkaa ja Dashboardia varten
+            if (typeof supabase !== 'undefined') {
+                try {
+                    supabase.from('leads').insert([{
+                        name: formData.get('name'),
+                        email: formData.get('email'),
+                        phone: formData.get('phone') || '',
+                        message: formData.get('message') || ''
+                    }]).then(() => {});
+                } catch(err) {
+                    console.error('Supabase DB error:', err);
+                }
+            }
+
             fetch(contactForm.action, {
                 method: 'POST',
                 body: formData,
