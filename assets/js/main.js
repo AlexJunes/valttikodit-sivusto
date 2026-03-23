@@ -303,7 +303,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         default: statusFi = project.status; break;
                     }
 
-                    const priceStr = project.price ? `Hinta ${Number(project.price).toLocaleString('fi-FI')} €` : 'Hinta pyydettäessä';
+                    const priceStr = project.price ? `Hinta alk. ${Number(project.price).toLocaleString('fi-FI')} €` : 'Hinta pyydettäessä';
                     
                     const bgStyle = project.hero_image 
                         ? `background-color: #f3f4f6; background-image: url('${project.hero_image}'); background-size: cover; background-position: center;` 
