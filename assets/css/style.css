@@ -265,13 +265,26 @@ h3 {
 [data-project="description"] iframe,
 [data-cms] iframe,
 .project-layout iframe {
-    display: block;
+    display: block !important;
     width: 100% !important;
-    max-width: 100%;
-    margin: 2rem 0;
-    border-radius: var(--radius);
-    border: none;
-    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+    max-width: 100% !important;
+    height: 100vw !important; /* Fallback */
+    aspect-ratio: 1 / 1 !important;
+    margin: 2rem 0 !important;
+    float: none !important;
+    clear: both !important;
+    border-radius: var(--radius) !important;
+    border: none !important;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1) !important;
+}
+
+@media (min-width: 768px) {
+    [data-project="description"] iframe,
+    [data-cms] iframe,
+    .project-layout iframe {
+        height: 450px !important;
+        aspect-ratio: auto !important;
+    }
 }
 
 /* Grid Cards */
