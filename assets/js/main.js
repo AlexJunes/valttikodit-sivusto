@@ -164,7 +164,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                             if (el.tagName.toLowerCase() === 'img') {
                                 el.src = val;
                             } else if (el.tagName.toLowerCase() === 'iframe') {
-                                el.src = val;
+                                if (typeof val === 'string' && val.includes('<iframe') && val.includes('src="')) {
+                                    const match = val.match(/src="([^"]+)"/);
+                                    if (match && match[1]) el.src = match[1];
+                                } else {
+                                    el.src = val;
+                                }
                             } else if (key === 'hero_image') {
                                 el.style.backgroundImage = `url('${val}')`;
                             } else if (el.tagName.toLowerCase() === 'a') {
