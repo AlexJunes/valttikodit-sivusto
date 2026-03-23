@@ -276,6 +276,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         let pendingHeroFile = null;
         let existingHeroUrl = '';
         let currentGallery = [];
+        let existingProjectDetails = {};
 
         const heroImgElement = heroInput ? heroInput.parentElement.parentElement.querySelector('img') : null;
         if (heroInput && heroImgElement) {
@@ -359,6 +360,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     setVal(11, data.description || '');
 
                     if (data.details && Object.keys(data.details).length > 0) {
+                        existingProjectDetails = data.details;
                         setVal(12, data.details["Sijainnin otsikko"] !== undefined ? data.details["Sijainnin otsikko"] : '');
                         setVal(13, data.details["Sijainnin kuvaus"] !== undefined ? data.details["Sijainnin kuvaus"] : '');
                         setVal(14, data.details["Google Maps Embed"] !== undefined ? data.details["Google Maps Embed"] : '');
@@ -457,6 +459,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         hero_image: finalHeroUrl,
                         gallery_images: finalGallery,
                         details: {
+                            ...existingProjectDetails,
                             "Sijainnin otsikko": getVal(12),
                             "Sijainnin kuvaus": getVal(13),
                             "Google Maps Embed": getVal(14),
