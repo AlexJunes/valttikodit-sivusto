@@ -289,6 +289,14 @@ document.addEventListener('DOMContentLoaded', async () => {
             targetList.innerHTML = '';
 
             if (projects && projects.length > 0) {
+                projects.sort((a, b) => {
+                    const orderA = a.details && a.details['Järjestys'] !== undefined ? parseInt(a.details['Järjestys']) : 999;
+                    const orderB = b.details && b.details['Järjestys'] !== undefined ? parseInt(b.details['Järjestys']) : 999;
+                    if (orderA !== orderB) return orderA - orderB;
+                    // Secondary fallback sort
+                    return b.id - a.id;
+                });
+
                 projects.forEach(project => {
                     let statusFi = '';
                     let statusClass = '';

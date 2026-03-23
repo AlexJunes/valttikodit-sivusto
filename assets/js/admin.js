@@ -76,20 +76,39 @@ document.addEventListener('DOMContentLoaded', async () => {
     const projectsTable = document.getElementById('projects-tbody');
     if (projectsTable) {
         try {
-            const { data, error } = await supabase.from('projects').select('id, title, location, status, published');
+            const { data, error } = await supabase.from('projects').select('id, title, location, status, published, details');
             if (error) throw error;
             
             projectsTable.innerHTML = '';
             if (!data || data.length === 0) {
                 projectsTable.innerHTML = '<tr><td colspan="5">Ei kohteita.</td></tr>';
             } else {
+                data.sort((a, b) => {
+                    const orderA = a.details && a.details['Järjestys'] !== undefined ? parseInt(a.details['Järjestys']) : 999;
+                    const orderB = b.details && b.details['Järjestys'] !== undefined ? parseInt(b.details['Järjestys']) : 999;
+                    if (orderA !== orderB) return orderA - orderB;
+                    return b.id - a.id;
+                });
+
                 data.forEach(project => {
                     const row = document.createElement('tr');
                     const statusText = project.status || 'TUNTEMATON';
                     const pubText = project.published ? '<span style="color: green; font-weight: 600;">Kyllä</span>' : '<span style="color: red;">Ei</span>';
                     
+                    row.dataset.id = project.id;
+                    row.dataset.details = JSON.stringify(project.details || {});
+                    
                     row.innerHTML = `
-                        <td style="font-weight: 500;">${project.title || '-'}</td>
+                        <td style="font-weight: 500;">
+                            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                <div style="display: flex; flex-direction: column; background: #f9fafb; border: 1px solid var(--border); border-radius: 4px;">
+                                    <button class="btn" style="padding: 0.15rem 0.35rem; border: none; font-size: 0.65rem; background: transparent; cursor: pointer; color: var(--text-muted);" onclick="moveProjectRow(this, -1)">&#x25B2;</button>
+                                    <div style="height: 1px; background: var(--border); width: 100%;"></div>
+                                    <button class="btn" style="padding: 0.15rem 0.35rem; border: none; font-size: 0.65rem; background: transparent; cursor: pointer; color: var(--text-muted);" onclick="moveProjectRow(this, 1)">&#x25BC;</button>
+                                </div>
+                                ${project.title || '-'}
+                            </div>
+                        </td>
                         <td>${project.location || '-'}</td>
                         <td><span style="background: var(--accent); padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem;">${statusText}</span></td>
                         <td>${pubText}</td>
@@ -114,6 +133,47 @@ document.addEventListener('DOMContentLoaded', async () => {
                 } else {
                     window.location.reload();
                 }
+            }
+        };
+
+        window.moveProjectRow = (btn, dir) => {
+            const row = btn.closest('tr');
+            const tbody = row.parentElement;
+            if (dir === -1 && row.previousElementSibling) {
+                tbody.insertBefore(row, row.previousElementSibling);
+                document.getElementById('save-order-btn').style.display = 'block';
+            } else if (dir === 1 && row.nextElementSibling) {
+                tbody.insertBefore(row.nextElementSibling, row);
+                document.getElementById('save-order-btn').style.display = 'block';
+            }
+        };
+
+        window.saveProjectOrder = async () => {
+            const btn = document.getElementById('save-order-btn');
+            btn.textContent = 'Tallennetaan...';
+            btn.disabled = true;
+
+            const rows = Array.from(document.querySelectorAll('#projects-tbody tr[data-id]'));
+            const updates = rows.map((row, index) => {
+                const id = row.dataset.id;
+                let detailsStr = row.dataset.details || '{}';
+                // Handle parsing gracefully in case of malformed injections
+                let details;
+                try { details = JSON.parse(detailsStr); } catch(e) { details = {}; }
+                
+                details['Järjestys'] = index + 1;
+                return supabase.from('projects').update({ details: details }).eq('id', id);
+            });
+
+            try {
+                await Promise.all(updates);
+                alert("Järjestys tallennettu onnistuneesti!");
+                window.location.reload();
+            } catch (err) {
+                console.error("Order save err:", err);
+                alert("Virhe tallennuksessa!");
+                btn.textContent = 'Tallenna järjestys';
+                btn.disabled = false;
             }
         };
     }

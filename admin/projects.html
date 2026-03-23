@@ -33,7 +33,10 @@
     <main class="admin-main">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
             <h1 style="font-size: 1.875rem; margin-bottom: 0;">Kohteet</h1>
-            <button class="btn btn-primary" onclick="window.location.href='edit-project.html'">Lisää uusi kohde</button>
+            <div style="display: flex; gap: 1rem;">
+                <button class="btn btn-outline" id="save-order-btn" style="display: none;" onclick="saveProjectOrder()">Tallenna järjestys</button>
+                <button class="btn btn-primary" onclick="window.location.href='edit-project.html'">Lisää uusi kohde</button>
+            </div>
         </div>
 
         <div class="admin-card" style="padding: 0; overflow-x: auto;">
