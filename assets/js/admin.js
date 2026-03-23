@@ -59,17 +59,98 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // --- DASHBOARD.HTML ---
     if (path.includes('dashboard.html')) {
-        const statsCards = document.querySelectorAll('.admin-card p');
-        if (statsCards.length > 0) {
-            try {
-                const { count, error } = await supabase.from('projects').select('*', { count: 'exact', head: true });
-                if (!error && count !== null) {
-                    statsCards[0].textContent = count;
-                }
-            } catch (err) {
-                console.error("Dashboard stats fetch failed", err);
+        try {
+            // Myytävät kohteet count
+            const dashProjectsCount = document.getElementById('dash-projects-count');
+            if (dashProjectsCount) {
+                const { count, error } = await supabase.from('projects').select('*', { count: 'exact', head: true }).eq('published', true);
+                if (!error) dashProjectsCount.textContent = count || '0';
             }
+
+            // Uudet liidit count & table
+            const dashLeadsCount = document.getElementById('dash-leads-count');
+            const leadsTbody = document.getElementById('leads-tbody');
+            
+            if (dashLeadsCount || leadsTbody) {
+                const { data: leadsData, error: leadsErr } = await supabase.from('leads').select('*').order('created_at', { ascending: false });
+                if (!leadsErr && leadsData) {
+                    const newLeads = leadsData.filter(l => l.status === 'UUSI');
+                    if (dashLeadsCount) dashLeadsCount.textContent = newLeads.length;
+
+                    if (leadsTbody) {
+                        leadsTbody.innerHTML = '';
+                        if (leadsData.length === 0) {
+                            leadsTbody.innerHTML = '<tr><td colspan="7">Ei yhteydenottopyyntöjä.</td></tr>';
+                        } else {
+                            leadsData.forEach(lead => {
+                                const tr = document.createElement('tr');
+                                const d = new Date(lead.created_at);
+                                const dateStr = d.toLocaleDateString('fi-FI') + ' ' + d.toLocaleTimeString('fi-FI', {hour: '2-digit', minute:'2-digit'});
+                                const statusHtml = lead.status === 'UUSI' 
+                                    ? '<span style="background: #ef4444; color: white; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem;">UUSI</span>' 
+                                    : '<span style="background: #e5e7eb; color: var(--text-color); padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem;">KÄSITELTY</span>';
+                                
+                                tr.innerHTML = `
+                                    <td>${dateStr}</td>
+                                    <td style="font-weight: 500;">${lead.name || '-'}</td>
+                                    <td><a href="mailto:${lead.email}">${lead.email}</a></td>
+                                    <td><a href="tel:${lead.phone}">${lead.phone || '-'}</a></td>
+                                    <td><div style="max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${lead.message}">${lead.message || '-'}</div></td>
+                                    <td>${statusHtml}</td>
+                                    <td style="text-align: right;">
+                                        ${lead.status === 'UUSI' ? `<button class="btn btn-outline" style="padding: 0.25rem 0.75rem; font-size: 0.75rem;" onclick="markLeadHandled('${lead.id}')">Merkitse käsitellyksi</button>` : `<button class="btn btn-outline" style="padding: 0.25rem 0.75rem; font-size: 0.75rem; border-color: #ef4444; color: #ef4444;" onclick="deleteLead('${lead.id}')">Poista</button>`}
+                                    </td>
+                                `;
+                                leadsTbody.appendChild(tr);
+                            });
+                        }
+                    }
+                }
+            }
+
+            // Page views 7d, 30d, 12m
+            const pv7 = document.getElementById('pv-7d');
+            const pv30 = document.getElementById('pv-30d');
+            const pv12 = document.getElementById('pv-12m');
+
+            if (pv7 && pv30 && pv12) {
+                const now = new Date();
+                const d7 = new Date(now); d7.setDate(d7.getDate() - 7);
+                const d30 = new Date(now); d30.setDate(d30.getDate() - 30);
+                const d365 = new Date(now); d365.setDate(d365.getDate() - 365);
+
+                const { data: pvData, error: pvErr } = await supabase.from('page_views').select('created_at').gte('created_at', d365.toISOString());
+                
+                if (!pvErr && pvData) {
+                    let c7=0, c30=0, c365=pvData.length;
+                    pvData.forEach(row => {
+                        const rowDate = new Date(row.created_at);
+                        if (rowDate >= d7) c7++;
+                        if (rowDate >= d30) c30++;
+                    });
+                    
+                    pv7.textContent = c7;
+                    pv30.textContent = c30;
+                    pv12.textContent = c365;
+                } else {
+                    pv7.textContent = '0'; pv30.textContent = '0'; pv12.textContent = '0';
+                }
+            }
+        } catch (err) {
+            console.error("Dashboard fetch err:", err);
         }
+
+        window.markLeadHandled = async (id) => {
+            await supabase.from('leads').update({ status: 'KÄSITELTY' }).eq('id', id);
+            window.location.reload();
+        };
+
+        window.deleteLead = async (id) => {
+            if(confirm("Tuhoa kyseinen liidi täysin järjestelmästä?")) {
+                await supabase.from('leads').delete().eq('id', id);
+                window.location.reload();
+            }
+        };
     }
 
     // --- PROJECTS.HTML ---

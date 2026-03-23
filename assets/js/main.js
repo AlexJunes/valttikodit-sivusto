@@ -8,6 +8,18 @@ document.addEventListener('DOMContentLoaded', async () => {
         supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     }
 
+    // Yksinkertainen analytiikkaseuranta sivulatauksille
+    if (typeof supabase !== 'undefined') {
+        let cleanPath = window.location.pathname.split('/').pop() || 'index.html';
+        if (cleanPath === '' || cleanPath === '/') cleanPath = 'index.html';
+        
+        try {
+            await supabase.from('page_views').insert([{ path: cleanPath }]);
+        } catch(e) {
+            console.error("Pageview log failed:", e);
+        }
+    }
+
     // Hamburger Menu Logic
     const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
     const navLinks = document.querySelector('.nav-links');
