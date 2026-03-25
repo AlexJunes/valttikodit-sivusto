@@ -209,6 +209,30 @@ document.addEventListener('DOMContentLoaded', async () => {
                         }
                     }
 
+                    // Dynamically render Social Media links for the project
+                    const someTitle = project.details ? project.details['Some Otsikko'] : null;
+                    const fbLink = project.details ? project.details['Facebook Linkki'] : null;
+                    const igLink = project.details ? project.details['Instagram Linkki'] : null;
+                    
+                    if (fbLink || igLink) {
+                        const someContainer = document.getElementById('kohde-some-container');
+                        if (someContainer) {
+                            someContainer.style.display = 'block';
+                            if (someTitle) document.getElementById('kohde-some-otsikko').textContent = someTitle;
+                            
+                            if (fbLink) {
+                                const fbEl = document.getElementById('kohde-some-fb');
+                                fbEl.style.display = 'flex';
+                                fbEl.href = fbLink;
+                            }
+                            if (igLink) {
+                                const igEl = document.getElementById('kohde-some-ig');
+                                igEl.style.display = 'flex';
+                                igEl.href = igLink;
+                            }
+                        }
+                    }
+
                     // Dynamically set Meta tags for SEO & AI & Social Shares
                     document.title = project.title + " | Valttikodit Kohteet";
                     const metaDesc = document.createElement('meta');

@@ -550,7 +550,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         if (!projectId) {
-            for(let i=0; i<15; i++) setVal(i, '');
+            for(let i=0; i<52; i++) setVal(i, '');
         } else {
             try {
                 const { data, error } = await supabase.from('projects').select('*').eq('id', projectId).single();
@@ -583,6 +583,32 @@ document.addEventListener('DOMContentLoaded', async () => {
                         setVal(22, data.details["Asuinkerrosten määrä"] !== undefined ? data.details["Asuinkerrosten määrä"] : '');
                         setVal(23, data.details["Rakennusvuosi"] !== undefined ? data.details["Rakennusvuosi"] : '');
                         setVal(24, data.details["Vapautuminen"] !== undefined ? data.details["Vapautuminen"] : '');
+                        setVal(25, data.details["Sauna"] !== undefined ? data.details["Sauna"] : '');
+                        setVal(26, data.details["Asuntoon kuuluu"] !== undefined ? data.details["Asuntoon kuuluu"] : '');
+                        setVal(27, data.details["Kohteen lisätiedot"] !== undefined ? data.details["Kohteen lisätiedot"] : '');
+                        setVal(28, data.details["Asunnon kunto"] !== undefined ? data.details["Asunnon kunto"] : '');
+                        setVal(29, data.details["Lisätietoa kunnosta"] !== undefined ? data.details["Lisätietoa kunnosta"] : '');
+                        setVal(30, data.details["Energialuokka"] !== undefined ? data.details["Energialuokka"] : '');
+                        setVal(31, data.details["Vesijohto"] !== undefined ? data.details["Vesijohto"] : '');
+                        setVal(32, data.details["Rakennus- ja pintamateriaalit"] !== undefined ? data.details["Rakennus- ja pintamateriaalit"] : '');
+                        setVal(33, data.details["Keittiön kuvaus"] !== undefined ? data.details["Keittiön kuvaus"] : '');
+                        setVal(34, data.details["Kylpyhuoneen kuvaus"] !== undefined ? data.details["Kylpyhuoneen kuvaus"] : '');
+                        setVal(35, data.details["WC-tilojen kuvaus"] !== undefined ? data.details["WC-tilojen kuvaus"] : '');
+                        setVal(36, data.details["Saunan kuvaus"] !== undefined ? data.details["Saunan kuvaus"] : '');
+                        setVal(37, data.details["Kodinhoitohuoneen kuvaus"] !== undefined ? data.details["Kodinhoitohuoneen kuvaus"] : '');
+                        setVal(38, data.details["Olohuoneen kuvaus"] !== undefined ? data.details["Olohuoneen kuvaus"] : '');
+                        setVal(39, data.details["Muiden huoneiden kuvaus"] !== undefined ? data.details["Muiden huoneiden kuvaus"] : '');
+                        setVal(40, data.details["Tontin omistus"] !== undefined ? data.details["Tontin omistus"] : '');
+                        setVal(41, data.details["Kiinteistötunnus"] !== undefined ? data.details["Kiinteistötunnus"] : '');
+                        setVal(42, data.details["Tontin pinta-ala"] !== undefined ? data.details["Tontin pinta-ala"] : '');
+                        setVal(43, data.details["Rakennusoikeuden pinta-ala"] !== undefined ? data.details["Rakennusoikeuden pinta-ala"] : '');
+                        setVal(44, data.details["Tontin vuokraaja"] !== undefined ? data.details["Tontin vuokraaja"] : '');
+                        setVal(45, data.details["Tontin vuokra"] !== undefined ? data.details["Tontin vuokra"] : '');
+                        setVal(46, data.details["Lisätietoja tontista"] !== undefined ? data.details["Lisätietoja tontista"] : '');
+                        setVal(47, data.details["Valmiusaste (%)"] !== undefined ? data.details["Valmiusaste (%)"] : '');
+                        setVal(48, data.details["Some Otsikko"] !== undefined ? data.details["Some Otsikko"] : '');
+                        setVal(49, data.details["Facebook Linkki"] !== undefined ? data.details["Facebook Linkki"] : '');
+                        setVal(50, data.details["Instagram Linkki"] !== undefined ? data.details["Instagram Linkki"] : '');
                         setVal(25, data.details["Sauna"] !== undefined ? data.details["Sauna"] : '');
                         setVal(26, data.details["Asuntoon kuuluu"] !== undefined ? data.details["Asuntoon kuuluu"] : '');
                         setVal(27, data.details["Kohteen lisätiedot"] !== undefined ? data.details["Kohteen lisätiedot"] : '');
@@ -704,7 +730,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                             "Tontin vuokraaja": getVal(44),
                             "Tontin vuokra": getVal(45),
                             "Lisätietoja tontista": getVal(46),
-                            "Valmiusaste (%)": getVal(47)
+                            "Valmiusaste (%)": getVal(47),
+                            "Some Otsikko": getVal(48),
+                            "Facebook Linkki": getVal(49),
+                            "Instagram Linkki": getVal(50)
                         }
                     };
 
