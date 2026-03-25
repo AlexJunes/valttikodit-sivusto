@@ -76,6 +76,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                         if (loginForm) loginForm.style.display = 'none';
                         if (mfaForm) mfaForm.style.display = 'block';
                     } else if (mfaSetupForm && loginForm) {
+                        const unverifiedFactors = (factorsData.totp || []).filter(f => f.status === 'unverified');
+                        for (const uf of unverifiedFactors) {
+                            await supabase.auth.mfa.unenroll({ factorId: uf.id });
+                        }
                         const { data: enrollData, error: enrollErr } = await supabase.auth.mfa.enroll({ factorType: 'totp' });
                         if (!enrollErr) {
                             setupFactorId = enrollData.id;
@@ -137,6 +141,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                         loginForm.style.display = 'none';
                         mfaForm.style.display = 'block';
                     } else {
+                        // Unenroll any existing unverified factors to prevent "already exists" errors
+                        const unverifiedFactors = totpFactors.filter(f => f.status === 'unverified');
+                        for (const uf of unverifiedFactors) {
+                            await supabase.auth.mfa.unenroll({ factorId: uf.id });
+                        }
+
                         // Enroll MFA
                         const { data: enrollData, error: enrollErr } = await supabase.auth.mfa.enroll({ factorType: 'totp' });
                         if (enrollErr) {
