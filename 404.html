@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+    <meta charset="utf-8">
+    <title>Ladataan kohdetta...</title>
+    <script>
+        var path = window.location.pathname;
+        // Jos käyttäjä yrittää ladata suoraan /kohteet/kohde-nimi
+        if (path.startsWith('/kohteet/') && path.length > 9) {
+            var slug = path.substring(9).replace(/\/$/, '');
+            window.location.replace('/kohde.html?kohde=' + slug + '&rewrite=true');
+        } else {
+            // Normaali 404 virhe muille sivuille
+            window.location.replace('/?404=true');
+        }
+    </script>
+</head>
+<body>
+    <div style="font-family: sans-serif; padding: 2rem; max-width: 600px; margin: 0 auto; text-align: center;">
+        <p>Ladataan sivua, odota hetki...</p>
+    </div>
+</body>
+</html>

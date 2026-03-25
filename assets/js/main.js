@@ -133,6 +133,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         try {
             if (isProjectPage && slug) {
+                if (urlParams.get('rewrite') === 'true') {
+                    window.history.replaceState({}, '', `/kohteet/${slug}`);
+                }
                 // Ladataan kohteen tiedot tietokannasta url-parametrin perusteella (case-insensitive for legacy slugs)
                 const { data: project, error } = await supabase.from('projects').select('*').ilike('slug', slug).maybeSingle();
                 if (project && !error) {
@@ -370,7 +373,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     }
 
                     const cardHtml = `
-                        <a href="kohde.html?kohde=${safeSlug}" class="card" style="text-decoration: none; color: inherit; display: flex; flex-direction: column;">
+                        <a href="/kohteet/${safeSlug}" class="card" style="text-decoration: none; color: inherit; display: flex; flex-direction: column;">
                             <div class="card-img" style="${bgStyle}">
                                 ${statusFi ? `<span class="card-badge ${statusClass}" ${project.status === 'SOLD' ? 'style="background-color: #10b981; color: white;"' : ''}>${statusFi}</span>` : ''}
                             </div>
