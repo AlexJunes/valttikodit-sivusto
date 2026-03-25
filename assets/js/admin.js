@@ -140,8 +140,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                         // Enroll MFA
                         const { data: enrollData, error: enrollErr } = await supabase.auth.mfa.enroll({ factorType: 'totp' });
                         if (enrollErr) {
-                            loginErr.textContent = 'MFA-asetuksen aloitus epäonnistui.';
+                            loginErr.textContent = 'MFA-asetuksen aloitus epäonnistui: ' + enrollErr.message;
                             loginErr.style.display = 'block';
+                            loginBtn.disabled = false;
+                            loginBtn.textContent = 'Kirjaudu Sisään';
                             return;
                         }
                         
