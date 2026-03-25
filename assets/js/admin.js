@@ -87,7 +87,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                             mfaSetupForm.style.display = 'block';
                             const qrContainer = document.getElementById('qrcode-container');
                             if (qrContainer) {
-                                qrContainer.innerHTML = `<img src="${enrollData.totp.qr_code}" alt="QR Koodi" style="width: 150px; height: 150px;" />`;
+                                let svgStr = enrollData.totp.qr_code;
+                                if (svgStr.startsWith('data:image/svg+xml;utf-8,')) {
+                                    svgStr = svgStr.replace('data:image/svg+xml;utf-8,', '');
+                                }
+                                qrContainer.innerHTML = svgStr;
                             }
                         }
                     }
@@ -163,7 +167,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                         const qrContainer = document.getElementById('qrcode-container');
                         if (qrContainer) {
-                            qrContainer.innerHTML = `<img src="${enrollData.totp.qr_code}" alt="QR Koodi" style="width: 150px; height: 150px;" />`;
+                            let svgStr = enrollData.totp.qr_code;
+                            if (svgStr.startsWith('data:image/svg+xml;utf-8,')) {
+                                svgStr = svgStr.replace('data:image/svg+xml;utf-8,', '');
+                            }
+                            qrContainer.innerHTML = svgStr;
                         }
                     }
                 };
