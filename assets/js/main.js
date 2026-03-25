@@ -361,68 +361,102 @@ document.addEventListener('DOMContentLoaded', async () => {
                     return b.id - a.id;
                 });
 
-                projects.forEach(project => {
-                    let statusFi = '';
-                    let statusClass = '';
-                    switch (project.status) {
-                        case 'MARKETING': statusFi = 'ENNAKKOMARKKINOINTI'; break;
-                        case 'AVAILABLE': statusFi = 'MYYNNISSÄ'; break;
-                        case 'CONSTRUCTION': statusFi = 'RAKENTEILLA'; break;
-                        case 'SOLD': 
-                            statusFi = 'MYYTY'; 
-                            statusClass = 'sold';
-                            break;
-                        default: statusFi = project.status; break;
-                    }
+                const availableProjects = projects.filter(p => p.status !== 'SOLD');
+                const soldProjects = projects.filter(p => p.status === 'SOLD');
 
-                    const priceStr = project.price ? `Hinta alk. ${Number(project.price).toLocaleString('fi-FI')} €` : 'Hinta pyydettäessä';
-                    
-                    const bgStyle = project.hero_image 
-                        ? `background-color: #f3f4f6; background-image: url('${project.hero_image}'); background-size: cover; background-position: center;` 
-                        : `background-color: #f3f4f6;`;
-
-                    const safeSlug = (project.slug || 'default').toString().trim().toLowerCase().replace(/\s+/g, '-');
-
-                    let progressBarHtml = '';
-                    const valmiusRaw = project.details ? project.details['Valmiusaste (%)'] : null;
-                    if (valmiusRaw !== null && valmiusRaw !== undefined && valmiusRaw !== '') {
-                        const valm = parseInt(valmiusRaw);
-                        if (!isNaN(valm)) {
-                            progressBarHtml = `
-                                <div style="margin-bottom: 1rem; margin-top: auto;">
-                                    <div style="display: flex; justify-content: space-between; font-size: 0.75rem; margin-bottom: 0.35rem; font-weight: 600;">
-                                        <span style="color: var(--text-color);">Valmiusaste</span>
-                                        <span style="color: #10b981;">${valm}%</span>
-                                    </div>
-                                    <div style="width: 100%; background-color: #e5e7eb; border-radius: 9999px; height: 6px; overflow: hidden;">
-                                        <div style="background-color: #10b981; height: 100%; border-radius: 9999px; width: ${valm}%;"></div>
-                                    </div>
-                                </div>
-                            `;
+                const renderCards = (list, container) => {
+                    list.forEach(project => {
+                        let statusFi = '';
+                        let statusClass = '';
+                        switch (project.status) {
+                            case 'MARKETING': statusFi = 'ENNAKKOMARKKINOINTI'; break;
+                            case 'AVAILABLE': statusFi = 'MYYNNISSÄ'; break;
+                            case 'CONSTRUCTION': statusFi = 'RAKENTEILLA'; break;
+                            case 'SOLD': 
+                                statusFi = 'MYYTY'; 
+                                statusClass = 'sold';
+                                break;
+                            default: statusFi = project.status; break;
                         }
+
+                        const priceStr = project.price ? `Hinta alk. ${Number(project.price).toLocaleString('fi-FI')} €` : 'Hinta pyydettäessä';
+                        
+                        const bgStyle = project.hero_image 
+                            ? `background-color: #f3f4f6; background-image: url('${project.hero_image}'); background-size: cover; background-position: center;` 
+                            : `background-color: #f3f4f6;`;
+
+                        const safeSlug = (project.slug || 'default').toString().trim().toLowerCase().replace(/\s+/g, '-');
+
+                        let progressBarHtml = '';
+                        const valmiusRaw = project.details ? project.details['Valmiusaste (%)'] : null;
+                        if (valmiusRaw !== null && valmiusRaw !== undefined && valmiusRaw !== '') {
+                            const valm = parseInt(valmiusRaw);
+                            if (!isNaN(valm)) {
+                                progressBarHtml = `
+                                    <div style="margin-bottom: 1rem; margin-top: auto;">
+                                        <div style="display: flex; justify-content: space-between; font-size: 0.75rem; margin-bottom: 0.35rem; font-weight: 600;">
+                                            <span style="color: var(--text-color);">Valmiusaste</span>
+                                            <span style="color: #10b981;">${valm}%</span>
+                                        </div>
+                                        <div style="width: 100%; background-color: #e5e7eb; border-radius: 9999px; height: 6px; overflow: hidden;">
+                                            <div style="background-color: #10b981; height: 100%; border-radius: 9999px; width: ${valm}%;"></div>
+                                        </div>
+                                    </div>
+                                `;
+                            }
+                        }
+
+                        const cardHtml = `
+                            <a href="/kohteet/${safeSlug}" class="card" style="text-decoration: none; color: inherit; display: flex; flex-direction: column;">
+                                <div class="card-img" style="${bgStyle}">
+                                    ${statusFi ? `<span class="card-badge ${statusClass}" ${project.status === 'SOLD' ? 'style="background-color: #10b981; color: white;"' : ''}>${statusFi}</span>` : ''}
+                                </div>
+                                <div class="card-content" style="display: flex; flex-direction: column; flex: 1;">
+                                    <div style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 0.5rem;">${project.location || ''}</div>
+                                    <h3 style="transition: color 0.2s;">${project.title || 'Nimetön kohde'}</h3>
+                                    <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1rem;">
+                                        ${project.ingress || project.description || ''}
+                                    </p>
+                                    ${progressBarHtml}
+                                    <div style="font-weight: 600;">${priceStr}</div>
+                                </div>
+                            </a>
+                        `;
+
+                        const wrapper = document.createElement('div');
+                        wrapper.innerHTML = cardHtml.trim();
+                        container.appendChild(wrapper.firstChild);
+                    });
+                };
+
+                if (availableProjects.length > 0) {
+                    renderCards(availableProjects, targetList);
+                } else {
+                    targetList.innerHTML = '<p>Ei myynnissä olevia kohteita tällä hetkellä.</p>';
+                }
+
+                if (soldProjects.length > 0) {
+                    const titleTag = targetList.id === 'latest-projects' ? 'h2' : 'h1';
+                    const soldTitle = document.createElement(titleTag);
+                    soldTitle.textContent = 'Myydyt kohteet';
+                    soldTitle.style.marginBottom = '1rem';
+                    soldTitle.style.marginTop = '4rem'; 
+                    
+                    if (titleTag === 'h2') {
+                        soldTitle.style.fontSize = '2.5rem';
+                        soldTitle.style.fontWeight = '700';
+                        soldTitle.style.letterSpacing = '-0.02em';
                     }
 
-                    const cardHtml = `
-                        <a href="/kohteet/${safeSlug}" class="card" style="text-decoration: none; color: inherit; display: flex; flex-direction: column;">
-                            <div class="card-img" style="${bgStyle}">
-                                ${statusFi ? `<span class="card-badge ${statusClass}" ${project.status === 'SOLD' ? 'style="background-color: #10b981; color: white;"' : ''}>${statusFi}</span>` : ''}
-                            </div>
-                            <div class="card-content" style="display: flex; flex-direction: column; flex: 1;">
-                                <div style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 0.5rem;">${project.location || ''}</div>
-                                <h3 style="transition: color 0.2s;">${project.title || 'Nimetön kohde'}</h3>
-                                <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1rem;">
-                                    ${project.ingress || project.description || ''}
-                                </p>
-                                ${progressBarHtml}
-                                <div style="font-weight: 600;">${priceStr}</div>
-                            </div>
-                        </a>
-                    `;
+                    const soldGrid = document.createElement('div');
+                    soldGrid.className = 'card-grid';
 
-                    const wrapper = document.createElement('div');
-                    wrapper.innerHTML = cardHtml.trim();
-                    targetList.appendChild(wrapper.firstChild);
-                });
+                    targetList.parentNode.insertBefore(soldTitle, targetList.nextSibling);
+                    targetList.parentNode.insertBefore(soldGrid, soldTitle.nextSibling);
+
+                    renderCards(soldProjects, soldGrid);
+                }
+
             } else {
                  targetList.innerHTML = '<p>Ei julkaistuja kohteita tällä hetkellä.</p>';
             }
