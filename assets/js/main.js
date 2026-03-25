@@ -295,7 +295,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                                 if (typeof val === 'string' && val.startsWith('http') && (val.match(/\.(jpeg|jpg|gif|png|webp)/i) || val.includes('supabase.co/storage'))) {
                                     el.innerHTML = `<img src="${val}" style="max-width: 100%; height: auto; border-radius: 8px; margin-top: 1rem; margin-bottom: 1rem; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">`;
                                 } else {
-                                    el.innerHTML = val;
+                                    let formattedVal = val;
+                                    if (el.hasAttribute('data-list') && typeof val === 'string') {
+                                        const items = val.split('\n').filter(line => line.trim() !== '').map(line => line.replace(/^[-•*]\s/, ''));
+                                        formattedVal = `<ul style="list-style-type: none; padding-left: 0; margin: 0; display: flex; flex-direction: column; gap: 0.5rem;">` + items.map(line => `<li style="position: relative; padding-left: 1.25rem;"><span style="position: absolute; left: 0; color: var(--primary);">•</span>${line}</li>`).join('') + `</ul>`;
+                                    }
+                                    el.innerHTML = formattedVal;
                                 }
                             }
                         }
