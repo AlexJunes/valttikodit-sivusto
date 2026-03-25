@@ -9,6 +9,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/style.css">
     <link rel="stylesheet" href="../assets/css/admin.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 
 <body>
@@ -17,17 +19,47 @@
         <div class="login-box">
             <h1 class="text-center" style="font-size: 1.5rem; margin-bottom: 2rem;">Valttikodit Admin</h1>
 
+            <!-- Vaihe 1: Sähköposti ja salasana -->
             <form id="admin-login-form">
                 <div class="form-group">
-                    <label class="form-label" for="username">Käyttäjätunnus</label>
-                    <input class="form-input" type="text" id="username" required>
+                    <label class="form-label" for="username">Sähköposti</label>
+                    <input class="form-input" type="email" id="username" required>
                 </div>
                 <div class="form-group">
                     <label class="form-label" for="password">Salasana</label>
                     <input class="form-input" type="password" id="password" required>
                 </div>
-                <button type="submit" class="btn btn-primary" style="width: 100%;">Kirjaudu Sisään</button>
+                <div id="login-error" style="color: red; margin-bottom: 1rem; display: none;"></div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;" id="login-btn">Kirjaudu Sisään</button>
             </form>
+
+            <!-- Vaihe 2: Kaksivaiheinen tunnistus (TOTP) -->
+            <form id="mfa-form" style="display: none;">
+                <p style="margin-bottom: 1rem; font-size: 0.9rem; color: #4b5563;">Syötä 6-numeroinen vahvistuskoodi Google Authenticator -sovelluksesta.</p>
+                <div class="form-group">
+                    <label class="form-label" for="mfa-code">Vahvistuskoodi</label>
+                    <input class="form-input" type="text" id="mfa-code" placeholder="123456" pattern="[0-9]*" maxlength="6" required style="letter-spacing: 5px; font-weight: bold; text-align: center; font-size: 1.25rem;">
+                </div>
+                <div id="mfa-error" style="color: red; margin-bottom: 1rem; display: none;"></div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;" id="verify-mfa-btn">Vahvista Koodi</button>
+            </form>
+
+            <!-- Vaihe 3: Ensimmäisen kirjautumisen MFA-asennus -->
+            <div id="mfa-setup-form" style="display: none;">
+                <p style="margin-bottom: 1rem; font-size: 0.9rem; color: #4b5563;">Koska kirjaudut ensimmäistä kertaa tai 2FA ei ole käytössä, sinun tulee ottaa se käyttöön.</p>
+                <ol style="font-size: 0.85rem; color: #4b5563; margin-bottom: 1rem; padding-left: 1.25rem;">
+                    <li>Lataa Google Authenticator -sovellus iOS:lle tai Androidille.</li>
+                    <li>Skannaa alla oleva QR-koodi sovelluksella.</li>
+                    <li>Syötä saamasi 6-numeroinen koodi alas tallentaaksesi asetuksen.</li>
+                </ol>
+                <div id="qrcode-container" style="display:flex; justify-content:center; margin-bottom: 1rem;"></div>
+                <div class="form-group">
+                    <label class="form-label" for="setup-mfa-code">Vahvistuskoodi</label>
+                    <input class="form-input" type="text" id="setup-mfa-code" placeholder="123456" pattern="[0-9]*" maxlength="6" required style="letter-spacing: 5px; font-weight: bold; text-align: center; font-size: 1.25rem;">
+                </div>
+                <div id="mfa-setup-error" style="color: red; margin-bottom: 1rem; display: none;"></div>
+                <button type="button" class="btn btn-primary" style="width: 100%;" id="enroll-mfa-btn">Tallenna ja Kirjaudu</button>
+            </div>
     </div>
 
     <!-- Supabase Auth tulee toimimaan admin.js tiedoston kautta todellisessa ratkaisussa -->

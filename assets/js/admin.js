@@ -5,41 +5,234 @@ const SUPABASE_ANON_KEY = 'sb_publishable_yfN0ScRrJr-P2Nfa8yRJRw_x_1RM9Tn';
 document.addEventListener('DOMContentLoaded', async () => {
     const path = window.location.pathname;
 
-    // --- BASIC STATIC AUTH CHECK ---
-    if (path.includes('/admin/')) {
-        const isLoginPage = path.endsWith('login.html') || path.endsWith('/admin/') || path.endsWith('/admin');
-        
-        if (!isLoginPage) {
-            if (sessionStorage.getItem('valtti_admin_auth') !== 'secured') {
-                window.location.href = 'login.html';
-                return;
-            }
-        } else {
-            sessionStorage.removeItem('valtti_admin_auth');
-            const loginForm = document.getElementById('admin-login-form');
-            if (loginForm) {
-                loginForm.onsubmit = (e) => {
-                    e.preventDefault();
-                    const u = document.getElementById('username')?.value?.trim()?.toLowerCase();
-                    const p = document.getElementById('password')?.value?.trim();
-                    
-                    if (u === 'vinhainvest' && p === 'Vihnetie8') {
-                        sessionStorage.setItem('valtti_admin_auth', 'secured');
-                        window.location.href = 'projects.html';
-                    } else {
-                        alert('Väärä käyttäjätunnus tai salasana!');
-                    }
-                };
-            }
-            return;
-        }
-    }
-
     if (!window.supabase) {
         console.error("Supabase library not loaded.");
         return;
     }
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    window.valttiSupabase = supabase;
+
+    // --- SUPABASE AUTH CHECK & MFA ---
+    if (path.includes('/admin/')) {
+        const isLoginPage = path.endsWith('login.html') || path.endsWith('/admin/') || path.endsWith('/admin');
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+
+        if (!isLoginPage) {
+            if (sessionError || !session) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            // Strict MFA Check (Enforces all users to have MFA enrolled and verified)
+            const { data: mfaData, error: mfaError } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+            if (mfaError || mfaData.currentLevel !== 'aal2') {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // Add a logout button to navbar if present
+            const nav = document.querySelector('nav') || document.querySelector('.admin-sidebar');
+            if (nav && !document.getElementById('logout-btn')) {
+                const logoutBtn = document.createElement('a');
+                logoutBtn.href = '#';
+                logoutBtn.id = 'logout-btn';
+                logoutBtn.style.color = '#ef4444';
+                logoutBtn.style.marginTop = 'auto';
+                logoutBtn.style.display = 'block';
+                logoutBtn.style.padding = '0.75rem 1rem';
+                logoutBtn.innerHTML = 'Kirjaudu Ulos';
+                logoutBtn.onclick = async (e) => {
+                    e.preventDefault();
+                    await window.valttiSupabase.auth.signOut();
+                    window.location.href = 'login.html';
+                };
+                nav.appendChild(logoutBtn);
+            }
+
+        } else {
+            // Login Page Flow
+            const loginForm = document.getElementById('admin-login-form');
+            const loginBtn = document.getElementById('login-btn');
+            const loginErr = document.getElementById('login-error');
+
+            const mfaForm = document.getElementById('mfa-form');
+            const mfaErr = document.getElementById('mfa-error');
+            const verifyMfaBtn = document.getElementById('verify-mfa-btn');
+
+            const mfaSetupForm = document.getElementById('mfa-setup-form');
+            const mfaSetupErr = document.getElementById('mfa-setup-error');
+            const enrollMfaBtn = document.getElementById('enroll-mfa-btn');
+
+            let currentFactorId = null;
+            let setupFactorId = null;
+
+            // Auto-resume MFA setup/challenge if user is already partially logged in (AAL1) but needs AAL2
+            if (session) {
+                const { data: factorsData } = await supabase.auth.mfa.listFactors();
+                if (factorsData) {
+                    const verifiedFactor = (factorsData.totp || []).find(f => f.status === 'verified');
+                    if (verifiedFactor) {
+                        currentFactorId = verifiedFactor.id;
+                        if (loginForm) loginForm.style.display = 'none';
+                        if (mfaForm) mfaForm.style.display = 'block';
+                    } else if (mfaSetupForm && loginForm) {
+                        const { data: enrollData, error: enrollErr } = await supabase.auth.mfa.enroll({ factorType: 'totp' });
+                        if (!enrollErr) {
+                            setupFactorId = enrollData.id;
+                            loginForm.style.display = 'none';
+                            mfaSetupForm.style.display = 'block';
+                            const qrContainer = document.getElementById('qrcode-container');
+                            if (qrContainer) {
+                                qrContainer.innerHTML = '';
+                                new QRCode(qrContainer, { text: enrollData.totp.qr_code, width: 150, height: 150 });
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (loginForm) {
+                // Remove leftover static token if any
+                sessionStorage.removeItem('valtti_admin_auth');
+
+                loginForm.onsubmit = async (e) => {
+                    e.preventDefault();
+                    loginBtn.disabled = true;
+                    loginBtn.textContent = 'Kirjaudutaan...';
+                    loginErr.style.display = 'none';
+
+                    const u = document.getElementById('username').value.trim();
+                    const p = document.getElementById('password').value;
+                    
+                    const { data, error } = await supabase.auth.signInWithPassword({ email: u, password: p });
+                    
+                    if (error) {
+                        const errMsg = error.message.toLowerCase();
+                        if (errMsg.includes('email not confirmed')) {
+                            loginErr.textContent = 'Sähköpostiosoitetta ei ole vahvistettu. Tarkista sähköpostistasi vahvistuslinkki.';
+                        } else if (errMsg.includes('invalid login credentials')) {
+                            loginErr.textContent = 'Virheellinen sähköposti tai salasana.';
+                        } else {
+                            loginErr.textContent = 'Kirjautuminen epäonnistui: ' + error.message;
+                        }
+
+                        loginErr.style.display = 'block';
+                        loginBtn.disabled = false;
+                        loginBtn.textContent = 'Kirjaudu Sisään';
+                        return;
+                    }
+
+                    // Check MFA status
+                    const { data: factorsData, error: factorsErr } = await supabase.auth.mfa.listFactors();
+                    if (factorsErr) {
+                        loginErr.textContent = 'MFA-tarkistus epäonnistui.';
+                        loginErr.style.display = 'block';
+                        return;
+                    }
+
+                    const totpFactors = factorsData.totp || [];
+                    const verifiedFactor = totpFactors.find(f => f.status === 'verified');
+
+                    if (verifiedFactor) {
+                        currentFactorId = verifiedFactor.id;
+                        loginForm.style.display = 'none';
+                        mfaForm.style.display = 'block';
+                    } else {
+                        // Enroll MFA
+                        const { data: enrollData, error: enrollErr } = await supabase.auth.mfa.enroll({ factorType: 'totp' });
+                        if (enrollErr) {
+                            loginErr.textContent = 'MFA-asetuksen aloitus epäonnistui.';
+                            loginErr.style.display = 'block';
+                            return;
+                        }
+                        
+                        setupFactorId = enrollData.id;
+                        loginForm.style.display = 'none';
+                        mfaSetupForm.style.display = 'block';
+
+                        const qrContainer = document.getElementById('qrcode-container');
+                        qrContainer.innerHTML = '';
+                        new QRCode(qrContainer, {
+                            text: enrollData.totp.qr_code,
+                            width: 150,
+                            height: 150
+                        });
+                    }
+                };
+            }
+
+            if (mfaForm) {
+                mfaForm.onsubmit = async (e) => {
+                    e.preventDefault();
+                    verifyMfaBtn.disabled = true;
+                    verifyMfaBtn.textContent = 'Vahvistetaan...';
+                    mfaErr.style.display = 'none';
+
+                    const code = document.getElementById('mfa-code').value.trim();
+                    const { data: challengeData, error: challengeErr } = await supabase.auth.mfa.challenge({ factorId: currentFactorId });
+                    
+                    if (challengeErr) {
+                        mfaErr.textContent = 'Väärä koodi tai haasteen luonti epäonnistui.';
+                        mfaErr.style.display = 'block';
+                        verifyMfaBtn.disabled = false;
+                        verifyMfaBtn.textContent = 'Vahvista Koodi';
+                        return;
+                    }
+
+                    const { data, error } = await supabase.auth.mfa.verify({
+                        factorId: currentFactorId,
+                        challengeId: challengeData.id,
+                        code: code
+                    });
+
+                    if (error) {
+                        mfaErr.textContent = 'Väärä koodi. Yritä uudelleen.';
+                        mfaErr.style.display = 'block';
+                        verifyMfaBtn.disabled = false;
+                        verifyMfaBtn.textContent = 'Vahvista Koodi';
+                    } else {
+                        window.location.href = 'projects.html';
+                    }
+                };
+            }
+
+            if (enrollMfaBtn) {
+                enrollMfaBtn.onclick = async () => {
+                    enrollMfaBtn.disabled = true;
+                    enrollMfaBtn.textContent = 'Vahvistetaan...';
+                    mfaSetupErr.style.display = 'none';
+
+                    const code = document.getElementById('setup-mfa-code').value.trim();
+                    const { data: challengeData, error: challengeErr } = await supabase.auth.mfa.challenge({ factorId: setupFactorId });
+                    
+                    if (challengeErr) {
+                        mfaSetupErr.textContent = 'Haasteen luonti epäonnistui.';
+                        mfaSetupErr.style.display = 'block';
+                        enrollMfaBtn.disabled = false;
+                        enrollMfaBtn.textContent = 'Tallenna ja Kirjaudu';
+                        return;
+                    }
+
+                    const { data, error } = await supabase.auth.mfa.verify({
+                        factorId: setupFactorId,
+                        challengeId: challengeData.id,
+                        code: code
+                    });
+
+                    if (error) {
+                        mfaSetupErr.textContent = 'Väärä koodi. Yritä uudelleen.';
+                        mfaSetupErr.style.display = 'block';
+                        enrollMfaBtn.disabled = false;
+                        enrollMfaBtn.textContent = 'Tallenna ja Kirjaudu';
+                    } else {
+                        window.location.href = 'projects.html';
+                    }
+                };
+            }
+
+            return; // Prevent other scripts from running on login page
+        }
+    }
 
     async function uploadToSupabaseStorage(file) {
         if (!file) return null;

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="fi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Käyttäjien Hallinta | Valttikodit Admin</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/admin.css">
+    <!-- Supabase CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body class="admin-layout">
+
+    <aside class="admin-sidebar" id="sidebar">
+        <div class="admin-brand">Valttikodit Admin</div>
+        <nav class="admin-nav">
+            <a href="dashboard.html">Dashboard</a>
+            <a href="projects.html">Kohteet</a>
+            <a href="pages.html">Sivut</a>
+            <a href="users.html" class="active">Käyttäjät</a>
+        </nav>
+        <div style="padding: 1rem; border-top: 1px solid var(--border);">
+            <div id="sidebar-user-email"
+                style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">
+                Ladataan...</div>
+        </div>
+    </aside>
+
+    <main class="admin-main">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <h1 style="font-size: 1.875rem; margin-bottom: 0;">Ylläpitäjät</h1>
+            <div style="display: flex; gap: 1rem;">
+                <!-- Käytännössä oikean ylläpitäjän lisääminen tapahtuu luomalla ensin uusi tili admin_users -tauluun
+                     sekä luomalla heille Supabase Auth -tili backendisää. Näytetään tässä demo-ilmoitus. -->
+                <button class="btn btn-primary" onclick="alert('Ominaisuus vaatii Supabase Edge -funktion tai Service Role Key -asetuksen toimiakseen oikein. Nyt uusien ihmisten lisääminen tapahtuu lisäämällä heidät suoraan &quot;admin_users&quot; tauluun ja kutsumalla heidät Supabase Auth-paneelin kautta.')">
+                    Kutsu Uusi Ylläpitäjä
+                </button>
+            </div>
+        </div>
+
+        <div class="admin-card" style="padding: 0; overflow-x: auto;">
+            <table class="admin-table" id="users-table">
+                <thead>
+                    <tr>
+                        <th>Sähköposti</th>
+                        <th>Rooli</th>
+                        <th>Lisätty</th>
+                        <th style="text-align: right;">Toiminnot</th>
+                    </tr>
+                </thead>
+                <tbody id="users-tbody">
+                    <tr>
+                        <td style="font-weight: 500;">pekka.junes@alexandria.fi</td>
+                        <td>Pääkäyttäjä</td>
+                        <td><span
+                                style="background: var(--accent); padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem;">AKTIIVINEN</span>
+                        </td>
+                        <td style="text-align: right;">
+                            <button class="btn btn-outline" disabled
+                                style="padding: 0.25rem 0.75rem; font-size: 0.75rem; color: #aaa; border-color: #eee;">Kutsumus lähetetty</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div style="padding: 1.5rem;">
+                <h3 style="margin-bottom: 1rem;">RLS ja Tietokantataulun Asennus (Kopioi Supabase SQL Editoriin)</h3>
+                <pre style="background: #f4f4f5; padding: 1rem; border-radius: 6px; font-size: 0.875rem; overflow-x: auto;"><code>
+-- 1. Luo Admin Käyttäjät -taulu
+CREATE TABLE public.admin_users (
+  id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  email TEXT NOT NULL,
+  role TEXT DEFAULT 'admin',
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  PRIMARY KEY (id)
+);
+
+-- 2. Ota käyttöön RLS (Row Level Security)
+ALTER TABLE public.admin_users ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.projects ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.pages ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.leads ENABLE ROW LEVEL SECURITY;
+
+-- 3. Luo säännöt, että vain admin_users taulussa olevat saavat nähdä koko kannan ja muokata tiedostoja.
+-- Esimerkki 'projects' taululle.
+CREATE POLICY "Julkiset projektit ovat kaikkien nähtävillä" ON public.projects
+  FOR SELECT USING (published = true);
+
+CREATE POLICY "Vain adminit saavat kaiken pääsyn" ON public.projects
+  FOR ALL USING (
+    (SELECT COUNT(*) FROM public.admin_users WHERE id = auth.uid()) > 0
+  );
+
+-- Varmista että admininä olet 'admin_users' taulussa:
+-- INSERT INTO public.admin_users (id, email) VALUES ('&lt;sinun-auth-id&gt;', 'pekka.junes@alexandria.fi');
+                </code></pre>
+            </div>
+        </div>
+    </main>
+
+    <!-- JS Tila -->
+    <script src="../assets/js/admin.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (window.valttiSupabase) {
+                const { data } = await window.valttiSupabase.auth.getSession();
+                if (data && data.session && data.session.user) {
+                    const u = document.getElementById('sidebar-user-email');
+                    if (u) u.textContent = data.session.user.email;
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>
