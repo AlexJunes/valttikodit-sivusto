@@ -80,7 +80,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         for (const uf of unverifiedFactors) {
                             await supabase.auth.mfa.unenroll({ factorId: uf.id });
                         }
-                        const { data: enrollData, error: enrollErr } = await supabase.auth.mfa.enroll({ factorType: 'totp' });
+                        const { data: enrollData, error: enrollErr } = await supabase.auth.mfa.enroll({ factorType: 'totp', friendlyName: 'Valttikodit 2FA ' + Date.now() });
                         if (!enrollErr) {
                             setupFactorId = enrollData.id;
                             loginForm.style.display = 'none';
@@ -148,7 +148,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         }
 
                         // Enroll MFA
-                        const { data: enrollData, error: enrollErr } = await supabase.auth.mfa.enroll({ factorType: 'totp' });
+                        const { data: enrollData, error: enrollErr } = await supabase.auth.mfa.enroll({ factorType: 'totp', friendlyName: 'Valttikodit 2FA ' + Date.now() });
                         if (enrollErr) {
                             loginErr.textContent = 'MFA-asetuksen aloitus epäonnistui: ' + enrollErr.message;
                             loginErr.style.display = 'block';
