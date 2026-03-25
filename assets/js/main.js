@@ -127,6 +127,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         } else {
             slug = window.location.pathname.split('/').pop().replace('.html', '') || 'index';
             if (slug === '' || slug === '/') slug = 'index';
+            if (slug === 'tarinamme') slug = 'valtti-tapa';
         }
 
         const isProjectPage = window.location.pathname.includes('kohde.html');
