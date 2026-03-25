@@ -87,7 +87,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                             mfaSetupForm.style.display = 'block';
                             const qrContainer = document.getElementById('qrcode-container');
                             if (qrContainer) {
-                                qrContainer.innerHTML = enrollData.totp.qr_code;
+                                qrContainer.innerHTML = `<img src="${enrollData.totp.qr_code}" alt="QR Koodi" style="width: 150px; height: 150px;" />`;
                             }
                         }
                     }
@@ -163,7 +163,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                         const qrContainer = document.getElementById('qrcode-container');
                         if (qrContainer) {
-                            qrContainer.innerHTML = enrollData.totp.qr_code;
+                            qrContainer.innerHTML = `<img src="${enrollData.totp.qr_code}" alt="QR Koodi" style="width: 150px; height: 150px;" />`;
                         }
                     }
                 };
