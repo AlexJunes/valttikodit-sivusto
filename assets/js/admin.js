@@ -83,8 +83,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                             mfaSetupForm.style.display = 'block';
                             const qrContainer = document.getElementById('qrcode-container');
                             if (qrContainer) {
-                                qrContainer.innerHTML = '';
-                                new QRCode(qrContainer, { text: enrollData.totp.qr_code, width: 150, height: 150 });
+                                qrContainer.innerHTML = enrollData.totp.qr_code;
                             }
                         }
                     }
@@ -151,12 +150,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                         mfaSetupForm.style.display = 'block';
 
                         const qrContainer = document.getElementById('qrcode-container');
-                        qrContainer.innerHTML = '';
-                        new QRCode(qrContainer, {
-                            text: enrollData.totp.qr_code,
-                            width: 150,
-                            height: 150
-                        });
+                        if (qrContainer) {
+                            qrContainer.innerHTML = enrollData.totp.qr_code;
+                        }
                     }
                 };
             }
