@@ -325,6 +325,53 @@ document.addEventListener('DOMContentLoaded', async () => {
                             galleryContainer.appendChild(img);
                         });
                     }
+
+                    // Karusellin rakentaminen (Sivun ylälaita: Hero-kuva + Galleriakuvat)
+                    const carouselTrack = document.getElementById('project-carousel-track');
+                    if (carouselTrack) {
+                        carouselTrack.innerHTML = ''; 
+                        let allImages = [];
+                        if (project.hero_image) allImages.push(project.hero_image);
+                        if (project.gallery_images && Array.isArray(project.gallery_images)) {
+                            allImages = allImages.concat(project.gallery_images);
+                        }
+
+                        allImages.forEach(imgUrl => {
+                            const slideDiv = document.createElement('div');
+                            slideDiv.className = 'project-carousel-slide';
+                            
+                            const img = document.createElement('img');
+                            img.src = imgUrl;
+                            slideDiv.appendChild(img);
+                            
+                            // Lightbox ominaisuus (sama kuin alasivun galleriassa)
+                            slideDiv.onclick = () => {
+                                const modal = document.createElement('div');
+                                modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.9); display: flex; align-items: center; justify-content: center; z-index: 9999; cursor: pointer; padding: 2rem; box-sizing: border-box;';
+                                const modalImg = document.createElement('img');
+                                modalImg.src = imgUrl;
+                                modalImg.style.cssText = 'max-width: 100%; max-height: 100%; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); object-fit: contain;';
+                                modal.appendChild(modalImg);
+                                modal.onclick = () => document.body.removeChild(modal);
+                                document.body.appendChild(modal);
+                            };
+                            carouselTrack.appendChild(slideDiv);
+                        });
+
+                        // Nuolinäppäimet
+                        const prevBtn = document.getElementById('carousel-prev');
+                        const nextBtn = document.getElementById('carousel-next');
+                        if (prevBtn && nextBtn) {
+                            prevBtn.onclick = () => {
+                                const slideWidth = carouselTrack.querySelector('.project-carousel-slide')?.offsetWidth + 20 || 300;
+                                carouselTrack.scrollBy({ left: -slideWidth, behavior: 'smooth' });
+                            };
+                            nextBtn.onclick = () => {
+                                const slideWidth = carouselTrack.querySelector('.project-carousel-slide')?.offsetWidth + 20 || 300;
+                                carouselTrack.scrollBy({ left: slideWidth, behavior: 'smooth' });
+                            };
+                        }
+                    }
                 }
             } else {
                 // Ladataan tavalliset CMS sivut (etusivu, jne)

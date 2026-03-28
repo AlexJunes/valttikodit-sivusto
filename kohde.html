@@ -38,12 +38,18 @@
     </header>
 
     <main>
-        <!-- Kohde Hero (background-image päivittyy dynaamisesti) -->
-        <div data-project="hero_image" class="project-hero">
+        <!-- Kohde Karuselli (päivittyy dynaamisesti main.js kautta) -->
+        <div class="project-carousel-wrapper">
             <div data-project="status"
-                style="position: absolute; top: 1rem; left: 1rem; background: #121212; color: white; padding: 0.5rem 1rem; font-size: 1.125rem; font-weight: 700; border-radius: 4px; z-index: 10;">
+                style="position: absolute; top: 1rem; left: 1rem; background: #121212; color: white; padding: 0.5rem 1rem; font-size: 1.125rem; font-weight: 700; border-radius: 4px; z-index: 20;">
                 LADATAAN...
             </div>
+            
+            <button class="carousel-nav-btn prev" id="carousel-prev" aria-label="Edellinen kuva">‹</button>
+            <div class="project-carousel-track" id="project-carousel-track">
+                <!-- Javascript syöttää kuvat tähän -->
+            </div>
+            <button class="carousel-nav-btn next" id="carousel-next" aria-label="Seuraava kuva">›</button>
         </div>
 
         <div class="container" style="padding: 3rem 1.5rem;">

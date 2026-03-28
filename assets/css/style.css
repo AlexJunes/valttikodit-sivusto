@@ -441,22 +441,92 @@ h3 {
     gap: 4rem;
 }
 
-/* Project Page Hero */
-.project-hero {
-    width: 100%;
-    aspect-ratio: 16/9;
-    max-height: 80vh;
-    background-color: var(--bg-color);
+/* Project Page Carousel (Karuselli) */
+.project-carousel-wrapper {
     position: relative;
+    width: 100%;
+    /* Bo LKV style height */
+    height: 80vh;
+    max-height: 80vh;
+    background-color: #f7f5f0;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+}
+
+.project-carousel-track {
+    display: flex;
+    gap: 20px;
+    width: 100%;
+    height: 100%;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none; /* Firefox */
+    -webkit-overflow-scrolling: touch;
+    align-items: center;
+    /* Jätetään reunatyhjiöt asettamalla ensimmäiselle tilaa */
+    padding: 0 10vw;
+}
+
+.project-carousel-track::-webkit-scrollbar {
+    display: none; /* Safari and Chrome */
+}
+
+.project-carousel-slide {
+    flex: 0 0 80vw; /* Kuvan leveys on 80% näytöstä, jotta sivuilta kurkistaa se 10% */
+    max-width: 1200px;
+    height: 100%;
+    max-height: 85%;
+    scroll-snap-align: center;
+    position: relative;
+    transition: transform 0.3s ease;
+    cursor: zoom-in;
+}
+
+.project-carousel-slide img {
+    width: 100%;
+    height: 100%;
+    /* Käyttäjä pyysi 4:3 karusellikuvasuhdetta */
+    aspect-ratio: 4/3;
+    object-fit: cover;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    border-radius: 4px;
+    display: block;
+}
+
+/* Navigointinapit karuselliin */
+.carousel-nav-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 50px;
+    height: 50px;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid var(--border);
+    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-bottom: 1px solid var(--border);
-    background-size: contain;
-    background-position: center;
-    background-repeat: no-repeat;
-    /* Poistetaan voimakas varjostus jotta contain-kuva erottuu nätimmin taustasta, tai pidetään kevyt */
-    box-shadow: inset 0 0 0 2000px rgba(0,0,0,0.05);
+    font-size: 1.5rem;
+    color: var(--text-color);
+    cursor: pointer;
+    z-index: 10;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    transition: background 0.2s, transform 0.2s;
+}
+
+.carousel-nav-btn:hover {
+    background: #fff;
+    transform: translateY(-50%) scale(1.05);
+}
+
+.carousel-nav-btn.prev {
+    left: 2rem;
+}
+
+.carousel-nav-btn.next {
+    right: 2rem;
 }
 
 /* Mobile Grid Overrides */
@@ -493,10 +563,21 @@ h3 {
         margin-top: 2rem;
     }
     
-    .project-hero {
-        aspect-ratio: 4/3;
+    .project-carousel-wrapper {
+        height: 50vh;
         max-height: 50vh;
     }
+    .project-carousel-slide {
+        flex: 0 0 85vw; /* Pienemmillä ruuduilla kurkistus voi olla pienempi */
+        max-height: 90%;
+    }
+    .carousel-nav-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 1.25rem;
+    }
+    .carousel-nav-btn.prev { left: 0.5rem; }
+    .carousel-nav-btn.next { right: 0.5rem; }
 }
 
 /* Kohdesivun taulukot */
