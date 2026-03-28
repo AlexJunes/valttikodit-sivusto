@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="fi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytiikka | Valttikodit Admin</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/admin.css">
+    
+    <!-- Supabase CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .analytics-card {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .analytics-card-title {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+        .analytics-card-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-color);
+        }
+        .chart-container {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            margin-bottom: 2rem;
+        }
+        .flex-charts {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        @media (max-width: 992px) {
+            .flex-charts {
+                grid-template-columns: 1fr;
+            }
+        }
+        .top-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .top-list li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .top-list li:last-child {
+            border-bottom: none;
+        }
+        .date-filter {
+            padding: 0.5rem;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-family: inherit;
+        }
+    </style>
+</head>
+
+<body class="admin-layout">
+
+    <aside class="admin-sidebar" id="sidebar">
+        <div class="admin-brand">Valttikodit Admin</div>
+        <nav class="admin-nav">
+            <a href="dashboard.html">Dashboard</a>
+            <a href="projects.html">Kohteet</a>
+            <a href="pages.html">Sivut</a>
+            <a href="users.html">Käyttäjät</a>
+            <a href="analytics.html" class="active">Analytiikka</a>
+        </nav>
+        <div style="padding: 1rem; border-top: 1px solid var(--border);">
+            <div id="admin-user-email" style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">Ladataan...</div>
+            <a href="#" id="logout-btn" style="color: red; font-size: 0.875rem; font-weight: 500;">Kirjaudu ulos</a>
+        </div>
+    </aside>
+
+    <main class="admin-main">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <h1 style="font-size: 1.875rem;">Analytiikka</h1>
+            <select id="date-range" class="date-filter">
+                <option value="7">Viimeiset 7 päivää</option>
+                <option value="30" selected>Viimeiset 30 päivää</option>
+                <option value="90">Viimeiset 90 päivää</option>
+            </select>
+        </div>
+
+        <div class="analytics-grid">
+            <div class="analytics-card">
+                <div class="analytics-card-title">Kävijät (Uniikit sessiot)</div>
+                <div class="analytics-card-value" id="kpi-visitors">-</div>
+            </div>
+            <div class="analytics-card">
+                <div class="analytics-card-title">Sivulataukset</div>
+                <div class="analytics-card-value" id="kpi-pageviews">-</div>
+            </div>
+            <div class="analytics-card">
+                <div class="analytics-card-title">Sitoutuminen (Katsottu monia)</div>
+                <div class="analytics-card-value" id="kpi-engagement">-</div>
+            </div>
+            <div class="analytics-card">
+                <div class="analytics-card-title">Konversiot (Uudet liidit)</div>
+                <div class="analytics-card-value" id="kpi-conversions">-</div>
+            </div>
+        </div>
+
+        <div class="flex-charts">
+            <div class="chart-container">
+                <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 1rem;">Kävijätrendi</h3>
+                <canvas id="trendChart" style="width: 100%; height: 300px;"></canvas>
+            </div>
+            <div class="chart-container">
+                <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 1rem;">Liikenteen lähteet</h3>
+                <canvas id="sourceChart" style="width: 100%; height: 300px;"></canvas>
+            </div>
+        </div>
+
+        <div class="flex-charts" style="grid-template-columns: 1fr 1fr;">
+            <div class="chart-container">
+                <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 1rem;">Suosituimmat sivut</h3>
+                <ul class="top-list" id="top-pages-list">
+                    <li><span>Ladataan...</span><span>-</span></li>
+                </ul>
+            </div>
+            <div class="chart-container" style="display: flex; flex-direction: column;">
+                <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 1rem;">Käyttäjien laitteet</h3>
+                <div style="flex: 1; display: flex; align-items: center; justify-content: center;">
+                    <div style="width: 100%; max-width: 300px; max-height: 300px;">
+                        <canvas id="deviceChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Oma analytiikkalogiikka -->
+    <script src="../assets/js/analytics-dashboard.js"></script>
+    <!-- Vanha admin.js autentikaatiota varten yms -->
+    <script src="../assets/js/admin.js"></script>
+</body>
+
+</html>

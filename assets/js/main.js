@@ -8,13 +8,38 @@ document.addEventListener('DOMContentLoaded', async () => {
         supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     }
 
-    // Yksinkertainen analytiikkaseuranta sivulatauksille
+    // Kehittyneempi analytiikkaseuranta sivulatauksille
     if (typeof supabase !== 'undefined') {
-        let cleanPath = window.location.pathname.split('/').pop() || 'index.html';
-        if (cleanPath === '' || cleanPath === '/') cleanPath = 'index.html';
+        let cleanPath = window.location.pathname;
+        if (cleanPath === '' || cleanPath === '/') cleanPath = '/index.html';
         
+        // 1. Sessiotunniste (suljetaan kun selain kiinni)
+        let sessionId = sessionStorage.getItem('v_session');
+        if (!sessionId) {
+            sessionId = Math.random().toString(36).substring(2, 15);
+            sessionStorage.setItem('v_session', sessionId);
+        }
+
+        // 2. Laitetyyppi karkeasti ruudun koon perusteella
+        let device = 'Desktop';
+        if (window.innerWidth < 768) device = 'Mobiili';
+        else if (window.innerWidth < 1024) device = 'Tabletti';
+
+        // 3. Referrer (vain ulkoiset)
+        let ref = document.referrer;
+        if (ref && ref.includes(window.location.host)) {
+            ref = 'Sisäinen';
+        } else if (!ref) {
+            ref = 'Suora';
+        }
+
         try {
-            await supabase.from('page_views').insert([{ path: cleanPath }]);
+            await supabase.from('page_views').insert([{ 
+                path: cleanPath,
+                session_id: sessionId,
+                device_type: device,
+                referrer: ref
+            }]);
         } catch(e) {
             console.error("Pageview log failed:", e);
         }
