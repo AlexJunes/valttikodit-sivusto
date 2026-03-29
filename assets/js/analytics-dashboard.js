@@ -33,26 +33,47 @@ document.addEventListener('DOMContentLoaded', async () => {
         const isoEnd = endDate.toISOString();
 
         try {
-            // Hae sivukatselut
-            const { data: pageViews, error: pvError } = await supabase
-                .from('page_views')
-                .select('*')
-                .gte('created_at', isoStart)
-                .lte('created_at', isoEnd);
-
-            if (pvError) {
-                console.warn('Page views fetch err (Table might not exist yet):', pvError);
+            // Hae sivukatselut täydellisenä (Sivutusta käyttäen ohittaen 1000 rivin rajan)
+            let views = [];
+            let from = 0;
+            const pageSize = 1000;
+            while(true) {
+                const { data, error } = await supabase
+                    .from('page_views')
+                    .select('*')
+                    .gte('created_at', isoStart)
+                    .lte('created_at', isoEnd)
+                    .range(from, from + pageSize - 1);
+                
+                if (error) {
+                    console.warn('Page views fetch err:', error);
+                    break;
+                }
+                if (!data || data.length === 0) break;
+                
+                views = views.concat(data);
+                if (data.length < pageSize) break;
+                from += pageSize;
             }
 
             // Hae konversiot (Liidit)
-            const { data: leads, error: leadError } = await supabase
-                .from('leads')
-                .select('created_at')
-                .gte('created_at', isoStart)
-                .lte('created_at', isoEnd);
-
-            const views = pageViews || [];
-            const newLeads = leads || [];
+            let newLeads = [];
+            from = 0;
+            while(true) {
+                const { data, error } = await supabase
+                    .from('leads')
+                    .select('created_at')
+                    .gte('created_at', isoStart)
+                    .lte('created_at', isoEnd)
+                    .range(from, from + pageSize - 1);
+                
+                if (error) break;
+                if (!data || data.length === 0) break;
+                
+                newLeads = newLeads.concat(data);
+                if (data.length < pageSize) break;
+                from += pageSize;
+            }
 
             // 1. KPI LASKENTA
             const uniqueSessions = new Set(views.map(v => v.session_id)).size;
