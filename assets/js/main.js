@@ -832,4 +832,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             console.error("Global Footer load error:", e);
         }
     }
+
+    // Näytetään sivuston kaikki tekstit kun CMS-datan haku on (ainakin yritetty) suorittaa.
+    document.body.classList.add('cms-loaded');
 });

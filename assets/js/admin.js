@@ -760,7 +760,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const defaultSchemas = {
                 'index': {
                     "Hero Taustakuva": "",
-                    "Hero Otsikko": "Enemmän kuin talo.",
+                    "Hero Otsikko": "Onnellisemman arjen koti",
                     "Hero Teksti": "Rakennamme laadukkaita, kustannustehokkaita ja tyylikkäitä skandinaavisia koteja elämän kaikkiin vaiheisiin.",
                     "Tunnelaatikko Otsikko": "Koti on tunne.",
                     "Tunnelaatikko Teksti": "Se on paikka, jossa hengähdät syvään. Valttikodit suunnitellaan todellista elämää varten.",
