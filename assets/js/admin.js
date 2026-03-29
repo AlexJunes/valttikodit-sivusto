@@ -299,12 +299,25 @@ document.addEventListener('DOMContentLoaded', async () => {
                                     ? '<span style="background: #ef4444; color: white; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem;">UUSI</span>' 
                                     : '<span style="background: #e5e7eb; color: var(--text-color); padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem;">KÄSITELTY</span>';
                                 
+                                let sourceStr = '-';
+                                let mainMessage = lead.message || '-';
+                                
+                                if (mainMessage.startsWith('LÄHDE:')) {
+                                    const parts = mainMessage.split('\n');
+                                    sourceStr = parts[0].replace('LÄHDE:', '').trim();
+                                    parts.shift();
+                                    if(parts.length > 0 && parts[0] === '') parts.shift();
+                                    mainMessage = parts.join('\n').trim();
+                                    if (!mainMessage) mainMessage = '-';
+                                }
+                                
                                 tr.innerHTML = `
                                     <td>${dateStr}</td>
                                     <td style="font-weight: 500;">${lead.name || '-'}</td>
                                     <td><a href="mailto:${lead.email}">${lead.email}</a></td>
                                     <td><a href="tel:${lead.phone}">${lead.phone || '-'}</a></td>
-                                    <td><div style="max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${lead.message}">${lead.message || '-'}</div></td>
+                                    <td><span style="font-size: 0.75rem; font-weight: 600; color: var(--text-muted); background: #f3f4f6; padding: 0.25rem 0.5rem; border-radius: 4px;">${sourceStr}</span></td>
+                                    <td><div style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${mainMessage}">${mainMessage}</div></td>
                                     <td>${statusHtml}</td>
                                     <td style="text-align: right;">
                                         ${lead.status === 'UUSI' ? `<button class="btn btn-outline" style="padding: 0.25rem 0.75rem; font-size: 0.75rem;" onclick="markLeadHandled('${lead.id}')">Merkitse käsitellyksi</button>` : `<button class="btn btn-outline" style="padding: 0.25rem 0.75rem; font-size: 0.75rem; border-color: #ef4444; color: #ef4444;" onclick="deleteLead('${lead.id}')">Poista</button>`}
@@ -550,7 +563,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         if (!projectId) {
-            for(let i=0; i<52; i++) setVal(i, '');
+            for(let i=0; i<54; i++) setVal(i, '');
         } else {
             try {
                 const { data, error } = await supabase.from('projects').select('*').eq('id', projectId).single();
@@ -609,7 +622,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                         setVal(48, data.details["Some Otsikko"] !== undefined ? data.details["Some Otsikko"] : '');
                         setVal(49, data.details["Facebook Linkki"] !== undefined ? data.details["Facebook Linkki"] : '');
                         setVal(50, data.details["Instagram Linkki"] !== undefined ? data.details["Instagram Linkki"] : '');
-
+                        setVal(51, data.details["Esitekuva"] !== undefined ? data.details["Esitekuva"] : '');
+                        setVal(52, data.details["Materiaalipaketti PDF"] !== undefined ? data.details["Materiaalipaketti PDF"] : '');
                     }
 
                     if (data.hero_image && heroImgElement) {
@@ -711,7 +725,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                             "Valmiusaste (%)": getVal(47),
                             "Some Otsikko": getVal(48),
                             "Facebook Linkki": getVal(49),
-                            "Instagram Linkki": getVal(50)
+                            "Instagram Linkki": getVal(50),
+                            "Esitekuva": getVal(51),
+                            "Materiaalipaketti PDF": getVal(52)
                         }
                     };
 

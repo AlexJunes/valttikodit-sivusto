@@ -151,8 +151,9 @@
                             Ota yhteyttä ja varaa oma esittely tai kysy lisätietoa ammattilaisiltamme.
                         </p>
                         <!-- Yhteys-nappi koodattu viemään kohtuu reitillä Ota yhteyttä osioon -->
-                        <a href="/yhteys" class="btn btn-primary" style="width: 100%;">Ota
+                        <a href="/yhteys" class="btn btn-primary" style="width: 100%; margin-bottom: 0.5rem;">Ota
                             yhteyttä myyntiin</a>
+                        <a href="#materiaalipaketti-osio" class="btn btn-outline" style="width: 100%; border: 1px solid var(--border);">Lataa materiaalipaketti</a>
                     </div>
                 </div>
 
@@ -337,6 +338,54 @@
                     </p>
                 </div>
             </div>
+        </section>
+
+        <!-- Materiaalipaketti lomake -->
+        <section id="materiaalipaketti-osio" class="container" style="padding: 4rem 1.5rem; background: #e9e5db; margin-top: 4rem; margin-bottom: 4rem; border-radius: 8px;">
+            <div class="material-layout" style="display: flex; flex-direction: column; gap: 4rem; align-items: center; max-width: 1000px; margin: 0 auto;">
+                <div style="flex: 1; display: flex; justify-content: center; position: relative;">
+                    <img id="materiaalipaketti-esitekuva" src="assets/img/placeholder_brochure.png" alt="Esite" style="max-width: 100%; height: auto; border-radius: 4px; box-shadow: -15px 15px 25px rgba(0,0,0,0.15); transform: rotate(-5deg); max-height: 450px; display: none;">
+                </div>
+                <div style="flex: 1; width: 100%;">
+                    <h2 style="font-size: 2.5rem; margin-bottom: 1.5rem; font-weight: 400; font-family: 'Times New Roman', Times, serif;">Lataa materiaalipaketti</h2>
+                    <form id="material-form">
+                        <input type="hidden" name="source" id="material-source" value="Kohdesivu">
+                        <input type="hidden" name="kohdeOtsikko" id="material-kohde">
+                        
+                        <div class="form-group mb-4" style="margin-bottom: 1rem;">
+                            <label for="mat-name" style="display: block; font-weight: 600; margin-bottom: 0.25rem;">Nimi <span style="color: #ef4444;">*</span></label>
+                            <input type="text" id="mat-name" name="name" class="form-input" style="width: 100%; background: white;" required>
+                        </div>
+                        <div class="form-group mb-4" style="margin-bottom: 1rem;">
+                            <label for="mat-email" style="display: block; font-weight: 600; margin-bottom: 0.25rem;">Sähköposti <span style="color: #ef4444;">*</span></label>
+                            <input type="email" id="mat-email" name="email" class="form-input" style="width: 100%; background: white;" required>
+                        </div>
+                        <div class="form-group mb-4" style="margin-bottom: 1.5rem;">
+                            <label for="mat-phone" style="display: block; font-weight: 600; margin-bottom: 0.25rem;">Puhelinnumero <span style="color: #ef4444;">*</span></label>
+                            <input type="tel" id="mat-phone" name="phone" class="form-input" style="width: 100%; background: white;" required>
+                        </div>
+                        
+                        <div class="form-group mb-4" style="display: flex; gap: 0.5rem; align-items: flex-start; margin-bottom: 1.5rem;">
+                            <input type="checkbox" id="mat-consent" name="consent" required style="margin-top: 0.3rem;">
+                            <label for="mat-consent" style="font-size: 0.875rem; color: var(--text-color);">Hyväksyn, että tietojani käytetään markkinointiviestintään. <a href="/tietosuojaseloste.html" style="text-decoration: underline; color: #d97757;">Lue tietosuojaseloste</a></label>
+                        </div>
+                        
+                        <button type="submit" class="btn" style="padding: 0.75rem 2rem; font-size: 1rem; font-weight: 600; background: #aebaba; color: #111; border: none; letter-spacing: 0.05em;">Lähetä</button>
+                    </form>
+                    
+                    <div id="material-success" style="display: none; padding: 2rem; background: white; border-radius: 8px; border-left: 4px solid #10b981; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
+                        <h3 style="color: #10b981; margin-bottom: 1rem; font-size: 1.25rem;">Kiitos!</h3>
+                        <p style="margin-bottom: 1.5rem; color: var(--text-color);">Tietosi on vastaanotettu onnistuneesti.</p>
+                        <a id="material-download-btn" href="#" target="_blank" class="btn btn-primary" style="display: inline-block;">Avaa Materiaalipaketti (PDF)</a>
+                    </div>
+                </div>
+            </div>
+            
+            <style>
+            @media(min-width: 768px) {
+                #materiaalipaketti-osio .material-layout { flex-direction: row !important; }
+            }
+            </style>
         </section>
     </main>
 

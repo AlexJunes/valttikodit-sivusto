@@ -366,11 +366,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             // Tallenna liidi Supabaseen analytiikkaa ja Dashboardia varten
             if (typeof supabase !== 'undefined') {
                 try {
+                    let sourceInfo = formData.get('source') ? `LÄHDE: ${formData.get('source')}\n\n` : '';
                     supabase.from('leads').insert([{
                         name: formData.get('name'),
                         email: formData.get('email'),
                         phone: formData.get('phone') || '',
-                        message: formData.get('message') || ''
+                        message: `${sourceInfo}${formData.get('message') || ''}`
                     }]).then(() => {});
                 } catch(err) {
                     console.error('Supabase DB error:', err);
@@ -400,6 +401,49 @@ document.addEventListener('DOMContentLoaded', async () => {
                 btn.textContent = 'Lähetä viesti';
                 btn.disabled = false;
             });
+        });
+    }
+
+    // Materiaalipaketti lomakkeen lähetys ja tallennus
+    const materialForm = document.getElementById('material-form');
+    if (materialForm) {
+        materialForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+            const btn = materialForm.querySelector('button[type="submit"]');
+            btn.textContent = 'Lähetetään...';
+            btn.disabled = true;
+
+            const formData = new FormData(materialForm);
+            
+            // Tallenna liidi Supabaseen analytiikkaa ja Dashboardia varten
+            if (typeof supabase !== 'undefined') {
+                try {
+                    const kohdeStr = formData.get('kohdeOtsikko') ? ` (${formData.get('kohdeOtsikko')})` : '';
+                    const messageStr = `LÄHDE: Materiaalipaketin lataus${kohdeStr}.\nMarkkinointilupa annettu.`;
+                    
+                    supabase.from('leads').insert([{
+                        name: formData.get('name'),
+                        email: formData.get('email'),
+                        phone: formData.get('phone') || '',
+                        message: messageStr
+                    }]).then((res) => {
+                        if (res.error) throw res.error;
+                        // Onnistunut lähetys
+                        materialForm.style.display = 'none';
+                        const successDiv = document.getElementById('material-success');
+                        if(successDiv) successDiv.style.display = 'block';
+                    });
+                } catch(err) {
+                    console.error('Supabase DB error:', err);
+                    alert("Virhe tietojen tallennuksessa. Kokeile uudelleen.");
+                    btn.textContent = 'Lähetä';
+                    btn.disabled = false;
+                }
+            } else {
+                 alert("Yhteyttä tietokantaan ei voitu muodostaa.");
+                 btn.textContent = 'Lähetä';
+                 btn.disabled = false;
+            }
         });
     }
 
@@ -479,6 +523,33 @@ document.addEventListener('DOMContentLoaded', async () => {
                             }
                         }
                     });
+
+                    // Dynaaminen materiaalipaketin sisältö asunnolle
+                    const pdfLink = project.details ? project.details['Materiaalipaketti PDF'] : null;
+                    const esitekuva = project.details ? project.details['Esitekuva'] : null;
+                    
+                    const downBtn = document.getElementById('material-download-btn');
+                    if (downBtn && pdfLink) {
+                        downBtn.href = pdfLink;
+                    } else if (downBtn) {
+                        downBtn.textContent = 'Esitettä ei saatavilla';
+                        downBtn.onclick = (e) => e.preventDefault();
+                        downBtn.style.opacity = '0.5';
+                        downBtn.style.cursor = 'not-allowed';
+                    }
+
+                    const esiteImg = document.getElementById('materiaalipaketti-esitekuva');
+                    if (esiteImg) {
+                        if (esitekuva) {
+                            esiteImg.src = esitekuva;
+                        }
+                        esiteImg.style.display = 'block'; // Näytä joko oikea tai placeholder
+                    }
+
+                    const matKohde = document.getElementById('material-kohde');
+                    if (matKohde) {
+                        matKohde.value = project.title || '';
+                    }
 
                     // Trigger target specific logic outside universal loop (Progressbar)
                     const valmiusRaw = project.details ? project.details['Valmiusaste (%)'] : null;
