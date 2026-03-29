@@ -8,16 +8,25 @@ document.addEventListener('DOMContentLoaded', async () => {
         supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     }
 
-    // Kehittyneempi analytiikkaseuranta sivulatauksille
+    // EVÄSTEHALLINTA JA ANALYTIIKKA
     if (typeof supabase !== 'undefined') {
+        const CONSENT_KEY = 'valttikodit_cookie_consent';
+        let consent = null;
+        try {
+            consent = JSON.parse(localStorage.getItem(CONSENT_KEY));
+        } catch(e) {}
+
         let cleanPath = window.location.pathname;
         if (cleanPath === '' || cleanPath === '/') cleanPath = '/index.html';
         
-        // 1. Sessiotunniste (suljetaan kun selain kiinni)
-        let sessionId = sessionStorage.getItem('v_session');
-        if (!sessionId) {
-            sessionId = Math.random().toString(36).substring(2, 15);
-            sessionStorage.setItem('v_session', sessionId);
+        // 1. Sessiotunniste (Vain jos analytiikka on sallittu)
+        let sessionId = null;
+        if (consent && consent.analytics) {
+            sessionId = sessionStorage.getItem('v_session');
+            if (!sessionId) {
+                sessionId = Math.random().toString(36).substring(2, 15);
+                sessionStorage.setItem('v_session', sessionId);
+            }
         }
 
         // 2. Laitetyyppi karkeasti ruudun koon perusteella
@@ -43,7 +52,261 @@ document.addEventListener('DOMContentLoaded', async () => {
         } catch(e) {
             console.error("Pageview log failed:", e);
         }
+
+        // --- COOKIE BANNER UI INJECTION ---
+        if (!consent) {
+            // Luo tyylit suoraan JS:stä raskaiden CSS latausten välttämiseksi
+            const style = document.createElement('style');
+            style.innerHTML = `
+                .cookie-consent-overlay { position: fixed; bottom: 1.5rem; left: 1.5rem; max-width: 400px; width: calc(100% - 3rem); background: #ffffff; padding: 1.5rem; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); z-index: 99999; border: 1px solid #e5e7eb; font-family: 'Inter', sans-serif; opacity: 0; transform: translateY(20px); transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+                .cookie-consent-overlay.show { opacity: 1; transform: translateY(0); }
+                .cookie-title { font-size: 1.125rem; font-weight: 700; margin-bottom: 0.5rem; color: #111827; }
+                .cookie-text { font-size: 0.875rem; color: #4b5563; margin-bottom: 1rem; line-height: 1.5; }
+                .cookie-buttons { display: flex; flex-direction: column; gap: 0.5rem; }
+                .cookie-btn { padding: 0.625rem 1rem; border-radius: 6px; font-weight: 600; font-size: 0.875rem; cursor: pointer; transition: all 0.2s; text-align: center; border: none; }
+                .cookie-btn-primary { background: #121212; color: #fff; }
+                .cookie-btn-primary:hover { background: #333; transform: scale(1.02); }
+                .cookie-btn-secondary { background: transparent; color: #4b5563; border: 1px solid #d1d5db; }
+                .cookie-btn-secondary:hover { background: #f3f4f6; }
+                .cookie-link { color: #6b7280; text-decoration: underline; font-size: 0.75rem; text-align: center; margin-top: 0.5rem; cursor: pointer; }
+                
+                .cookie-settings-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90%; max-width: 450px; background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); z-index: 100000; display: none; font-family: 'Inter', sans-serif;}
+                .cookie-settings-modal.show { display: block; }
+                .ck-backdrop { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.3); backdrop-filter: blur(2px); z-index: 99998; display: none; }
+                .ck-backdrop.show { display: block; }
+                .ck-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid #e5e7eb; }
+                .ck-row:last-of-type { border-bottom: none; }
+                
+                /* Toggles */
+                .ck-switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+                .ck-switch input { opacity: 0; width: 0; height: 0; }
+                .ck-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
+                .ck-slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+                .ck-switch input:checked + .ck-slider { background-color: #10b981; }
+                .ck-switch input:disabled + .ck-slider { opacity: 0.5; cursor: not-allowed; }
+                .ck-switch input:checked + .ck-slider:before { transform: translateX(20px); }
+                
+                @media (max-width: 600px) {
+                    .cookie-consent-overlay { bottom: 0; left: 0; max-width: 100%; width: 100%; border-radius: 12px 12px 0 0; }
+                }
+            `;
+            document.head.appendChild(style);
+
+            const banner = document.createElement('div');
+            banner.className = 'cookie-consent-overlay';
+            banner.innerHTML = `
+                <div class="cookie-title">Kotivierailu evästeillä 🏡</div>
+                <div class="cookie-text">
+                    Käytämme evästeitä varmistaaksemme salamannopean sivuston ja tarjotaksemme kohdennettua palvelua juuri sinulle. Hyväksymällä autat meitä rakentamaan parempia koteja. Valinta on täysin sinun!
+                </div>
+                <div class="cookie-buttons">
+                    <button class="cookie-btn cookie-btn-primary" id="btn-accept-all">Salli kaikki</button>
+                    <button class="cookie-btn cookie-btn-secondary" id="btn-accept-necessary">Vain välttämättömät</button>
+                    <div class="cookie-link" id="btn-cookie-settings">Hallitse asetuksia &rsaquo;</div>
+                </div>
+            `;
+            document.body.appendChild(banner);
+
+            const backdrop = document.createElement('div');
+            backdrop.className = 'ck-backdrop';
+            
+            const modal = document.createElement('div');
+            modal.className = 'cookie-settings-modal';
+            modal.innerHTML = `
+                <h3 style="margin-top:0; font-size:1.25rem;">Evästeasetukset</h3>
+                <p style="font-size:0.875rem; color:#4b5563; margin-bottom:1.5rem;">Välttämättömät evästeet vaaditaan sivuston perustoiminnallisuuteen. Voit hallita muita asetuksia alta.</p>
+                
+                <div class="ck-row">
+                    <div>
+                        <strong>Välttämättömät</strong>
+                        <div style="font-size:0.75rem; color:#6b7280;">Sivuston perustoimintaan</div>
+                    </div>
+                    <label class="ck-switch">
+                        <input type="checkbox" checked disabled>
+                        <span class="ck-slider"></span>
+                    </label>
+                </div>
+                <div class="ck-row">
+                    <div>
+                        <strong>Analytiikka</strong>
+                        <div style="font-size:0.75rem; color:#6b7280;">Auttaa meitä kehittämään sivustoa</div>
+                    </div>
+                    <label class="ck-switch">
+                        <input type="checkbox" id="toggle-analytics" checked>
+                        <span class="ck-slider"></span>
+                    </label>
+                </div>
+                <div class="ck-row">
+                    <div>
+                        <strong>Markkinointi</strong>
+                        <div style="font-size:0.75rem; color:#6b7280;">Sosiaalisen median kohdennuksiin</div>
+                    </div>
+                    <label class="ck-switch">
+                        <input type="checkbox" id="toggle-marketing">
+                        <span class="ck-slider"></span>
+                    </label>
+                </div>
+                
+                <button class="cookie-btn cookie-btn-primary" style="width:100%; margin-top:1rem;" id="btn-save-settings">Tallenna valinnat</button>
+            `;
+            
+            document.body.appendChild(backdrop);
+            document.body.appendChild(modal);
+
+            // Animate banner in
+            setTimeout(() => banner.classList.add('show'), 1000);
+
+            const saveConsent = (data) => {
+                localStorage.setItem(CONSENT_KEY, JSON.stringify(data));
+                banner.classList.remove('show');
+                backdrop.classList.remove('show');
+                modal.classList.remove('show');
+                // Ei refreshata, koska sivulataus ehti jo tallentua, mutta jatkossa sessionTracker herää.
+            };
+
+            document.getElementById('btn-accept-all').onclick = () => saveConsent({ necessary: true, analytics: true, marketing: true });
+            document.getElementById('btn-accept-necessary').onclick = () => saveConsent({ necessary: true, analytics: false, marketing: false });
+            
+            document.getElementById('btn-cookie-settings').onclick = () => {
+                backdrop.classList.add('show');
+                modal.classList.add('show');
+            };
+
+            document.getElementById('btn-save-settings').onclick = () => {
+                saveConsent({
+                    necessary: true,
+                    analytics: document.getElementById('toggle-analytics').checked,
+                    marketing: document.getElementById('toggle-marketing').checked
+                });
+            };
+            
+            backdrop.onclick = () => {
+                backdrop.classList.remove('show');
+                modal.classList.remove('show');
+            };
+            // Footer link injection for re-opening settings
+            const injectSettingsLink = () => {
+                const tsLink = document.querySelector('a[href="tietosuojaseloste.html"]');
+                if (tsLink && !document.getElementById('footer-cookie-settings')) {
+                    const span = document.createElement('span');
+                    span.innerHTML = ' | <a href="#" id="footer-cookie-settings" style="text-decoration: underline; color: inherit;">Evästeasetukset</a>';
+                    tsLink.parentNode.insertBefore(span, tsLink.nextSibling);
+                    
+                    document.getElementById('footer-cookie-settings').onclick = (e) => {
+                        e.preventDefault();
+                        if (consent) {
+                            document.getElementById('toggle-analytics').checked = consent.analytics;
+                            document.getElementById('toggle-marketing').checked = consent.marketing;
+                        }
+                        backdrop.classList.add('show');
+                        modal.classList.add('show');
+                    };
+                }
+            };
+            injectSettingsLink();
+
+        } else {
+            // IF ALREADY CONSENTED, STILL INJECT SETTINGS LINK AND MODAL TO DOM SO THEY CAN CHANGE IT
+            // (We need to inject the modal html if it doesn't exist, to let them change settings later)
+            // To save space, we just let the previous code block handle the first time UI,
+            // but for already consented users we must provide the same modal.
+            
+            const style = document.createElement('style');
+            style.innerHTML = `
+                .cookie-settings-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90%; max-width: 450px; background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); z-index: 100000; display: none; font-family: 'Inter', sans-serif;}
+                .cookie-settings-modal.show { display: block; }
+                .ck-backdrop { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.3); backdrop-filter: blur(2px); z-index: 99998; display: none; }
+                .ck-backdrop.show { display: block; }
+                .ck-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid #e5e7eb; }
+                .ck-row:last-of-type { border-bottom: none; }
+                .ck-switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+                .ck-switch input { opacity: 0; width: 0; height: 0; }
+                .ck-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
+                .ck-slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+                .ck-switch input:checked + .ck-slider { background-color: #10b981; }
+                .ck-switch input:disabled + .ck-slider { opacity: 0.5; cursor: not-allowed; }
+                .ck-switch input:checked + .ck-slider:before { transform: translateX(20px); }
+                .cookie-btn { padding: 0.625rem 1rem; border-radius: 6px; font-weight: 600; font-size: 0.875rem; cursor: pointer; transition: all 0.2s; text-align: center; border: none; }
+                .cookie-btn-primary { background: #121212; color: #fff; }
+            `;
+            document.head.appendChild(style);
+
+            const backdrop = document.createElement('div');
+            backdrop.className = 'ck-backdrop';
+            
+            const modal = document.createElement('div');
+            modal.className = 'cookie-settings-modal';
+            modal.innerHTML = `
+                <h3 style="margin-top:0; font-size:1.25rem;">Evästeasetukset</h3>
+                <p style="font-size:0.875rem; color:#4b5563; margin-bottom:1.5rem;">Välttämättömät evästeet vaaditaan sivuston perustoiminnallisuuteen.</p>
+                
+                <div class="ck-row">
+                    <div>
+                        <strong>Välttämättömät</strong>
+                    </div>
+                    <label class="ck-switch">
+                        <input type="checkbox" checked disabled>
+                        <span class="ck-slider"></span>
+                    </label>
+                </div>
+                <div class="ck-row">
+                    <div>
+                        <strong>Analytiikka</strong>
+                    </div>
+                    <label class="ck-switch">
+                        <input type="checkbox" id="toggle-analytics" ${consent.analytics ? 'checked' : ''}>
+                        <span class="ck-slider"></span>
+                    </label>
+                </div>
+                <div class="ck-row">
+                    <div>
+                        <strong>Markkinointi</strong>
+                    </div>
+                    <label class="ck-switch">
+                        <input type="checkbox" id="toggle-marketing" ${consent.marketing ? 'checked' : ''}>
+                        <span class="ck-slider"></span>
+                    </label>
+                </div>
+                
+                <button class="cookie-btn cookie-btn-primary" style="width:100%; margin-top:1rem;" id="btn-save-settings">Tallenna valinnat</button>
+            `;
+            
+            document.body.appendChild(backdrop);
+            document.body.appendChild(modal);
+
+            document.getElementById('btn-save-settings').onclick = () => {
+                const newData = {
+                    necessary: true,
+                    analytics: document.getElementById('toggle-analytics').checked,
+                    marketing: document.getElementById('toggle-marketing').checked
+                };
+                localStorage.setItem(CONSENT_KEY, JSON.stringify(newData));
+                backdrop.classList.remove('show');
+                modal.classList.remove('show');
+                // Ladataan sivu uudestaan jotta analytiikka herää/kuolee
+                window.location.reload();
+            };
+            
+            backdrop.onclick = () => {
+                backdrop.classList.remove('show');
+                modal.classList.remove('show');
+            };
+
+            const tsLink = document.querySelector('a[href="tietosuojaseloste.html"]');
+            if (tsLink && !document.getElementById('footer-cookie-settings')) {
+                const span = document.createElement('span');
+                span.innerHTML = ' | <a href="#" id="footer-cookie-settings" style="text-decoration: underline; color: inherit;">Evästeasetukset</a>';
+                tsLink.parentNode.insertBefore(span, tsLink.nextSibling);
+                
+                document.getElementById('footer-cookie-settings').onclick = (e) => {
+                    e.preventDefault();
+                    backdrop.classList.add('show');
+                    modal.classList.add('show');
+                };
+            }
+        }
     }
+    
 
     // Hamburger Menu Logic
     const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
