@@ -828,6 +828,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                     "Alatunniste: Facebook-linkki": "",
                     "Alatunniste: LinkedIn-linkki": ""
                 },
+                'kohde': {
+                    "Varaus Otsikko": "Varaus",
+                    "Varaus Ohje": "Varatessasi kohteen, se poistetaan muilta myynnistä max 2vkon ajaksi. Olemme sinuun yhteydessä mahdollisimman pian varauksen tehtyäsi.",
+                    "Varaus Nappi": "Lähetä"
+                },
                 'valtti-tapa': {
                     "Tarinamme Otsikko": "Valtti-tapa",
                     "Tarinamme Ingressi": "Kotimme rakennetaan kestämään elämää, aikaa ja katseita...",

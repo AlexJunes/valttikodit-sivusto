@@ -447,6 +447,48 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
+    // Varaus lomakkeen lähetys ja tallennus
+    const bookingForm = document.getElementById('booking-form');
+    if (bookingForm) {
+        bookingForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+            const btn = bookingForm.querySelector('button[type="submit"]');
+            btn.textContent = 'Lähetetään...';
+            btn.disabled = true;
+
+            const formData = new FormData(bookingForm);
+            
+            if (typeof supabase !== 'undefined') {
+                try {
+                    const kohdeEl = document.querySelector('[data-project="title"]');
+                    const kohdeStr = kohdeEl ? ` (${kohdeEl.textContent})` : '';
+                    const messageStr = `LÄHDE: Kohdevaraus${kohdeStr}.\nMarkkinointilupa annettu.`;
+                    
+                    supabase.from('leads').insert([{
+                        name: formData.get('name'),
+                        email: formData.get('email'),
+                        phone: formData.get('phone') || '',
+                        message: messageStr
+                    }]).then((res) => {
+                        if (res.error) throw res.error;
+                        bookingForm.style.display = 'none';
+                        const successDiv = document.getElementById('booking-success');
+                        if(successDiv) successDiv.style.display = 'block';
+                    });
+                } catch(err) {
+                    console.error('Supabase DB error:', err);
+                    alert("Virhe tietojen tallennuksessa. Kokeile uudelleen.");
+                    btn.textContent = 'Lähetä';
+                    btn.disabled = false;
+                }
+            } else {
+                 alert("Yhteyttä tietokantaan ei voitu muodostaa.");
+                 btn.textContent = 'Lähetä';
+                 btn.disabled = false;
+            }
+        });
+    }
+
     // CMS DATA INJECTION (FOR APPLICABLE PUBLIC PAGES)
     if (supabase) {
         // Detect current page slug from URL
@@ -469,6 +511,19 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (urlParams.get('rewrite') === 'true') {
                     window.history.replaceState({}, '', `/kohteet/${slug}`);
                 }
+                
+                // Varaus-modaalitekstien ja kohdesivun tekstien lataus administratiiviselta "kohde" alasivulta
+                const { data: kohdePage } = await supabase.from('pages').select('content').eq('slug', 'kohde').maybeSingle();
+                if (kohdePage && kohdePage.content) {
+                    const content = kohdePage.content;
+                    document.querySelectorAll('[data-cms-kohde]').forEach(el => {
+                        const key = el.getAttribute('data-cms-kohde');
+                        if (content[key]) {
+                            el.innerHTML = content[key];
+                        }
+                    });
+                }
+
                 // Ladataan kohteen tiedot tietokannasta url-parametrin perusteella (case-insensitive for legacy slugs)
                 const { data: project, error } = await supabase.from('projects').select('*').ilike('slug', slug).maybeSingle();
                 if (project && !error) {
