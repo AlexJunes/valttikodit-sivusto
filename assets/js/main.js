@@ -498,7 +498,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                             }
                             
                             if (el.tagName.toLowerCase() === 'img') {
-                                el.src = val;
+                                el.src = (typeof val === 'string' && val.startsWith('../')) ? val.substring(3) : val;
                             } else if (el.tagName.toLowerCase() === 'iframe') {
                                 if (typeof val === 'string' && val.includes('<iframe') && val.includes('src="')) {
                                     const match = val.match(/src="([^"]+)"/);
@@ -507,7 +507,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                                     el.src = val;
                                 }
                             } else if (key === 'hero_image') {
-                                el.style.backgroundImage = `url('${val}')`;
+                                const cleanVal = (typeof val === 'string' && val.startsWith('../')) ? val.substring(3) : val;
+                                el.style.backgroundImage = `url('${cleanVal}')`;
                             } else if (el.tagName.toLowerCase() === 'a') {
                                 const trimVal = String(val).trim();
                                 if (trimVal.includes('@') && !trimVal.startsWith('http')) {
@@ -605,7 +606,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                     const ogImage = document.createElement('meta');
                     if (project.hero_image) {
                         ogImage.property = "og:image";
-                        ogImage.content = project.hero_image.startsWith('http') ? project.hero_image : window.location.origin + '/' + project.hero_image;
+                        let heroClean = project.hero_image.startsWith('../') ? project.hero_image.substring(3) : project.hero_image;
+                        ogImage.content = heroClean.startsWith('http') ? heroClean : window.location.origin + '/' + heroClean;
                     }
 
                     document.head.append(metaDesc, ogTitle, ogImage);
@@ -617,7 +619,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         "name": project.title || "Valttikodit Asunto",
                         "description": project.description || project.ingress || "",
                         "url": window.location.href,
-                        "image": project.hero_image ? (project.hero_image.startsWith('http') ? project.hero_image : window.location.origin + '/' + project.hero_image) : "",
+                        "image": project.hero_image ? ((project.hero_image.startsWith('../') ? project.hero_image.substring(3) : project.hero_image).startsWith('http') ? (project.hero_image.startsWith('../') ? project.hero_image.substring(3) : project.hero_image) : window.location.origin + '/' + (project.hero_image.startsWith('../') ? project.hero_image.substring(3) : project.hero_image)) : "",
                         "address": {
                             "@type": "PostalAddress",
                             "streetAddress": project.address || "",
@@ -641,8 +643,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                     if (galleryContainer && project.gallery_images && Array.isArray(project.gallery_images)) {
                         galleryContainer.innerHTML = '';
                         project.gallery_images.forEach(imgUrl => {
+                            let cleanImgUrl = (typeof imgUrl === 'string' && imgUrl.startsWith('../')) ? imgUrl.substring(3) : imgUrl;
                             const img = document.createElement('img');
-                            img.src = imgUrl;
+                            img.src = cleanImgUrl;
                             img.style.cssText = "width: 100%; aspect-ratio: 4/3; object-fit: cover; border-radius: 4px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); cursor: pointer; transition: transform 0.2s;";
                             img.onmouseover = () => img.style.transform = 'scale(1.02)';
                             img.onmouseout = () => img.style.transform = 'scale(1)';
@@ -650,7 +653,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                                 const modal = document.createElement('div');
                                 modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.9); display: flex; align-items: center; justify-content: center; z-index: 9999; cursor: pointer; padding: 2rem; box-sizing: border-box;';
                                 const modalImg = document.createElement('img');
-                                modalImg.src = imgUrl;
+                                modalImg.src = cleanImgUrl;
                                 modalImg.style.cssText = 'max-width: 100%; max-height: 100%; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); object-fit: contain;';
                                 modal.appendChild(modalImg);
                                 modal.onclick = () => document.body.removeChild(modal);
@@ -671,19 +674,19 @@ document.addEventListener('DOMContentLoaded', async () => {
                         }
 
                         allImages.forEach(imgUrl => {
+                            let cleanImgUrl = (typeof imgUrl === 'string' && imgUrl.startsWith('../')) ? imgUrl.substring(3) : imgUrl;
                             const slideDiv = document.createElement('div');
                             slideDiv.className = 'project-carousel-slide';
                             
                             const img = document.createElement('img');
-                            img.src = imgUrl;
+                            img.src = cleanImgUrl;
                             slideDiv.appendChild(img);
                             
-                            // Lightbox ominaisuus (sama kuin alasivun galleriassa)
                             slideDiv.onclick = () => {
                                 const modal = document.createElement('div');
                                 modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.9); display: flex; align-items: center; justify-content: center; z-index: 9999; cursor: pointer; padding: 2rem; box-sizing: border-box;';
                                 const modalImg = document.createElement('img');
-                                modalImg.src = imgUrl;
+                                modalImg.src = cleanImgUrl;
                                 modalImg.style.cssText = 'max-width: 100%; max-height: 100%; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); object-fit: contain;';
                                 modal.appendChild(modalImg);
                                 modal.onclick = () => document.body.removeChild(modal);
@@ -787,8 +790,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                         const priceStr = project.price ? `Hinta alk. ${Number(project.price).toLocaleString('fi-FI')} €` : 'Hinta pyydettäessä';
                         
-                        const bgStyle = project.hero_image 
-                            ? `background-color: #f3f4f6; background-image: url('${project.hero_image}'); background-size: cover; background-position: center;` 
+                        let cleanHeroUrl = project.hero_image;
+                        if (cleanHeroUrl && typeof cleanHeroUrl === 'string' && cleanHeroUrl.startsWith('../')) {
+                            cleanHeroUrl = cleanHeroUrl.substring(3);
+                        }
+                        
+                        const bgStyle = cleanHeroUrl 
+                            ? `background-color: #f3f4f6; background-image: url('${cleanHeroUrl}'); background-size: cover; background-position: center;` 
                             : `background-color: #f3f4f6;`;
 
                         const safeSlug = (project.slug || 'default').toString().trim().toLowerCase().replace(/\s+/g, '-');
