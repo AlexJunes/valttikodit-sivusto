@@ -19,7 +19,7 @@
         <!-- Renderöidään JS:llä ylläpidon puolella tai suoraan HTMlL:ssä. Tässä suoraan HTML lokaalin yksinkertaisuuden vuoksi -->
         <div class="admin-brand">Valttikodit Admin</div>
         <nav class="admin-nav">
-            <a href="dashboard.html" class="active">Dashboard</a>
+            <a href="dashboard.html" class="active">Liidit</a>
             <a href="projects.html">Kohteet</a>
             <a href="pages.html">Sivut</a>
             <a href="analytics.html">Analytiikka</a>
@@ -33,100 +33,34 @@
     </aside>
 
     <main class="admin-main">
-        <h1 style="font-size: 1.875rem; margin-bottom: 2rem;">Dashboard</h1>
+        <h1 style="font-size: 1.875rem; margin-bottom: 2rem;">Liidit</h1>
 
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
-            <div class="admin-card">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+            <div class="admin-card" style="border-left: 4px solid var(--primary); max-width: 400px;">
                 <h3 style="font-size: 1.125rem; font-weight: 500; margin-bottom: 0.5rem; color: var(--text-muted);">
-                    Myytävät kohteet</h3>
-                <p id="dash-projects-count" style="font-size: 2.25rem; font-weight: 700;">-</p>
-            </div>
-            <div class="admin-card" style="border-left: 4px solid var(--primary);">
-                <h3 style="font-size: 1.125rem; font-weight: 500; margin-bottom: 0.5rem; color: var(--text-muted);">
-                    Uudet liidit</h3>
+                    Yhteensä yhteydenottoja (Liidit)</h3>
                 <p id="dash-leads-count" style="font-size: 2.25rem; font-weight: 700;">-</p>
-                <a href="#" onclick="document.getElementById('leads-container').style.display='block'; return false;" style="font-size: 0.875rem; margin-top: 1rem; display: inline-block;">Käsittele &rarr;</a>
-            </div>
-            <div class="admin-card">
-                <h3 style="font-size: 1.125rem; font-weight: 500; margin-bottom: 0.5rem; color: var(--text-muted);">
-                    Sivukatselut</h3>
-                <div style="display: flex; gap: 2rem; align-items: flex-end;">
-                  <div>
-                    <span style="font-size: 0.875rem; color: var(--text-muted);">7 pv</span>
-                    <p style="font-size: 1.75rem; font-weight: 700; color: var(--text-color);" id="pv-7d">-</p>
-                  </div>
-                  <div>
-                    <span style="font-size: 0.875rem; color: var(--text-muted);">30 pv</span>
-                    <p style="font-size: 1.75rem; font-weight: 700; color: var(--text-color);" id="pv-30d">-</p>
-                  </div>
-                  <div>
-                    <span style="font-size: 0.875rem; color: var(--text-muted);">12 kk</span>
-                    <p style="font-size: 1.75rem; font-weight: 700; color: var(--text-color);" id="pv-12m">-</p>
-                  </div>
-                </div>
-        </nav>
-        <div style="padding: 1rem; border-top: 1px solid var(--border);">
-            <div
-                style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">
-                admin@valttikodit.local</div>
-            <a href="login.html" style="color: red; font-size: 0.875rem; font-weight: 500;">Kirjaudu ulos</a>
-        </div>
-    </aside>
-
-    <main class="admin-main">
-        <h1 style="font-size: 1.875rem; margin-bottom: 2rem;">Dashboard</h1>
-
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
-            <div class="admin-card">
-                <h3 style="font-size: 1.125rem; font-weight: 500; margin-bottom: 0.5rem; color: var(--text-muted);">
-                    Myytävät kohteet</h3>
-                <p id="dash-projects-count" style="font-size: 2.25rem; font-weight: 700;">-</p>
-            </div>
-            <div class="admin-card" style="border-left: 4px solid var(--primary);">
-                <h3 style="font-size: 1.125rem; font-weight: 500; margin-bottom: 0.5rem; color: var(--text-muted);">
-                    Uudet liidit</h3>
-                <p id="dash-leads-count" style="font-size: 2.25rem; font-weight: 700;">-</p>
-                <a href="#" onclick="document.getElementById('leads-container').style.display='block'; return false;" style="font-size: 0.875rem; margin-top: 1rem; display: inline-block;">Käsittele &rarr;</a>
-            </div>
-            <div class="admin-card">
-                <h3 style="font-size: 1.125rem; font-weight: 500; margin-bottom: 0.5rem; color: var(--text-muted);">
-                    Sivukatselut</h3>
-                <div style="display: flex; gap: 2rem; align-items: flex-end;">
-                  <div>
-                    <span style="font-size: 0.875rem; color: var(--text-muted);">7 pv</span>
-                    <p style="font-size: 1.75rem; font-weight: 700; color: var(--text-color);" id="pv-7d">-</p>
-                  </div>
-                  <div>
-                    <span style="font-size: 0.875rem; color: var(--text-muted);">30 pv</span>
-                    <p style="font-size: 1.75rem; font-weight: 700; color: var(--text-color);" id="pv-30d">-</p>
-                  </div>
-                  <div>
-                    <span style="font-size: 0.875rem; color: var(--text-muted);">12 kk</span>
-                    <p style="font-size: 1.75rem; font-weight: 700; color: var(--text-color);" id="pv-12m">-</p>
-                  </div>
-                </div>
             </div>
         </div>
 
         <!-- Uudet Liidit Taulukko (Avataan Käsittele-napista) -->
-        <div id="leads-container" style="display: none; margin-top: 3rem;">
-            <h2 style="font-size: 1.5rem; margin-bottom: 1.5rem;">Yhteydenottopyynnöt (Liidit)</h2>
+        <div id="leads-container" style="display: block;">
             <div class="admin-card" style="padding: 0; overflow-x: auto;">
-                <table class="admin-table">
+                <table class="admin-table" style="width: 100%; border-collapse: collapse;">
                     <thead>
-                        <tr>
-                            <th>Päiväys</th>
-                            <th>Nimi</th>
-                            <th>Sähköposti</th>
-                            <th>Puhelin</th>
-                            <th>Lähde</th>
-                            <th>Viesti</th>
-                            <th>Tila</th>
-                            <th style="text-align: right;">Toiminnot</th>
+                        <tr style="background: #f9fafb; border-bottom: 2px solid var(--border);">
+                            <th style="padding: 1rem; text-align: left; font-weight: 600; color: var(--text-muted);">Päiväys</th>
+                            <th style="padding: 1rem; text-align: left; font-weight: 600; color: var(--text-muted);">Nimi</th>
+                            <th style="padding: 1rem; text-align: left; font-weight: 600; color: var(--text-muted);">Sähköposti</th>
+                            <th style="padding: 1rem; text-align: left; font-weight: 600; color: var(--text-muted);">Puhelin</th>
+                            <th style="padding: 1rem; text-align: left; font-weight: 600; color: var(--text-muted);">Lähde</th>
+                            <th style="padding: 1rem; text-align: left; font-weight: 600; color: var(--text-muted);">Viesti</th>
+                            <th style="padding: 1rem; text-align: left; font-weight: 600; color: var(--text-muted);">Tila</th>
+                            <th style="padding: 1rem; text-align: right; font-weight: 600; color: var(--text-muted);">Toiminnot</th>
                         </tr>
                     </thead>
                     <tbody id="leads-tbody">
-                        <tr><td colspan="8">Ladataan...</td></tr>
+                        <tr><td colspan="8" style="padding: 2rem; text-align: center; color: var(--text-muted);">Ladataan...</td></tr>
                     </tbody>
                 </table>
             </div>

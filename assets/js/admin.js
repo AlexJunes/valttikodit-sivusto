@@ -289,7 +289,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     if (leadsTbody) {
                         leadsTbody.innerHTML = '';
                         if (leadsData.length === 0) {
-                            leadsTbody.innerHTML = '<tr><td colspan="7">Ei yhteydenottopyyntöjä.</td></tr>';
+                            leadsTbody.innerHTML = '<tr><td colspan="8">Ei yhteydenottopyyntöjä.</td></tr>';
                         } else {
                             leadsData.forEach(lead => {
                                 const tr = document.createElement('tr');
