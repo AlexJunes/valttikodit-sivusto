@@ -669,6 +669,26 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                     const pubCheck = document.getElementById('published');
                     
+                    let finalEsiteUrl = getVal(51);
+                    const esitekuvaFile = document.getElementById('esitekuva_file');
+                    if (esitekuvaFile && esitekuvaFile.files.length > 0) {
+                        try {
+                            finalEsiteUrl = await uploadToSupabaseStorage(esitekuvaFile.files[0]);
+                        } catch(e) {
+                            console.error(e);
+                        }
+                    }
+
+                    let finalPdfUrl = getVal(52);
+                    const pdfFile = document.getElementById('materiaali_pdf_file');
+                    if (pdfFile && pdfFile.files.length > 0) {
+                        try {
+                            finalPdfUrl = await uploadToSupabaseStorage(pdfFile.files[0]);
+                        } catch(e) {
+                            console.error(e);
+                        }
+                    }
+                    
                     const projectData = {
                         title: getVal(0),
                         slug: getVal(1) ? getVal(1).toString().trim().toLowerCase().replace(/\s+/g, '-') : '',
@@ -726,8 +746,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                             "Some Otsikko": getVal(48),
                             "Facebook Linkki": getVal(49),
                             "Instagram Linkki": getVal(50),
-                            "Esitekuva": getVal(51),
-                            "Materiaalipaketti PDF": getVal(52)
+                            "Esitekuva": finalEsiteUrl,
+                            "Materiaalipaketti PDF": finalPdfUrl
                         }
                     };
 

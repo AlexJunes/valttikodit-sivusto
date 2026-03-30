@@ -260,12 +260,14 @@
                 <div style="display: grid; grid-template-columns: 1fr; gap: 1.5rem; margin-bottom: 2rem;">
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
                         <div class="form-group mb-0">
-                            <label class="form-label">Esitekuva (URL/latausosoite)</label>
-                            <input type="text" class="form-input" placeholder="/assets/img/placeholder_brochure.png">
+                            <label class="form-label">Esitekuva (Lataa uusi tai syötä vanha URL)</label>
+                            <input type="text" class="form-input" placeholder="/assets/img/placeholder_brochure.png" style="margin-bottom: 0.5rem;">
+                            <input type="file" id="esitekuva_file" class="form-input" accept="image/*">
                         </div>
                         <div class="form-group mb-0">
-                            <label class="form-label">Materiaalipaketti PDF (URL)</label>
-                            <input type="text" class="form-input" placeholder="https://esimerkki.com/esite.pdf">
+                            <label class="form-label">Materiaalipaketti PDF (Lataa uusi tai syötä URL)</label>
+                            <input type="text" class="form-input" placeholder="https://esimerkki.com/esite.pdf" style="margin-bottom: 0.5rem;">
+                            <input type="file" id="materiaali_pdf_file" class="form-input" accept="application/pdf">
                         </div>
                     </div>
                 </div>
