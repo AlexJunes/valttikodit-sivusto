@@ -491,9 +491,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         const getVal = (index) => inputs[index] ? inputs[index].value : '';
         const setVal = (index, val) => { if(inputs[index]) inputs[index].value = val; };
 
-        const fileInputs = editProjectForm.querySelectorAll('input[type="file"]');
-        const heroInput = fileInputs[0];
-        const galleryInput = editProjectForm.querySelector('input[type="file"][multiple]');
+        const heroInput = document.getElementById('hero_image_file');
+        const galleryInput = document.getElementById('gallery_images_file');
         
         let pendingHeroFile = null;
         let existingHeroUrl = '';
