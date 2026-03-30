@@ -487,6 +487,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                                 if (val === 'MARKETING') val = 'ENNAKKOMARKKINOINTI';
                                 else if (val === 'AVAILABLE') val = 'MYYNNISSÄ';
                                 else if (val === 'CONSTRUCTION') val = 'RAKENTEILLA';
+                                else if (val === 'RESERVED') val = 'VARATTU';
                                 else if (val === 'SOLD') {
                                     val = 'MYYTY';
                                     el.style.backgroundColor = '#10b981';
@@ -781,6 +782,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                             case 'MARKETING': statusFi = 'ENNAKKOMARKKINOINTI'; break;
                             case 'AVAILABLE': statusFi = 'MYYNNISSÄ'; break;
                             case 'CONSTRUCTION': statusFi = 'RAKENTEILLA'; break;
+                            case 'RESERVED': statusFi = 'VARATTU'; break;
                             case 'SOLD': 
                                 statusFi = 'MYYTY'; 
                                 statusClass = 'sold';

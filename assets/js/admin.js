@@ -395,7 +395,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                 data.forEach(project => {
                     const row = document.createElement('tr');
-                    const statusText = project.status || 'TUNTEMATON';
+                    let statusText = project.status || 'TUNTEMATON';
+                    switch(project.status) {
+                        case 'MARKETING': statusText = 'ENNAKKOMARKKINOINTI'; break;
+                        case 'AVAILABLE': statusText = 'MYYNNISSÄ'; break;
+                        case 'CONSTRUCTION': statusText = 'RAKENTEILLA'; break;
+                        case 'RESERVED': statusText = 'VARATTU'; break;
+                        case 'SOLD': statusText = 'MYYTY'; break;
+                    }
                     const pubText = project.published ? '<span style="color: green; font-weight: 600;">Kyllä</span>' : '<span style="color: red;">Ei</span>';
                     
                     row.dataset.id = project.id;
