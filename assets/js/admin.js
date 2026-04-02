@@ -598,7 +598,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         setVal(18, data.details["Huoneita"] !== undefined ? data.details["Huoneita"] : '');
                         setVal(19, data.details["Asuintilojen pinta-ala"] !== undefined ? data.details["Asuintilojen pinta-ala"] : '');
                         setVal(20, data.details["Muiden tilojen pinta-ala"] !== undefined ? data.details["Muiden tilojen pinta-ala"] : '');
-                        setVal(21, data.details["Kokonaispinta-ala"] !== undefined ? data.details["Kokonaispinta-ala"] : '');
+                        setVal(21, (data.details["Muut tilat"] !== undefined ? data.details["Muut tilat"] : (data.details["Kokonaispinta-ala"] !== undefined ? data.details["Kokonaispinta-ala"] : '')));
                         setVal(22, data.details["Asuinkerrosten määrä"] !== undefined ? data.details["Asuinkerrosten määrä"] : '');
                         setVal(23, data.details["Rakennusvuosi"] !== undefined ? data.details["Rakennusvuosi"] : '');
                         setVal(24, data.details["Vapautuminen"] !== undefined ? data.details["Vapautuminen"] : '');
@@ -722,7 +722,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                             "Huoneita": getVal(18),
                             "Asuintilojen pinta-ala": getVal(19),
                             "Muiden tilojen pinta-ala": getVal(20),
-                            "Kokonaispinta-ala": getVal(21),
+                            "Muut tilat": getVal(21),
                             "Asuinkerrosten määrä": getVal(22),
                             "Rakennusvuosi": getVal(23),
                             "Vapautuminen": getVal(24),

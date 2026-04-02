@@ -504,7 +504,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (slug === 'tarinamme') slug = 'valtti-tapa';
         }
 
-        const isProjectPage = window.location.pathname.includes('kohde.html');
+        const isProjectPage = window.location.pathname.includes('kohde.html') || (window.location.pathname.includes('/kohteet/') && slug !== 'kohteet' && slug !== 'index');
 
         try {
             if (isProjectPage && slug) {
@@ -580,6 +580,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                             }
                         }
                     });
+
+                    // Piilotetaan varausnappi, jos kohde on myyty tai varattu
+                    if (project.status === 'SOLD' || project.status === 'RESERVED') {
+                        const reserveBtn = document.getElementById('reserve-button');
+                        if (reserveBtn) reserveBtn.style.display = 'none';
+                    }
 
                     // Dynaaminen materiaalipaketin sisältö asunnolle
                     const pdfLink = project.details ? project.details['Materiaalipaketti PDF'] : null;
