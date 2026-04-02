@@ -49,6 +49,22 @@ document.addEventListener('DOMContentLoaded', async () => {
                 nav.appendChild(logoutBtn);
             }
 
+            // Hae uudet liidit ja näytä ylläpidon navigaatiossa merkki
+            try {
+                const unreadBadge = document.getElementById('unread-leads-badge');
+                if (unreadBadge) {
+                    const { count, error } = await supabase.from('leads').select('*', { count: 'exact', head: true }).eq('status', 'UUSI');
+                    if (!error && count > 0) {
+                        unreadBadge.textContent = `(${count})`;
+                        unreadBadge.style.display = 'inline';
+                    } else {
+                        unreadBadge.style.display = 'none';
+                    }
+                }
+            } catch (err) {
+                console.error("Error fetching unread leads", err);
+            }
+
         } else {
             // Login Page Flow
             const loginForm = document.getElementById('admin-login-form');
@@ -369,8 +385,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         window.deleteLead = async (id) => {
             if(confirm("Tuhoa kyseinen liidi täysin järjestelmästä?")) {
-                await supabase.from('leads').delete().eq('id', id);
-                window.location.reload();
+                const { error } = await supabase.from('leads').delete().eq('id', id);
+                if (error) {
+                    alert("Poistaminen epäonnistui: " + error.message + "\nTarkista, että tietokannan (Supabase) poisto-oikeudet (RLS Delete) ovat kunnossa.");
+                } else {
+                    window.location.reload();
+                }
             }
         };
     }

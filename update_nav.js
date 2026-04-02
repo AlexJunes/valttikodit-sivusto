@@ -17,7 +17,7 @@ for (const file of files) {
     else if (file === 'analytics.html') activeItem = 'analytics.html';
 
     const cleanNav = `<nav class="admin-nav">
-            <a href="dashboard.html"${activeItem === 'dashboard.html' ? ' class="active"' : ''}>Liidit</a>
+            <a href="dashboard.html"${activeItem === 'dashboard.html' ? ' class="active"' : ''}>Liidit<span id="unread-leads-badge" style="display:none; color:#ef4444; font-weight:600; margin-left:4px;"></span></a>
             <a href="projects.html"${activeItem === 'projects.html' ? ' class="active"' : ''}>Kohteet</a>
             <a href="pages.html"${activeItem === 'pages.html' ? ' class="active"' : ''}>Sivut</a>
             <a href="users.html"${activeItem === 'users.html' ? ' class="active"' : ''}>Käyttäjät</a>

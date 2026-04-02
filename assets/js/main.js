@@ -584,7 +584,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                     // Piilotetaan varausnappi, jos kohde on myyty tai varattu
                     if (project.status === 'SOLD' || project.status === 'RESERVED') {
                         const reserveBtn = document.getElementById('reserve-button');
-                        if (reserveBtn) reserveBtn.style.display = 'none';
+                        if (reserveBtn) {
+                            reserveBtn.style.display = 'none';
+                            reserveBtn.remove(); // Poistetaan elementti kokonaan DOMista varmuuden vuoksi
+                        }
                     }
 
                     // Dynaaminen materiaalipaketin sisältö asunnolle
