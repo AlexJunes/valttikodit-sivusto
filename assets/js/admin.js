@@ -22,6 +22,29 @@ document.addEventListener('DOMContentLoaded', async () => {
                 window.location.href = 'login.html';
                 return;
             }
+
+            // 1 Tunnin aikakatkaisulogiikka
+            const autoLogoutMs = 3600000; // 1 tunti
+            let loginTime = localStorage.getItem('valtti_admin_login_time');
+            if (!loginTime) {
+                loginTime = Date.now().toString();
+                localStorage.setItem('valtti_admin_login_time', loginTime);
+            }
+
+            const timeElapsed = Date.now() - parseInt(loginTime);
+            if (timeElapsed >= autoLogoutMs) {
+                await supabase.auth.signOut();
+                localStorage.removeItem('valtti_admin_login_time');
+                window.location.href = 'login.html';
+                return;
+            } else {
+                setTimeout(async () => {
+                    await supabase.auth.signOut();
+                    localStorage.removeItem('valtti_admin_login_time');
+                    alert("Istuntosi on vanhentunut (1 tunti kulunut). Ole hyvä ja kirjaudu sisään uudelleen.");
+                    window.location.href = 'login.html';
+                }, autoLogoutMs - timeElapsed);
+            }
             
             // Strict MFA Check (Enforces all users to have MFA enrolled and verified)
             const { data: mfaData, error: mfaError } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
@@ -44,6 +67,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 logoutBtn.onclick = async (e) => {
                     e.preventDefault();
                     await window.valttiSupabase.auth.signOut();
+                    localStorage.removeItem('valtti_admin_login_time');
                     window.location.href = 'login.html';
                 };
                 nav.appendChild(logoutBtn);
@@ -117,6 +141,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (loginForm) {
                 // Remove leftover static token if any
                 sessionStorage.removeItem('valtti_admin_auth');
+                localStorage.removeItem('valtti_admin_login_time');
 
                 loginForm.onsubmit = async (e) => {
                     e.preventDefault();
