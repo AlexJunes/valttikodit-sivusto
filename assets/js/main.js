@@ -19,6 +19,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         let cleanPath = window.location.pathname;
         if (cleanPath === '' || cleanPath === '/') cleanPath = '/index.html';
         
+        const urlParamsAnalytics = new URLSearchParams(window.location.search);
+        const kohdeParam = urlParamsAnalytics.get('kohde');
+        if (cleanPath.includes('kohde.html') && kohdeParam) {
+            cleanPath = cleanPath + '?kohde=' + kohdeParam;
+        }
+        
         // 1. Sessiotunniste (Vain jos analytiikka on sallittu)
         let sessionId = null;
         if (consent && consent.analytics) {

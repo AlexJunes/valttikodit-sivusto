@@ -205,12 +205,81 @@ document.addEventListener('DOMContentLoaded', async () => {
             } else {
                 topPages.forEach(([path, count]) => {
                     const li = document.createElement('li');
-                    let pName = path.replace('.html', '').replace('/', '');
-                    if(!pName || pName === '') pName = 'Etusivu';
-                    const percentage = totalViews > 0 ? Math.round((count / totalViews) * 100) : 0;
                     
-                    li.innerHTML = `<span><strong>${pName}</strong> <small style="color: #6b7280; margin-left:8px;">${path}</small></span><span>${count} katselua (${percentage}%)</span>`;
+                    let pName = 'Sivu';
+                    if (path.includes('index.html') || path === '/' || path === '') {
+                        pName = 'Etusivu';
+                    } else if (path.includes('kohde.html')) {
+                        const urlParams = new URLSearchParams(path.split('?')[1] || '');
+                        const kVal = urlParams.get('kohde');
+                        pName = kVal ? 'Kohde: ' + kVal.replace(/-/g, ' ') : 'Kohteen sivu';
+                        pName = pName.charAt(0).toUpperCase() + pName.slice(1);
+                    } else if (path.includes('kohteet.html') || path.includes('/kohteet')) {
+                        pName = 'Kaikki Kohteet';
+                    } else if (path.includes('tarinamme.html') || path.includes('/tarinamme')) {
+                        pName = 'Tarinamme';
+                    } else if (path.includes('yhteystiedot.html')) {
+                        pName = 'Yhteystiedot';
+                    } else {
+                        pName = path.split('?')[0].replace(/\//g, '').replace('.html', '');
+                        if (pName.length > 0) pName = pName.charAt(0).toUpperCase() + pName.slice(1);
+                    }
+                    
+                    const percentage = totalViews > 0 ? Math.round((count / totalViews) * 100) : 0;
+                    li.innerHTML = `<span><strong>${pName}</strong> <small style="display:block; color: #6b7280; margin-top:2px; font-family:monospace;">${path}</small></span><span style="white-space:nowrap; margin-left:1rem;">${count} katselua (${percentage}%)</span>`;
                     ul.appendChild(li);
+                });
+            }
+
+            // 6. DATAPOHJAISET SUOSITUKSET
+            const recContainer = document.getElementById('analytics-recommendations');
+            if (recContainer) {
+                recContainer.innerHTML = '';
+                const recs = [];
+
+                // Liikenteen määrä
+                if (uniqueSessions < 50) {
+                    recs.push({ title: 'Lisää kävijäliikennettä sivustolle', text: 'Tällä aikavälillä on ollut melko vähän (" + uniqueSessions + ") uniikkeja kävijöitä. Keskitä ponnistelut markkinointiin (esim. Facebook/Instagram-mainonta tai laadukkaat lehti-ilmoitukset) saadaksesi lisää potentiaalisia kohderyhmäläisiä sivuille.', color: '#3b82f6' });
+                }
+
+                // Konvertoitavuus
+                if (uniqueSessions > 100 && totalConversions === 0) {
+                    recs.push({ title: 'Paranna konversio-astetta', text: 'Sivustolla käy ihmisiä, mutta yhteydenottoja tai varauksia ei ole syntynyt. Harkitse sivuston rakenteen keventämistä, varmista että esitteen lataus tai yhteydenotto käy vaivattomasti ("Varaa kohde" -painikkeet erottuvat).', color: '#f59e0b' });
+                } else if (totalConversions > 0) {
+                    const convRate = (totalConversions / uniqueSessions) * 100;
+                    if (convRate > 5) {
+                        recs.push({ title: 'Erinomainen löytöaste!', text: `Sivuston konversio toimii tällä hetkellä erinomaisesti (${convRate.toFixed(1)}%). Jatka samalla strategialla ja pyri skaalaamaan nimenomaan nykyisten parhaiden liikenteen lähteiden volyymia.`, color: '#10b981' });
+                    } else if (convRate < 1) {
+                         recs.push({ title: 'Matala konversioaste', text: `Konversioasteesi on todella matala (${convRate.toFixed(1)}%). Varmista ydinviestin selkeys ja kokeile nostaa asunnon pohjapiirustus tai kuvagalleria heti näkyvämmälle paikalle.`, color: '#f59e0b' });
+                    }
+                }
+
+                // Sitoutuminen
+                if (engRate < 20 && uniqueSessions > 30) {
+                    recs.push({ title: 'Sitouta kävijöitä selaamaan pidemmälle', text: 'Iso osa kävijöistä näyttää poistuvan katsottuaan vain yhtä sivua (korkea välitön poistuminen tai "bounce rate"). Varmista, että etusivulta ja artikkeleista on selkeät "Lue lisää" johdatukset uusiin kohteisiin.', color: '#ec4899' });
+                }
+
+                // Laitteet
+                const mobShare = devMap['Mobiili'] ? (devMap['Mobiili'] / totalViews) : 0;
+                if (mobShare > 0.6) {
+                    recs.push({ title: 'Mobiilikokemuksen tärkeys', text: `Yli ${(mobShare*100).toFixed(0)}% liikenteestä tulee mobiililaitteilla. Varmista puhelimellasi, että kohteiden kuvat ovat selkeitä pienelläkin ruudulla ja nappien klikkaaminen peukalolla on helppoa.`, color: '#6366f1' });
+                }
+
+                // SEO Google
+                const seoShare = srcMap['Google'] ? (srcMap['Google'] / totalViews) : 0;
+                if (seoShare < 0.15 && totalViews > 50) {
+                    recs.push({ title: 'Orgaanisen haun parantaminen (Hakukoneoptimointi)', text: 'Pieni osa liikenteestä tulee Googlen kautta. Kannattaa varmistaa "Sivut"-paneelista, että tekstisisällöissä mainitaan vahvasti paikkakunnat ja asuntotyypit (esim. "uudiskohde Raahe", "rivitalo kaupunginosa"), joita ihmiset etsivät.', color: '#8b5cf6' });
+                }
+
+                if (recs.length === 0) {
+                    recs.push({ title: 'Perusmetriikat tasapainossa', text: 'Tämän datan perusteella analytiikan laatu vaikuttaa erinomaiselta. Jatka laadukkaan sisällön tuottamista ja seuraa tilannetta viikottain.', color: '#10b981' });
+                }
+
+                recs.forEach(r => {
+                    const el = document.createElement('div');
+                    el.style.cssText = `padding: 1.25rem; background: ${r.color}15; border-left: 4px solid ${r.color}; border-radius: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.02);`;
+                    el.innerHTML = `<strong style="display:block; color: ${r.color}; margin-bottom: 0.35rem; font-size: 0.95rem;">${r.title}</strong><span style="font-size: 0.875rem; color: #4b5563; line-height: 1.6; display:block;">${r.text}</span>`;
+                    recContainer.appendChild(el);
                 });
             }
 
