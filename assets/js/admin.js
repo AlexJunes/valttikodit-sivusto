@@ -542,8 +542,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             const { data, error } = await supabase.from('admin_users').select('*');
             usersTbody.innerHTML = '';
             
-            if (error || !data || data.length === 0) {
-                usersTbody.innerHTML = '<tr><td colspan="4">Ei käyttäjiä tai tietokantayhteysvirhe.</td></tr>';
+            if (error) {
+                usersTbody.innerHTML = `<tr><td colspan="4" style="color:red; padding:2rem;"><b>Tietokantavirhe:</b> ${error.message}<br><br>Tämä voi johtua siitä, että admin_users taulussa ei ole "Select" RLS -sääntöä.</td></tr>`;
+                return;
+            }
+
+            if (!data || data.length === 0) {
+                usersTbody.innerHTML = '<tr><td colspan="4" style="padding:2rem;">Ei käyttäjiä katsottavaksi. Jos olet varma että käyttäjiä on, varmista Supabasesta että <b>admin_users</b> -taululla on RLS-sääntö, joka sallii lukemisen (Select).<br><br><code>CREATE POLICY "Salli luku" ON public.admin_users FOR SELECT USING (true);</code></td></tr>';
                 return;
             }
             
