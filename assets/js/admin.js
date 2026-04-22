@@ -533,6 +533,74 @@ document.addEventListener('DOMContentLoaded', async () => {
         };
     }
 
+    // --- USERS.HTML ---
+    if (path.includes('users.html')) {
+        const usersTbody = document.getElementById('users-tbody');
+        
+        window.loadUsers = async () => {
+            if (!usersTbody) return;
+            const { data, error } = await supabase.from('admin_users').select('*');
+            usersTbody.innerHTML = '';
+            
+            if (error || !data || data.length === 0) {
+                usersTbody.innerHTML = '<tr><td colspan="4">Ei käyttäjiä tai tietokantayhteysvirhe.</td></tr>';
+                return;
+            }
+            
+            data.forEach(user => {
+                const tr = document.createElement('tr');
+                const d = new Date(user.created_at);
+                const dateStr = d.toLocaleDateString('fi-FI');
+                tr.innerHTML = `
+                    <td style="font-weight: 500;">${user.email}</td>
+                    <td>${user.role || 'Pääkäyttäjä'}</td>
+                    <td><span style="background: var(--accent); padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem;">AKTIIVINEN</span></td>
+                    <td style="text-align: right;">
+                        <button class="btn btn-outline" style="padding: 0.25rem 0.75rem; font-size: 0.75rem; color: #ef4444; border-color: #ef4444;" onclick="deleteUser('${user.id}')">Poista</button>
+                    </td>
+                `;
+                usersTbody.appendChild(tr);
+            });
+        };
+
+        window.deleteUser = async (id) => {
+            if(confirm("Haluatko varmasti poistaa tämän käyttäjän? Tämä vie heiltä ylläpito-oikeudet.")) {
+                const { error } = await supabase.from('admin_users').delete().eq('id', id);
+                if (error) {
+                    alert("Poistaminen epäonnistui: " + error.message);
+                } else {
+                    window.loadUsers();
+                }
+            }
+        };
+
+        window.addUser = async () => {
+            const email = prompt("Syötä uuden ylläpitäjän sähköpostiosoite:\n\n(Huom: Turvallisuussyistä selain-sovellus ei luo automaattisesti salasanoja. Käyttäjä lisätään admin_users tauluun, mutta hänet pitää myös kutsua oikeasti Supabase Auth -paneelista.)");
+            if (email) {
+                // If there's a strict FK on auth.users(id), this insert will fail without a matching auth.users entry.
+                // We'll try it anyway and show the error.
+                try {
+                    const { error } = await supabase.from('admin_users').insert([{
+                        email: email,
+                        role: 'admin'
+                    }]);
+                    if (error) {
+                        alert("Virhe lisättäessä: " + error.message + "\n\nTämä voi johtua siitä, että käyttäjää ei vielä löydy Supabase Auth -paneelista.");
+                    } else {
+                        alert("Kutsu lisätty järjestelmään!");
+                        window.loadUsers();
+                    }
+                } catch(e) {
+                     alert("Virhe lisättäessä: " + e.message);
+                }
+            }
+        };
+
+        if (usersTbody) {
+            window.loadUsers();
+        }
+    }
+
     // --- EDIT-PROJECT.HTML ---
     const editProjectForm = document.getElementById('edit-project-form');
     if (path.includes('edit-project.html') && editProjectForm) {
