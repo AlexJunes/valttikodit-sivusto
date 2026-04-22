@@ -191,8 +191,14 @@ document.addEventListener('DOMContentLoaded', async () => {
             views.forEach(v => {
                 // Filtteröidään admin-sivut pois jos niitä vahingossa kertyy
                 if (!v.path.includes('/admin/')) {
-                    if(!pathMap[v.path]) pathMap[v.path] = 0;
-                    pathMap[v.path]++;
+                    // Normalisoidaan vanha data jottei esim "index.html" ja "/index.html" näy erikseen
+                    let p = v.path;
+                    if (p === 'index.html' || p === '/' || p === '') p = '/index.html';
+                    if (p === 'kohde.html') p = '/kohde.html';
+                    if (p === 'kohteet' || p === 'kohteet.html') p = '/kohteet';
+                    
+                    if(!pathMap[p]) pathMap[p] = 0;
+                    pathMap[p]++;
                 }
             });
 
