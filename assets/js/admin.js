@@ -72,24 +72,32 @@ document.addEventListener('DOMContentLoaded', async () => {
                 return;
             }
 
-            // Add a logout button to navbar if present
-            const nav = document.querySelector('nav') || document.querySelector('.admin-sidebar');
-            if (nav && !document.getElementById('logout-btn')) {
-                const logoutBtn = document.createElement('a');
-                logoutBtn.href = '#';
-                logoutBtn.id = 'logout-btn';
-                logoutBtn.style.color = '#ef4444';
-                logoutBtn.style.marginTop = 'auto';
-                logoutBtn.style.display = 'block';
-                logoutBtn.style.padding = '0.75rem 1rem';
-                logoutBtn.innerHTML = 'Kirjaudu Ulos';
+            // Set user email and Logout button in bottom container standardized
+            const userEmailDiv = document.getElementById('sidebar-user-email') || document.getElementById('admin-user-email');
+            if (userEmailDiv) {
+                if (session && session.user) {
+                    userEmailDiv.textContent = session.user.email;
+                }
+                
+                let logoutBtn = document.getElementById('logout-btn');
+                if (!logoutBtn) {
+                    logoutBtn = document.createElement('a');
+                    logoutBtn.href = '#';
+                    logoutBtn.id = 'logout-btn';
+                    logoutBtn.style.color = '#ef4444';
+                    logoutBtn.style.fontSize = '0.875rem';
+                    logoutBtn.style.fontWeight = '500';
+                    logoutBtn.innerHTML = 'Kirjaudu ulos';
+                    userEmailDiv.parentNode.appendChild(logoutBtn);
+                }
+                
+                // Remove existing listeners by cloning if necessary, or just assign onclick
                 logoutBtn.onclick = async (e) => {
                     e.preventDefault();
                     await window.valttiSupabase.auth.signOut();
                     localStorage.removeItem('valtti_admin_login_time');
                     window.location.href = 'login.html';
                 };
-                nav.appendChild(logoutBtn);
             }
 
             // Hae uudet liidit ja näytä ylläpidon navigaatiossa merkki
