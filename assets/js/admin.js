@@ -12,6 +12,25 @@ document.addEventListener('DOMContentLoaded', async () => {
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     window.valttiSupabase = supabase;
 
+    supabase.auth.onAuthStateChange(async (event, session) => {
+        if (event === "PASSWORD_RECOVERY") {
+            setTimeout(async () => {
+                const newPassword = prompt("Salasanan nollaustila aktivoitu.\n\nSyötä uusi salasanasi tähän:");
+                if (newPassword && newPassword.length >= 6) {
+                    const { error } = await supabase.auth.updateUser({ password: newPassword });
+                    if (error) {
+                        alert("Virhe salasanan vaihdossa: " + error.message);
+                    } else {
+                        alert("Salasana päivitetty onnistuneesti! Ohjataan sisään...");
+                        window.location.href = 'projects.html';
+                    }
+                } else {
+                    alert("Salasana oli tyhjä tai liian lyhyt. Salasanan päivitys epäonnistui.");
+                }
+            }, 500); // Small delay to let the page render first if needed
+        }
+    });
+
     // --- SUPABASE AUTH CHECK & MFA ---
     if (path.includes('/admin/')) {
         const isLoginPage = path.endsWith('login.html') || path.endsWith('/admin/') || path.endsWith('/admin');
@@ -142,6 +161,28 @@ document.addEventListener('DOMContentLoaded', async () => {
                 // Remove leftover static token if any
                 sessionStorage.removeItem('valtti_admin_auth');
                 localStorage.removeItem('valtti_admin_login_time');
+
+                const forgotPasswordLink = document.getElementById('forgot-password-link');
+                if (forgotPasswordLink) {
+                    forgotPasswordLink.addEventListener('click', async (e) => {
+                        e.preventDefault();
+                        const email = prompt("Salasanan nollaus: Syötä sähköpostiosoitteesi lähettääksesi palautuslinkin.");
+                        if (!email) return;
+                        
+                        try {
+                            const { error } = await supabase.auth.resetPasswordForEmail(email, {
+                                redirectTo: window.location.origin + window.location.pathname
+                            });
+                            if (error) {
+                                alert("Virhe: " + error.message);
+                            } else {
+                                alert("Jos sähköpostiosoite on rekisteröity, sinne on lähetetty linkki salasanan vaihtamista varten.");
+                            }
+                        } catch (err) {
+                            alert("Tapahtui virhe: " + err.message);
+                        }
+                    });
+                }
 
                 loginForm.onsubmit = async (e) => {
                     e.preventDefault();
