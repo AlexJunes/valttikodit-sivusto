@@ -13,6 +13,9 @@
     
     <!-- Supabase JS needed for rendering public pages dynamically -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- AOS Animaatiot -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
 </head>
 
 <body>
@@ -36,7 +39,7 @@
     </header>
 
     <main>
-        <div class="container" style="padding: 4rem 1.5rem;">
+        <div class="container" style="padding: 4rem 1.5rem;" data-aos="fade-up">
             <div class="grid-form">
 
                 <!-- Yhteystiedot -->
@@ -147,6 +150,18 @@
     <!-- Footer scripts -->
     <script src="assets/js/config.js"></script>
     <script src="assets/js/main.js"></script>
-</body>
 
+    <!-- AOS JS -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            AOS.init({
+                once: true,
+                offset: 50,
+                duration: 800,
+                easing: 'ease-out-cubic'
+            });
+        });
+    </script>
+</body>
 </html>

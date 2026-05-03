@@ -13,6 +13,9 @@
     
     <!-- Supabase JS needed for rendering public pages dynamically -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- AOS Animaatiot -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
 </head>
 
 <body>
@@ -36,7 +39,7 @@
     </header>
 
     <main>
-        <div class="container" style="padding: 4rem 1.5rem; max-width: 800px;">
+        <div class="container" style="padding: 4rem 1.5rem; max-width: 800px;" data-aos="fade-up">
             <h1 style="margin-bottom: 1rem;" data-cms="Tarinamme Otsikko"></h1>
             <p class="lead mb-8" data-cms="Tarinamme Ingressi">
             </p>
@@ -60,7 +63,7 @@
         </div>
 
         <!-- 1. Arvot (Values) -->
-        <section style="background-color: var(--card-bg); padding: 5rem 1.5rem; margin-top: 4rem;">
+        <section style="background-color: var(--card-bg); padding: 5rem 1.5rem; margin-top: 4rem;" data-aos="fade-up">
             <div class="container" style="max-width: 800px; text-align: center;">
                 <h2 style="font-size: 2rem; margin-bottom: 2rem; color: var(--primary);" data-cms="Arvot Otsikko"></h2>
                 <blockquote style="font-size: 1.5rem; font-style: italic; color: var(--text-color); margin-bottom: 2rem; line-height: 1.6;" data-cms="Arvot Lainaus">
@@ -70,7 +73,7 @@
         </section>
 
         <!-- 2. Tiimi (Team) -->
-        <section style="padding: 6rem 1.5rem;">
+        <section style="padding: 6rem 1.5rem;" data-aos="fade-up">
             <div class="container">
                 <h2 style="font-size: 2.25rem; margin-bottom: 3rem; text-align: center;" data-cms="Tiimi Otsikko"></h2>
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 2rem;">
@@ -103,7 +106,7 @@
         </section>
 
         <!-- 3. Prosessi (Process Timeline) -->
-        <section style="background-color: var(--card-bg); padding: 6rem 1.5rem;">
+        <section style="background-color: var(--card-bg); padding: 6rem 1.5rem;" data-aos="fade-up">
             <div class="container">
                 <h2 style="font-size: 2.25rem; margin-bottom: 4rem; text-align: center;" data-cms="Prosessi Otsikko"></h2>
                 
@@ -176,8 +179,27 @@
         </div>
     </footer>
 
+    <!-- Floating CTA -->
+    <a href="/yhteys" style="position: fixed; bottom: 2rem; right: 2rem; background-color: var(--primary); color: white; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 1000; transition: transform 0.3s ease;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'" aria-label="Ota yhteyttä">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+        </svg>
+    </a>
+
     <!-- JS muutettu ei-moduuliksi (CORS-korjaus) -->
     <script src="assets/js/main.js"></script>
-</body>
 
+    <!-- AOS JS -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            AOS.init({
+                once: true,
+                offset: 50,
+                duration: 800,
+                easing: 'ease-out-cubic'
+            });
+        });
+    </script>
+</body>
 </html>

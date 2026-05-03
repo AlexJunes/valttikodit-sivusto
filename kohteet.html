@@ -12,6 +12,9 @@
     <link rel="stylesheet" href="assets/css/style.css">
     <!-- Supabase CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- AOS Animaatiot -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
 </head>
 
 <body>
@@ -36,14 +39,14 @@
     </header>
 
     <main>
-        <div class="container" style="padding: 4rem 1.5rem;">
+        <div class="container" style="padding: 4rem 1.5rem;" data-aos="fade-up">
             <h1 style="margin-bottom: 1rem;">Myytävät kohteet</h1>
             <p class="lead mb-8">
                 Tutustu uusiin ja rakenteilla oleviin Valttikoteihin. Varaamalla ajoissa varmistat
                 rakentamisen aloituksen ja pääset vaikuttamaan tulevan kotisi sisustukseen.
             </p>
 
-            <div class="card-grid" id="project-list">
+            <div class="card-grid" id="project-list" data-aos="fade-up" data-aos-delay="200">
                 <!-- Dynaamiset kohteet haetaan Supabasesta (main.js) -->
                 <p>Ladataan kohteita...</p>
             </div>
@@ -85,7 +88,26 @@
         </div>
     </footer>
 
-    <script src="assets/js/main.js"></script>
-</body>
+    <!-- Floating CTA -->
+    <a href="/yhteys" style="position: fixed; bottom: 2rem; right: 2rem; background-color: var(--primary); color: white; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 1000; transition: transform 0.3s ease;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'" aria-label="Ota yhteyttä">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+        </svg>
+    </a>
 
+    <script src="assets/js/main.js"></script>
+
+    <!-- AOS JS -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            AOS.init({
+                once: true,
+                offset: 50,
+                duration: 800,
+                easing: 'ease-out-cubic'
+            });
+        });
+    </script>
+</body>
 </html>

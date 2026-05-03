@@ -23,6 +23,25 @@
 
     <!-- Supabase JS needed for rendering public pages dynamically -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- AOS Animaatiot -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    
+    <!-- JSON-LD SEO Schema -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "RealEstateAgent",
+      "name": "Valttikodit Oy",
+      "image": "https://valttikodit.fi/assets/img/hero-bg.jpg",
+      "url": "https://valttikodit.fi",
+      "telephone": "",
+      "address": {
+        "@type": "PostalAddress",
+        "addressCountry": "FI"
+      }
+    }
+    </script>
 </head>
 
 <body>
@@ -51,7 +70,7 @@
         <section class="hero" data-cms="Hero Taustakuva"
             style="background-image: url('assets/img/hero-bg.jpg'); background-size: cover; background-position: center;">
             <div class="hero-bg" style="background-color: rgba(253, 251, 251, 0.45); backdrop-filter: blur(2px);"></div>
-            <div class="container hero-content"
+            <div class="container hero-content" data-aos="fade-up" data-aos-duration="1000"
                 style="text-align: center; max-width: 900px; margin: 0 auto; color: var(--text-color);">
                 <h1 style="margin-bottom: 1.5rem; text-shadow: 0 2px 10px rgba(255,255,255,0.8);" data-cms="Hero Otsikko"></h1>
                 <p class="lead mb-8" data-cms="Hero Teksti"
@@ -67,7 +86,7 @@
         <!-- 2. "Koti on tunne" Section -->
         <section class="py-16" style="background-color: #fff;">
             <div class="container grid-split" style="align-items: center;">
-                <div>
+                <div data-aos="fade-right">
                     <h2 style="font-size: 3rem; margin-bottom: 1.5rem; letter-spacing: -0.02em;" data-cms="Tunnelaatikko Otsikko"></h2>
                     <p style="font-size: 1.25rem; color: var(--text-muted); margin-bottom: 2rem; line-height: 1.8;" data-cms="Tunnelaatikko Teksti">
                     </p>
@@ -75,7 +94,7 @@
                         style="font-size: 1.125rem; font-style: italic; border-left: 4px solid var(--primary); padding-left: 1.5rem; margin-bottom: 2.5rem; color: var(--text-color);">
                     </blockquote>
                 </div>
-                <div style="position: relative;">
+                <div style="position: relative;" data-aos="fade-left" data-aos-delay="200">
                     <img src="assets/img/intro-image.jpg" data-cms="Tunnelaatikko Kuva" alt="Skandinaavinen olohuone"
                         style="width: 100%; border-radius: var(--radius); box-shadow: 0 20px 40px -10px rgba(0,0,0,0.1);">
                 </div>
@@ -84,14 +103,14 @@
 
         <!-- 3. Palvelumme (Kestävä asuminen) -->
         <section class="py-16" style="background-color: var(--accent);">
-            <div class="container text-center" style="max-width: 900px; margin: 0 auto 4rem;">
+            <div class="container text-center" style="max-width: 900px; margin: 0 auto 4rem;" data-aos="fade-up">
                 <h2 style="font-size: 2.5rem; margin-bottom: 1.5rem;" data-cms="Palvelut Otsikko"></h2>
                 <p style="font-size: 1.125rem; color: var(--text-muted); line-height: 1.8;" data-cms="Palvelut Teksti">
                 </p>
             </div>
 
             <div class="container grid-3">
-                <div
+                <div data-aos="fade-up" data-aos-delay="100"
                     style="background: var(--card-bg); padding: 2.5rem; border-radius: var(--radius); box-shadow: 0 4px 6px rgba(0,0,0,0.02); text-align: center;">
                     <div
                         style="width: 64px; height: 64px; background: rgba(18,18,18,0.05); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
@@ -104,7 +123,7 @@
                     <p style="color: var(--text-muted); font-size: 0.875rem; line-height: 1.7;" data-cms="Palvelu 1 Teksti"></p>
                 </div>
 
-                <div
+                <div data-aos="fade-up" data-aos-delay="200"
                     style="background: var(--card-bg); padding: 2.5rem; border-radius: var(--radius); box-shadow: 0 4px 6px rgba(0,0,0,0.02); text-align: center;">
                     <div
                         style="width: 64px; height: 64px; background: rgba(18,18,18,0.05); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
@@ -118,7 +137,7 @@
                     <p style="color: var(--text-muted); font-size: 0.875rem; line-height: 1.7;" data-cms="Palvelu 2 Teksti"></p>
                 </div>
 
-                <div
+                <div data-aos="fade-up" data-aos-delay="300"
                     style="background: var(--card-bg); padding: 2.5rem; border-radius: var(--radius); box-shadow: 0 4px 6px rgba(0,0,0,0.02); text-align: center;">
                     <div
                         style="width: 64px; height: 64px; background: rgba(18,18,18,0.05); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
@@ -148,6 +167,79 @@
             <!-- Latautuu main.js kautta lennosta kohteet taulusta...  -->
             <div class="card-grid" id="latest-projects"
                 style="grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));">
+            </div>
+        </section>
+
+        <!-- 5. Mitä kohteistamme sanotaan -->
+        <section class="py-16" style="background-color: #fcfbf9;">
+            <div class="container text-center">
+                <h2 style="font-size: 2.5rem; margin-bottom: 3rem;" data-aos="fade-up" data-cms="Ensivaikutelmia Otsikko">Asiakkaidemme ensivaikutelmia</h2>
+                <div class="grid-3">
+                    <div style="background: white; padding: 2rem; border-radius: var(--radius); box-shadow: 0 4px 15px rgba(0,0,0,0.05);" data-aos="fade-up" data-aos-delay="100">
+                        <div style="color: var(--primary); font-size: 2rem; margin-bottom: 1rem;">"</div>
+                        <p style="font-style: italic; color: var(--text-color); margin-bottom: 1.5rem; line-height: 1.6;" data-cms="Palaute 1 Teksti">"Pohjaratkaisut ovat uskomattoman selkeitä ja jokainen neliö on otettu tehokkaaseen käyttöön."</p>
+                        <p style="font-size: 0.875rem; color: var(--text-muted); font-weight: 600;" data-cms="Palaute 1 Lähde">Kohde-esittelyssä käynyt perhe</p>
+                    </div>
+                    <div style="background: white; padding: 2rem; border-radius: var(--radius); box-shadow: 0 4px 15px rgba(0,0,0,0.05);" data-aos="fade-up" data-aos-delay="200">
+                        <div style="color: var(--primary); font-size: 2rem; margin-bottom: 1rem;">"</div>
+                        <p style="font-style: italic; color: var(--text-color); margin-bottom: 1.5rem; line-height: 1.6;" data-cms="Palaute 2 Teksti">"Laadukkaat pintamateriaalit yhdistettynä tähän hintatasoon tekivät päätöksestä helpon."</p>
+                        <p style="font-size: 0.875rem; color: var(--text-muted); font-weight: 600;" data-cms="Palaute 2 Lähde">Ensimmäisen kohteen ostaja</p>
+                    </div>
+                    <div style="background: white; padding: 2rem; border-radius: var(--radius); box-shadow: 0 4px 15px rgba(0,0,0,0.05);" data-aos="fade-up" data-aos-delay="300">
+                        <div style="color: var(--primary); font-size: 2rem; margin-bottom: 1rem;">"</div>
+                        <p style="font-style: italic; color: var(--text-color); margin-bottom: 1.5rem; line-height: 1.6;" data-cms="Palaute 3 Teksti">"Vihdoin koti, jossa hinta-laatusuhde todella kohtaa ja johon pääsee vaikuttamaan alusta asti."</p>
+                        <p style="font-size: 0.875rem; color: var(--text-muted); font-weight: 600;" data-cms="Palaute 3 Lähde">Kohteesta kiinnostunut ostaja</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 6. FAQ Section -->
+        <section class="py-16 container">
+            <div style="max-width: 800px; margin: 0 auto;">
+                <h2 style="font-size: 2.5rem; margin-bottom: 3rem; text-align: center;" data-aos="fade-up" data-cms="FAQ Otsikko">Usein kysytyt kysymykset</h2>
+                
+                <div class="faq-item" data-aos="fade-up" data-aos-delay="100" style="border-bottom: 1px solid var(--border); padding: 1.5rem 0;">
+                    <h3 style="font-size: 1.25rem; display: flex; justify-content: space-between; align-items: center; cursor: pointer;" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'none' ? 'block' : 'none'; this.querySelector('.faq-icon').textContent = this.nextElementSibling.style.display === 'none' ? '+' : '-';">
+                        <span data-cms="FAQ 1 Kysymys">Miten uudiskohteen ostaminen ja maksaminen etenee?</span> <span class="faq-icon" style="color: var(--primary); font-size: 1.5rem;">+</span>
+                    </h3>
+                    <div style="display: none; padding-top: 1rem; color: var(--text-muted); line-height: 1.7;" data-cms="FAQ 1 Vastaus">
+                        Ennakkomarkkinointivaiheessa voit tehdä varauksen kohteesta. Varsinainen kaupanteko ja RS-sopimusten allekirjoitus tapahtuu, kun kohteen rakentamispäätös on tehty. Maksut on jaettu selkeisiin eriin rakentamisen etenemisen mukaan, joten maksat vain valmiista työvaiheista.
+                    </div>
+                </div>
+
+                <div class="faq-item" data-aos="fade-up" data-aos-delay="200" style="border-bottom: 1px solid var(--border); padding: 1.5rem 0;">
+                    <h3 style="font-size: 1.25rem; display: flex; justify-content: space-between; align-items: center; cursor: pointer;" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'none' ? 'block' : 'none'; this.querySelector('.faq-icon').textContent = this.nextElementSibling.style.display === 'none' ? '+' : '-';">
+                        <span data-cms="FAQ 2 Kysymys">Miten voin vaikuttaa asunnon materiaaleihin?</span> <span class="faq-icon" style="color: var(--primary); font-size: 1.5rem;">+</span>
+                    </h3>
+                    <div style="display: none; padding-top: 1rem; color: var(--text-muted); line-height: 1.7;" data-cms="FAQ 2 Vastaus">
+                        Kun olet mukana ajoissa (ennakkomarkkinointivaiheessa tai rakentamisen alussa), pääset valitsemaan kotisi pintamateriaalit, kuten lattiat, keittiön kaapistot ja laatoitukset ammattilaistemme valitsemista laadukkaista valikoimista.
+                    </div>
+                </div>
+
+                <div class="faq-item" data-aos="fade-up" data-aos-delay="300" style="border-bottom: 1px solid var(--border); padding: 1.5rem 0;">
+                    <h3 style="font-size: 1.25rem; display: flex; justify-content: space-between; align-items: center; cursor: pointer;" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'none' ? 'block' : 'none'; this.querySelector('.faq-icon').textContent = this.nextElementSibling.style.display === 'none' ? '+' : '-';">
+                        <span data-cms="FAQ 3 Kysymys">Mikä tekee Valttikodista turvallisen valinnan?</span> <span class="faq-icon" style="color: var(--primary); font-size: 1.5rem;">+</span>
+                    </h3>
+                    <div style="display: none; padding-top: 1rem; color: var(--text-muted); line-height: 1.7;" data-cms="FAQ 3 Vastaus">
+                        Kaikki kohteemme ovat RS-kohteita (Turvallinen kauppa uuden asunnon ostajalle). Tämä tarkoittaa, että kohteella on RS-pankki ja vaadittavat vakuudet asetettuna ostajien turvaksi. Lisäksi meillä on tiukat laatuvaatimukset ja teemme yhteistyötä vain luotettavien ammattilaisten kanssa.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 7. Uutiskirje (Lead Magnet) -->
+        <section class="py-16" style="background-color: var(--card-bg); text-align: center; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+            <div class="container" style="max-width: 600px;" data-aos="fade-up">
+                <h2 style="font-size: 2rem; margin-bottom: 1rem;">Liity sisäpiiriin</h2>
+                <p style="color: var(--text-muted); margin-bottom: 2rem; line-height: 1.7;">Haluatko kuulla uusista kohteistamme ennen julkista myyntiä? Jätä sähköpostiosoitteesi ja saat tiedon ensimmäisten joukossa.</p>
+                <form action="https://api.web3forms.com/submit" method="POST" style="display: flex; gap: 0.5rem; max-width: 400px; margin: 0 auto; flex-wrap: wrap; justify-content: center;">
+                    <input type="hidden" name="access_key" value="fa637672-a5ba-4717-8464-d1d29719c87b">
+                    <input type="hidden" name="subject" value="Uusi uutiskirjeen tilaus">
+                    <input type="hidden" name="redirect" value="https://valttikodit.fi/kiitos.html">
+                    <input type="email" name="email" required placeholder="Sähköpostiosoitteesi" style="flex: 1; min-width: 200px; padding: 0.75rem 1rem; border: 1px solid var(--border); border-radius: var(--radius); font-size: 1rem;">
+                    <button type="submit" class="btn btn-primary" style="padding: 0.75rem 1.5rem; white-space: nowrap;">Liity</button>
+                </form>
             </div>
         </section>
 
@@ -199,8 +291,28 @@
         </div>
     </footer>
 
+    <!-- Floating CTA -->
+    <a href="/yhteys" style="position: fixed; bottom: 2rem; right: 2rem; background-color: var(--primary); color: white; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 1000; transition: transform 0.3s ease;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'" aria-label="Ota yhteyttä">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+        </svg>
+    </a>
+
     <!-- JS muutettu ei-moduuliksi (CORS-korjaus) -->
     <script src="assets/js/main.js"></script>
+    
+    <!-- AOS JS -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            AOS.init({
+                once: true,
+                offset: 50,
+                duration: 800,
+                easing: 'ease-out-cubic'
+            });
+        });
+    </script>
 </body>
 
 </html>

@@ -17,6 +17,36 @@ document.addEventListener('DOMContentLoaded', async () => {
             setTimeout(async () => {
                 const newPassword = prompt("Salasanan nollaustila aktivoitu.\n\nSyötä uusi salasanasi tähän:");
                 if (newPassword && newPassword.length >= 6) {
+                    
+                    // Tarkistetaan onko MFA käytössä ja vaaditaanko se ennen salasanan vaihtoa
+                    const { data: factorsData } = await supabase.auth.mfa.listFactors();
+                    if (factorsData && factorsData.totp) {
+                        const verifiedFactor = factorsData.totp.find(f => f.status === 'verified');
+                        if (verifiedFactor) {
+                            const mfaCode = prompt("Tili on suojattu kaksivaiheisella tunnistuksella (MFA).\n\nSyötä authenticator-sovelluksen 6-numeroinen koodi jatkaaksesi salasanan vaihtoa:");
+                            if (mfaCode) {
+                                const { data: challengeData, error: challengeErr } = await supabase.auth.mfa.challenge({ factorId: verifiedFactor.id });
+                                if (!challengeErr) {
+                                    const { error: verifyErr } = await supabase.auth.mfa.verify({
+                                        factorId: verifiedFactor.id,
+                                        challengeId: challengeData.id,
+                                        code: mfaCode.trim()
+                                    });
+                                    if (verifyErr) {
+                                        alert("MFA koodi oli väärä. Salasanan päivitys keskeytetty.");
+                                        return;
+                                    }
+                                } else {
+                                    alert("MFA-haasteen luonti epäonnistui.");
+                                    return;
+                                }
+                            } else {
+                                alert("MFA koodia ei syötetty. Salasanan päivitys keskeytetty.");
+                                return;
+                            }
+                        }
+                    }
+
                     const { error } = await supabase.auth.updateUser({ password: newPassword });
                     if (error) {
                         alert("Virhe salasanan vaihdossa: " + error.message);
@@ -147,7 +177,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         for (const uf of unverifiedFactors) {
                             await supabase.auth.mfa.unenroll({ factorId: uf.id });
                         }
-                        const { data: enrollData, error: enrollErr } = await supabase.auth.mfa.enroll({ factorType: 'totp', friendlyName: 'Valttikodit 2FA ' + Date.now() });
+                        const { data: enrollData, error: enrollErr } = await supabase.auth.mfa.enroll({ factorType: 'totp', friendlyName: 'Valttikodit ' + new Date().toLocaleDateString('fi-FI') + ' ' + Date.now().toString().slice(-4) });
                         if (!enrollErr) {
                             setupFactorId = enrollData.id;
                             loginForm.style.display = 'none';
@@ -242,7 +272,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         }
 
                         // Enroll MFA
-                        const { data: enrollData, error: enrollErr } = await supabase.auth.mfa.enroll({ factorType: 'totp', friendlyName: 'Valttikodit 2FA ' + Date.now() });
+                        const { data: enrollData, error: enrollErr } = await supabase.auth.mfa.enroll({ factorType: 'totp', friendlyName: 'Valttikodit ' + new Date().toLocaleDateString('fi-FI') + ' ' + Date.now().toString().slice(-4) });
                         if (enrollErr) {
                             loginErr.textContent = 'MFA-asetuksen aloitus epäonnistui: ' + enrollErr.message;
                             loginErr.style.display = 'block';
@@ -326,7 +356,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     });
 
                     if (error) {
-                        mfaSetupErr.textContent = 'Väärä koodi. Yritä uudelleen.';
+                        mfaSetupErr.textContent = 'Väärä koodi. Jos sovelluksessasi on vanha Valttikodit-tili, poista se ja lue uusi QR-koodi.';
                         mfaSetupErr.style.display = 'block';
                         enrollMfaBtn.disabled = false;
                         enrollMfaBtn.textContent = 'Tallenna ja Kirjaudu';
@@ -993,7 +1023,21 @@ document.addEventListener('DOMContentLoaded', async () => {
                     "Alatunniste: Puhelinnumero": "040 123 4567",
                     "Alatunniste: Instagram-linkki": "",
                     "Alatunniste: Facebook-linkki": "",
-                    "Alatunniste: LinkedIn-linkki": ""
+                    "Alatunniste: LinkedIn-linkki": "",
+                    "Ensivaikutelmia Otsikko": "Asiakkaidemme ensivaikutelmia",
+                    "Palaute 1 Teksti": "\"Pohjaratkaisut ovat uskomattoman selkeitä ja jokainen neliö on otettu tehokkaaseen käyttöön.\"",
+                    "Palaute 1 Lähde": "Kohde-esittelyssä käynyt perhe",
+                    "Palaute 2 Teksti": "\"Laadukkaat pintamateriaalit yhdistettynä tähän hintatasoon tekivät päätöksestä helpon.\"",
+                    "Palaute 2 Lähde": "Ensimmäisen kohteen ostaja",
+                    "Palaute 3 Teksti": "\"Vihdoin koti, jossa hinta-laatusuhde todella kohtaa ja johon pääsee vaikuttamaan alusta asti.\"",
+                    "Palaute 3 Lähde": "Kohteesta kiinnostunut ostaja",
+                    "FAQ Otsikko": "Usein kysytyt kysymykset",
+                    "FAQ 1 Kysymys": "Miten uudiskohteen ostaminen ja maksaminen etenee?",
+                    "FAQ 1 Vastaus": "Ennakkomarkkinointivaiheessa voit tehdä varauksen kohteesta. Varsinainen kaupanteko ja RS-sopimusten allekirjoitus tapahtuu, kun kohteen rakentamispäätös on tehty. Maksut on jaettu selkeisiin eriin rakentamisen etenemisen mukaan, joten maksat vain valmiista työvaiheista.",
+                    "FAQ 2 Kysymys": "Miten voin vaikuttaa asunnon materiaaleihin?",
+                    "FAQ 2 Vastaus": "Kun olet mukana ajoissa (ennakkomarkkinointivaiheessa tai rakentamisen alussa), pääset valitsemaan kotisi pintamateriaalit, kuten lattiat, keittiön kaapistot ja laatoitukset ammattilaistemme valitsemista laadukkaista valikoimista.",
+                    "FAQ 3 Kysymys": "Mikä tekee Valttikodista turvallisen valinnan?",
+                    "FAQ 3 Vastaus": "Kaikki kohteemme ovat RS-kohteita (Turvallinen kauppa uuden asunnon ostajalle). Tämä tarkoittaa, että kohteella on RS-pankki ja vaadittavat vakuudet asetettuna ostajien turvaksi. Lisäksi meillä on tiukat laatuvaatimukset ja teemme yhteistyötä vain luotettavien ammattilaisten kanssa."
                 },
                 'kohde': {
                     "Varaus Otsikko": "Varaus",
