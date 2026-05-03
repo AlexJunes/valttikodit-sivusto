@@ -710,6 +710,17 @@ document.addEventListener('DOMContentLoaded', async () => {
                                 // Anime-viive tehosteelle
                                 setTimeout(() => {
                                     document.getElementById('kohde-valmiusaste-bar').style.width = valmObj + '%';
+                                    
+                                    // Päivitetään pallukoiden värit (keskikohdat ovat n. 10%, 30%, 50%, 70%, 90%)
+                                    const nodes = document.querySelectorAll('.valmius-node');
+                                    nodes.forEach((node, index) => {
+                                        const threshold = index * 20 + 10;
+                                        if (valmObj >= threshold) {
+                                            node.style.borderColor = '#10b981';
+                                        } else {
+                                            node.style.borderColor = '#e5e7eb';
+                                        }
+                                    });
                                 }, 300);
                             }
                         }
