@@ -337,7 +337,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Contact Form Sanitization Intercept
     const contactForm = document.getElementById('contact-form');
     if (contactForm) {
-        contactForm.addEventListener('submit', function (e) {
+        contactForm.addEventListener('submit', async function (e) {
             e.preventDefault();
             
             const btn = contactForm.querySelector('button[type="submit"]');
@@ -373,26 +373,24 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (typeof supabase !== 'undefined') {
                 try {
                     let sourceInfo = formData.get('source') ? `LÄHDE: ${formData.get('source')}\n\n` : '';
-                    supabase.from('leads').insert([{
+                    await supabase.from('leads').insert([{
                         name: formData.get('name'),
                         email: formData.get('email'),
                         phone: formData.get('phone') || '',
                         message: `${sourceInfo}${formData.get('message') || ''}`
-                    }]).then(() => {});
+                    }]);
                 } catch(err) {
                     console.error('Supabase DB error:', err);
                 }
             }
 
-            fetch(contactForm.action, {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'Accept': 'application/json'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
+            try {
+                const response = await fetch(contactForm.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: { 'Accept': 'application/json' }
+                });
+                const data = await response.json();
                 if(data.success) {
                     window.location.href = "kiitos.html";
                 } else {
@@ -400,13 +398,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                     btn.textContent = 'Lähetä viesti';
                     btn.disabled = false;
                 }
-            })
-            .catch(error => {
+            } catch (error) {
                 console.error(error);
                 alert('Tapahtui odottamaton verkkovirhe.');
                 btn.textContent = 'Lähetä viesti';
                 btn.disabled = false;
-            });
+            }
         });
     }
 
@@ -520,7 +517,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Uutiskirjelomakkeen lähetys ja tallennus
     const newsletterForm = document.getElementById('newsletter-form');
     if (newsletterForm) {
-        newsletterForm.addEventListener('submit', function (e) {
+        newsletterForm.addEventListener('submit', async function (e) {
             e.preventDefault();
             const btn = newsletterForm.querySelector('button[type="submit"]');
             btn.textContent = 'Lähetetään...';
@@ -532,27 +529,25 @@ document.addEventListener('DOMContentLoaded', async () => {
             // Tallenna liidi Supabaseen analytiikkaa ja Dashboardia varten
             if (typeof supabase !== 'undefined') {
                 try {
-                    supabase.from('leads').insert([{
+                    await supabase.from('leads').insert([{
                         name: 'Uutiskirjeen tilaaja',
                         email: email,
                         phone: '',
                         message: 'LÄHDE: Uutiskirjeen tilaus (Liity sisäpiiriin)'
-                    }]).then(() => {});
+                    }]);
                 } catch(err) {
                     console.error('Supabase DB error:', err);
                 }
             }
 
             // Lähetä Web3Formsille sähköposti-ilmoitusta varten
-            fetch(newsletterForm.action, {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'Accept': 'application/json'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
+            try {
+                const response = await fetch(newsletterForm.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: { 'Accept': 'application/json' }
+                });
+                const data = await response.json();
                 if(data.success) {
                     window.location.href = "kiitos.html";
                 } else {
@@ -560,13 +555,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                     btn.textContent = 'Liity';
                     btn.disabled = false;
                 }
-            })
-            .catch(error => {
+            } catch (error) {
                 console.error(error);
                 alert('Tapahtui odottamaton verkkovirhe.');
                 btn.textContent = 'Liity';
                 btn.disabled = false;
-            });
+            }
         });
     }
 
