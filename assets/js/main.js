@@ -541,10 +541,17 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
 
             // Lähetä Web3Formsille sähköposti-ilmoitusta varten
+            const emailData = new FormData();
+            emailData.append('access_key', 'fa637672-a5ba-4717-8464-d1d29719c87b');
+            emailData.append('subject', 'Uusi uutiskirjeen tilaus (Liidi)');
+            emailData.append('Nimi', 'Uutiskirjeen tilaaja');
+            emailData.append('Sähköposti', email);
+            emailData.append('Viesti', 'Uusi käyttäjä tilasi uutiskirjeen osoitteella: ' + email);
+
             try {
                 const response = await fetch(newsletterForm.action, {
                     method: 'POST',
-                    body: formData,
+                    body: emailData,
                     headers: { 'Accept': 'application/json' }
                 });
                 const data = await response.json();
