@@ -434,6 +434,17 @@ document.addEventListener('DOMContentLoaded', async () => {
                         message: messageStr
                     }]).then((res) => {
                         if (res.error) throw res.error;
+                        
+                        // Lähetä sähköposti-ilmoitus ylläpidolle Web3Forms:n kautta
+                        const emailData = new FormData();
+                        emailData.append('access_key', 'fa637672-a5ba-4717-8464-d1d29719c87b');
+                        emailData.append('subject', 'Uusi materiaalipaketin lataus (Liidi)');
+                        emailData.append('Nimi', formData.get('name') || '-');
+                        emailData.append('Sähköposti', formData.get('email') || '-');
+                        emailData.append('Puhelin', formData.get('phone') || '-');
+                        emailData.append('Viesti', messageStr);
+                        fetch('https://api.web3forms.com/submit', { method: 'POST', body: emailData, headers: { 'Accept': 'application/json' } }).catch(e => console.error('Email send err:', e));
+
                         // Onnistunut lähetys
                         materialForm.style.display = 'none';
                         const successDiv = document.getElementById('material-success');
@@ -477,6 +488,17 @@ document.addEventListener('DOMContentLoaded', async () => {
                         message: messageStr
                     }]).then((res) => {
                         if (res.error) throw res.error;
+
+                        // Lähetä sähköposti-ilmoitus ylläpidolle Web3Forms:n kautta
+                        const emailData = new FormData();
+                        emailData.append('access_key', 'fa637672-a5ba-4717-8464-d1d29719c87b');
+                        emailData.append('subject', 'Uusi kohdevaraus (Liidi)');
+                        emailData.append('Nimi', formData.get('name') || '-');
+                        emailData.append('Sähköposti', formData.get('email') || '-');
+                        emailData.append('Puhelin', formData.get('phone') || '-');
+                        emailData.append('Viesti', messageStr);
+                        fetch('https://api.web3forms.com/submit', { method: 'POST', body: emailData, headers: { 'Accept': 'application/json' } }).catch(e => console.error('Email send err:', e));
+
                         bookingForm.style.display = 'none';
                         const successDiv = document.getElementById('booking-success');
                         if(successDiv) successDiv.style.display = 'block';
@@ -492,6 +514,59 @@ document.addEventListener('DOMContentLoaded', async () => {
                  btn.textContent = 'Lähetä';
                  btn.disabled = false;
             }
+        });
+    }
+
+    // Uutiskirjelomakkeen lähetys ja tallennus
+    const newsletterForm = document.getElementById('newsletter-form');
+    if (newsletterForm) {
+        newsletterForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+            const btn = newsletterForm.querySelector('button[type="submit"]');
+            btn.textContent = 'Lähetetään...';
+            btn.disabled = true;
+
+            const formData = new FormData(newsletterForm);
+            const email = formData.get('email');
+            
+            // Tallenna liidi Supabaseen analytiikkaa ja Dashboardia varten
+            if (typeof supabase !== 'undefined') {
+                try {
+                    supabase.from('leads').insert([{
+                        name: 'Uutiskirjeen tilaaja',
+                        email: email,
+                        phone: '',
+                        message: 'LÄHDE: Uutiskirjeen tilaus (Liity sisäpiiriin)'
+                    }]).then(() => {});
+                } catch(err) {
+                    console.error('Supabase DB error:', err);
+                }
+            }
+
+            // Lähetä Web3Formsille sähköposti-ilmoitusta varten
+            fetch(newsletterForm.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.success) {
+                    window.location.href = "kiitos.html";
+                } else {
+                    alert('Lomakkeen lähetys epäonnistui. Kokeile myöhemmin uudelleen.');
+                    btn.textContent = 'Liity';
+                    btn.disabled = false;
+                }
+            })
+            .catch(error => {
+                console.error(error);
+                alert('Tapahtui odottamaton verkkovirhe.');
+                btn.textContent = 'Liity';
+                btn.disabled = false;
+            });
         });
     }
 
