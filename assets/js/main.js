@@ -49,12 +49,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         try {
-            await supabase.from('page_views').insert([{ 
+            supabase.from('page_views').insert([{ 
                 path: cleanPath,
                 session_id: sessionId,
                 device_type: device,
                 referrer: ref
-            }]);
+            }]).then(() => {});
         } catch(e) {
             console.error("Pageview log failed:", e);
         }
@@ -863,9 +863,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
             } else {
                 // Ladataan tavalliset CMS sivut (etusivu, jne)
-                const { data: pageData, error } = await supabase.from('pages').select('content').eq('slug', slug).maybeSingle();
-                if (pageData && pageData.content) {
-                    const content = pageData.content;
+                const cacheKey = 'cms_' + slug;
+                const cachedData = sessionStorage.getItem(cacheKey);
+
+                const renderCmsContent = (content) => {
                     document.querySelectorAll('[data-cms]').forEach(el => {
                         const key = el.getAttribute('data-cms');
                         if (content[key]) {
@@ -889,7 +890,24 @@ document.addEventListener('DOMContentLoaded', async () => {
                             }
                         }
                     });
+                };
+
+                if (cachedData) {
+                    try {
+                        renderCmsContent(JSON.parse(cachedData));
+                    } catch(e) {}
                 }
+
+                // Haetaan uusimmat tiedot taustalla ja päivitetään cache/ruutu
+                supabase.from('pages').select('content').eq('slug', slug).maybeSingle().then(({ data: pageData, error }) => {
+                    if (pageData && pageData.content) {
+                        const newContentStr = JSON.stringify(pageData.content);
+                        if (newContentStr !== cachedData) {
+                            sessionStorage.setItem(cacheKey, newContentStr);
+                            renderCmsContent(pageData.content);
+                        }
+                    }
+                });
             }
         } catch (e) {
             console.error("CMS load error:", e);

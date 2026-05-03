@@ -22,7 +22,7 @@
     <meta property="og:url" content="https://valttikodit.fi">
 
     <!-- Supabase JS needed for rendering public pages dynamically -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
     
     <!-- AOS Animaatiot -->
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
@@ -95,7 +95,7 @@
                     </blockquote>
                 </div>
                 <div style="position: relative;" data-aos="fade-left" data-aos-delay="200">
-                    <img src="assets/img/intro-image.jpg" data-cms="Tunnelaatikko Kuva" alt="Skandinaavinen olohuone"
+                    <img src="assets/img/intro-image.jpg" loading="lazy" decoding="async" data-cms="Tunnelaatikko Kuva" alt="Skandinaavinen olohuone"
                         style="width: 100%; border-radius: var(--radius); box-shadow: 0 20px 40px -10px rgba(0,0,0,0.1);">
                 </div>
             </div>
@@ -299,7 +299,7 @@
     </a>
 
     <!-- JS muutettu ei-moduuliksi (CORS-korjaus) -->
-    <script src="assets/js/main.js"></script>
+    <script src="assets/js/main.js" defer></script>
     
     <!-- AOS JS -->
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
