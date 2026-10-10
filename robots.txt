@@ -4,4 +4,4 @@ Allow: /
 Disallow: /admin/
 Disallow: /kiitos.html
 
-Sitemap: https://valttikodit.fi/sitemap.xml
+Sitemap: https://www.valttikodit.fi/sitemap.xml
