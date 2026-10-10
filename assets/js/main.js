@@ -753,22 +753,29 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                     // Dynamically set Meta tags for SEO & AI & Social Shares
                     document.title = project.title + " | Valttikodit Kohteet";
-                    const metaDesc = document.createElement('meta');
-                    metaDesc.name = "description";
-                    metaDesc.content = (project.ingress || project.description || "").substring(0, 155) + "...";
-                    
-                    const ogTitle = document.createElement('meta');
-                    ogTitle.property = "og:title";
-                    ogTitle.content = project.title;
-                    
-                    const ogImage = document.createElement('meta');
-                    if (project.hero_image) {
-                        ogImage.property = "og:image";
-                        let heroClean = project.hero_image.startsWith('../') ? project.hero_image.substring(3) : project.hero_image;
-                        ogImage.content = heroClean.startsWith('http') ? heroClean : window.location.origin + '/' + heroClean;
+                    const addMeta = (attr, key, content) => {
+                        const el = document.createElement('meta');
+                        el.setAttribute(attr, key);
+                        el.setAttribute('content', content);
+                        document.head.appendChild(el);
+                    };
+                    const descText = (project.ingress || project.description || "").substring(0, 155);
+                    const pageUrl = 'https://www.valttikodit.fi/kohde.html?kohde=' + encodeURIComponent(project.slug || slug);
+                    if (descText) {
+                        addMeta('name', 'description', descText);
+                        addMeta('property', 'og:description', descText);
                     }
-
-                    document.head.append(metaDesc, ogTitle, ogImage);
+                    addMeta('property', 'og:title', project.title);
+                    addMeta('property', 'og:type', 'website');
+                    addMeta('property', 'og:url', pageUrl);
+                    if (project.hero_image) {
+                        let heroClean = project.hero_image.startsWith('../') ? project.hero_image.substring(3) : project.hero_image;
+                        addMeta('property', 'og:image', heroClean.startsWith('http') ? heroClean : window.location.origin + '/' + heroClean);
+                    }
+                    const canonical = document.createElement('link');
+                    canonical.rel = 'canonical';
+                    canonical.href = pageUrl;
+                    document.head.appendChild(canonical);
 
                     // Generate AI-Ready JSON-LD Schema.org Data
                     const schema = {
@@ -776,7 +783,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         "@type": "SingleFamilyResidence",
                         "name": project.title || "Valttikodit Asunto",
                         "description": project.description || project.ingress || "",
-                        "url": window.location.href,
+                        "url": pageUrl,
                         "image": project.hero_image ? ((project.hero_image.startsWith('../') ? project.hero_image.substring(3) : project.hero_image).startsWith('http') ? (project.hero_image.startsWith('../') ? project.hero_image.substring(3) : project.hero_image) : window.location.origin + '/' + (project.hero_image.startsWith('../') ? project.hero_image.substring(3) : project.hero_image)) : "",
                         "address": {
                             "@type": "PostalAddress",
@@ -791,6 +798,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                             "unitCode": "MTK"
                         }
                     };
+                    if (project.price && Number(project.price) > 0) {
+                        schema.offers = {
+                            "@type": "Offer",
+                            "price": Number(project.price),
+                            "priceCurrency": "EUR",
+                            "availability": project.status === 'SOLD' ? "https://schema.org/SoldOut" : (project.status === 'RESERVED' ? "https://schema.org/LimitedAvailability" : "https://schema.org/InStock")
+                        };
+                    }
                     const jsonLdScript = document.createElement('script');
                     jsonLdScript.type = "application/ld+json";
                     jsonLdScript.text = JSON.stringify(schema);
