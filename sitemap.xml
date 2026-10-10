@@ -20,29 +20,29 @@
     <lastmod>2026-05-03</lastmod>
     <priority>0.8</priority>
   </url>
-  <!-- Kohdesivut: päivitä käsin, kun kohteita julkaistaan tai poistetaan (slug = admin-paneelin tunnus) -->
+  <!-- Kohdesivut: päivitä käsin, kun kohteita julkaistaan tai poistetaan (slug = admin-paneelin tunnus). Käytä kohde.html?kohde=<slug>: /kohteet/<slug> palauttaa HTTP 404 (GitHub Pages) eikä hakukone indeksoi sitä -->
   <url>
-    <loc>https://www.valttikodit.fi/kohteet/kotiranta</loc>
+    <loc>https://www.valttikodit.fi/kohde.html?kohde=kotiranta</loc>
     <lastmod>2026-10-10</lastmod>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://www.valttikodit.fi/kohteet/kotiranta_b</loc>
+    <loc>https://www.valttikodit.fi/kohde.html?kohde=kotiranta_b</loc>
     <lastmod>2026-10-10</lastmod>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://www.valttikodit.fi/kohteet/saunaranta_a</loc>
+    <loc>https://www.valttikodit.fi/kohde.html?kohde=saunaranta_a</loc>
     <lastmod>2026-10-10</lastmod>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://www.valttikodit.fi/kohteet/saunaranta_b</loc>
+    <loc>https://www.valttikodit.fi/kohde.html?kohde=saunaranta_b</loc>
     <lastmod>2026-10-10</lastmod>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://www.valttikodit.fi/kohteet/hieroja3</loc>
+    <loc>https://www.valttikodit.fi/kohde.html?kohde=hieroja3</loc>
     <lastmod>2026-10-10</lastmod>
     <priority>0.7</priority>
   </url>
