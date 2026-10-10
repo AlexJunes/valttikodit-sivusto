@@ -2,7 +2,7 @@
 
 Valttikodit Oy:n verkkosivusto. Staattinen HTML/CSS/Vanilla JS (ei build-vaihetta), Supabase backendina, GitHub Pages hostina. Domain: www.valttikodit.fi (`CNAME`).
 
-Tarkempi dokumentaatio: `docs/` (lue vain tarvittaessa). Tietokanta: `supabase/`.
+Dokumentaatio (lue tarvittaessa): `docs/TILA.md` (GENEROITU tuotantotila), `docs/arkkitehtuuri.md`, `docs/tietokanta.md`, `docs/tietoturva.md`, `docs/agentit.md`. Tietokantamigraatiot: `supabase/migrations/`.
 
 ## Ehdottomat säännöt
 
@@ -13,6 +13,14 @@ Tarkempi dokumentaatio: `docs/` (lue vain tarvittaessa). Tietokanta: `supabase/`
 5. **Salaisuudet:** `service_role`-avainta, tietokannan salasanaa tai tokeneita ei koskaan kirjoiteta tiedostoihin tai chattiin. Selaimessa olevat Supabase anon/publishable-avain ja Web3Forms-avain ovat julkisia, ja se on tarkoituksellista.
 6. **Henkilötiedot:** liidit (`leads`) sisältävät asiakkaiden nimiä, sähköposteja ja puhelinnumeroita. Raporteissa ja logeissa vain lukumääriä, ei yksittäisiä asiakastietoja.
 7. Kysy ennen kaikkea peruuttamatonta tai ulospäin näkyvää (julkaisu, viestin lähetys, poisto).
+
+## Dokumentaation ylläpito (pakollinen)
+
+Dokumentaation pitää vastata tuotantotilaa. **Jokaisen muutoksen yhteydessä** (samassa commitissa/PR:ssä):
+1. Aja `python3 scripts/update_docs.py` ja commitoi päivittynyt `docs/TILA.md` (generoitu, älä muokkaa käsin). Tarkistus: `python3 scripts/update_docs.py --check`. Paikallinen git-hook (`.githooks/pre-commit`, ota käyttöön: `git config core.hooksPath .githooks`) tekee tämän automaattisesti; pilvisessioissa se on ajettava käsin.
+2. Päivitä käsin kirjoitetut selitykset, jos muutos koskee niitä: tietokantamuutos -> `docs/tietokanta.md` (+ migraatiotiedosto), tietoturva -> `docs/tietoturva.md`, arkkitehtuuri/reititys/SEO/CMS -> `docs/arkkitehtuuri.md`, ajastetut agentit -> `docs/agentit.md`.
+3. Mainitse PR-kuvauksessa, mitkä dokumentit päivitettiin.
+Jos muutos tehdään suoraan Supabasessa (käsin) ilman repomuutosta, kirjaa se `docs/tietokanta.md`:hen ja migraatiotiedostoksi.
 
 ## Arkkitehtuuri lyhyesti
 

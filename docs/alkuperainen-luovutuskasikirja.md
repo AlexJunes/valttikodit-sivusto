@@ -1,3 +1,5 @@
+> **ARKISTO – VANHENTUNUT (kopio 10.10.2026).** Älä käytä totuuden lähteenä. Tietokannan oikeussäännöt, reititys-SEO, agentit ja työnkulku ovat muuttuneet. Ajantasainen: `CLAUDE.md`, `docs/TILA.md` (generoitu), `docs/arkkitehtuuri.md`, `docs/tietokanta.md`, `docs/tietoturva.md`, `docs/agentit.md`.
+
 # VALTTIKODIT.FI – TÄYDELLINEN JÄRJESTELMÄN JA ARKKITEHTUURIN LUOVUTUSKÄSIKIRJA (MASTER SYSTEM HANDOVER FOR CLAUDE)
 
 **Kohde-entiteetti:** [www.valttikodit.fi](https://www.valttikodit.fi)  
