@@ -1,5 +1,17 @@
 # Tietoturva – tarkastuslista
 
+## Auditointi 10.10.2026 (tulokset)
+
+Todellinen tuotannon tila poikkesi käsikirjasta: julkiset (anon) käytännöt sallivat leads-taulun lukemisen ja muokkauksen, projects- ja pages-taulujen täyden hallinnan sekä storage-bucket `images` hallinnan. Korjattu migraatiolla `supabase/migrations/2026-10-10_secure_rls.sql` (PR #4) ja ylläpidon XSS-korjauksella (PR #5).
+
+**Nykytila:** ylläpito = kirjautunut käyttäjä, jonka sähköposti on `admin_users`-taulussa (`public.is_site_admin()`). Julkinen: lukee julkaistut kohteet ja `pages`, lisää liidin ja sivukatselun rajatuin kentin. Rekisteröityminen on kytketty pois (Supabase Auth). Tunnuksia 3, kaikilla MFA.
+
+**Huom:** samassa Supabase-projektissa on toisen sovelluksen tauluja (contractors, labor_logs, project_billing, project_costs, project_files, project_phases, safety_inspections, site_diaries, tasks). Niihin ei saa koskea tämän sivuston muutoksissa. Niillä on "authenticated = täysi pääsy" -käytännöt.
+
+**Jäljellä:** MFA (`aal2`) vaaditaan vain selaimessa, ei RLS:ssä; julkinen `main.js` renderöi CMS-sisällön HTML:nä (turvallinen niin kauan kuin vain ylläpito kirjoittaa); liidien aiempi julkinen luettavuus (GDPR-arvio, ei tarkistettu lokeista); spam-rajoitus lomakkeille (rate limit/Turnstile); ympäristömuuttuja REPORT_TOKEN pilviympäristössä (vain aggregaattifunktio).
+
+## Alkuperäinen tarkastuslista (käsikirjan pohjalta, osin ratkaistu)
+
 Tilanne: käsikirjan mukainen *tavoitetila*. Todellista tilaa Supabasessa ei ole vielä tarkistettu. Tarkista ennen muutoksia (Supabase → Authentication → Policies, Providers).
 
 ## Tarkistettavat kohdat (prioriteettijärjestyksessä)
