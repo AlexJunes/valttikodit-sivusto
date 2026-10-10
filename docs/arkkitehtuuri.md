@@ -1,6 +1,6 @@
 # Arkkitehtuuri
 
-Lähde: alkuperäinen luovutuskäsikirja (`alkuperainen-luovutuskasikirja.md`), tarkistettu koodia vasten 10.10.2026.
+Selitysdokumentti. Ajantasaiset tekniset faktat (sivut, CMS-kentät, taulut, riippuvuudet, sitemap) ovat automaattisesti generoidussa `TILA.md`:ssä. Tietokanta: `tietokanta.md`. Tietoturva: `tietoturva.md`. Agentit: `agentit.md`. Alkuperäinen käsikirja on arkistoitu (`alkuperainen-luovutuskasikirja.md`, vanhentunut).
 
 ## Ekosysteemi
 
@@ -12,6 +12,8 @@ Lähde: alkuperäinen luovutuskäsikirja (`alkuperainen-luovutuskasikirja.md`), 
 ## Reititys (`404.html`) – ÄLÄ MUUTA
 
 GitHub Pages ei tue rewrite-sääntöjä. `/kohteet/<slug>` ei vastaa tiedostoa, joten Pages palauttaa `404.html`, joka ohjaa osoitteeseen `/kohde.html?kohde=<slug>&rewrite=true`. `main.js` korvaa osoitepalkin puhtaaksi URL:ksi (`history.replaceState`). Muut tuntemattomat polut ohjataan etusivulle `/?404=true`.
+
+**SEO-huomio:** `/kohteet/<slug>` palauttaa HTTP-tilan **404** (GitHub Pages palauttaa `404.html`), joten hakukone ei indeksoi sitä. Sitemap ja canonical käyttävät siksi osoitteita `https://www.valttikodit.fi/kohde.html?kohde=<slug>` (HTTP 200). Pysyvä korjaus olisi staattiset sivut jokaiselle kohteelle (ei vielä tehty).
 
 ## CMS (`data-cms`)
 
@@ -31,6 +33,8 @@ Oma toteutus ilman kolmannen osapuolen seurantaa. Suostumus: `localStorage` `val
 
 ## Admin
 
+Kaikki tietokannasta tuleva teksti pitää escapeta ennen `innerHTML`-käyttöä (`esc()` `admin.js`:ssä ja `analytics-dashboard.js`:ssä): lomakkeiden "sanitointi" tapahtuu vain selaimessa, ja julkinen avain mahdollistaa suoran tietokantakirjoituksen.
+
 `admin/login.html` → salasana + TOTP (rekisteröinti QR-koodilla ensimmäisellä kerralla). Jokainen admin-sivu tarkistaa `aal2`-tason `admin.js`:ssä (selainpuolen suojaus; varsinainen suoja on RLS, ks. `tietoturva.md`). `update_nav.js` (Node) synkronoi admin-navigaation kaikkiin admin-sivuihin.
 
 ## Tiedostot
@@ -39,4 +43,6 @@ Ks. hakemistorakenne repon juuresta. Vanhat: `app/`, `utils/` (Next.js-kokeilu, 
 
 ## SEO
 
-`index.html` sisältää `RealEstateAgent`-schema, kohdesivut generoivat omansa. `robots.txt` estää `/admin/` ja `/kiitos.html`. Päivitä `sitemap.xml` kun sivuja lisätään tai kohteita julkaistaan/poistetaan.
+Kaikilla julkisilla sivuilla on meta description, canonical (www) ja OG-tagit. Kohdesivun meta-tagit, canonical ja schema (`SingleFamilyResidence`, mukana `offers` hinta ja saatavuus) luodaan JavaScriptillä `main.js`:ssä. Sivukohtainen tila: `TILA.md`.
+
+`index.html` sisältää `RealEstateAgent`-schema. `robots.txt` estää `/admin/` ja `/kiitos.html`. **Päivitä `sitemap.xml` käsin** kun sivuja lisätään tai kohteita julkaistaan/poistetaan (kohteet muodossa `kohde.html?kohde=<slug>`). Kuukausittainen SEO-agentti huomauttaa eroista.

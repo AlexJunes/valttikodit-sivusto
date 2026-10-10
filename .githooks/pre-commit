@@ -1,0 +1,4 @@
+#!/bin/sh
+# Päivittää docs/TILA.md automaattisesti ennen jokaista commitia.
+root=$(git rev-parse --show-toplevel)
+python3 -I "$root/scripts/update_docs.py" >/dev/null && git add "$root/docs/TILA.md"

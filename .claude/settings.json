@@ -11,7 +11,9 @@
       "Bash(python3 -m http.server:*)",
       "Bash(node update_nav.js)",
       "Bash(ls:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(python3 scripts/update_docs.py:*)",
+      "Bash(python3 -I scripts/update_docs.py:*)"
     ],
     "ask": [
       "Bash(git push:*)",
