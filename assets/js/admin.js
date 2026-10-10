@@ -2,6 +2,9 @@
 const SUPABASE_URL = 'https://xbeonksexpjvekqjxoph.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_yfN0ScRrJr-P2Nfa8yRJRw_x_1RM9Tn';
 
+// Muuttaa tietokannasta tulevan tekstin turvalliseksi ennen HTML:ään liittämistä (XSS-esto)
+const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
 document.addEventListener('DOMContentLoaded', async () => {
     const path = window.location.pathname;
 
@@ -433,14 +436,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                                 
                                 tr.innerHTML = `
                                     <td>${dateStr}</td>
-                                    <td style="font-weight: 500;">${lead.name || '-'}</td>
-                                    <td><a href="mailto:${lead.email}">${lead.email}</a></td>
-                                    <td><a href="tel:${lead.phone}">${lead.phone || '-'}</a></td>
-                                    <td><span style="font-size: 0.75rem; font-weight: 600; color: var(--text-muted); background: #f3f4f6; padding: 0.25rem 0.5rem; border-radius: 4px;">${sourceStr}</span></td>
-                                    <td><div style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${mainMessage}">${mainMessage}</div></td>
+                                    <td style="font-weight: 500;">${esc(lead.name) || '-'}</td>
+                                    <td><a href="mailto:${esc(lead.email)}">${esc(lead.email)}</a></td>
+                                    <td><a href="tel:${esc(lead.phone)}">${esc(lead.phone) || '-'}</a></td>
+                                    <td><span style="font-size: 0.75rem; font-weight: 600; color: var(--text-muted); background: #f3f4f6; padding: 0.25rem 0.5rem; border-radius: 4px;">${esc(sourceStr)}</span></td>
+                                    <td><div style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${esc(mainMessage)}">${esc(mainMessage)}</div></td>
                                     <td>${statusHtml}</td>
                                     <td style="text-align: right;">
-                                        ${lead.status === 'UUSI' ? `<button class="btn btn-outline" style="padding: 0.25rem 0.75rem; font-size: 0.75rem;" onclick="markLeadHandled('${lead.id}')">Merkitse käsitellyksi</button>` : `<button class="btn btn-outline" style="padding: 0.25rem 0.75rem; font-size: 0.75rem; border-color: #ef4444; color: #ef4444;" onclick="deleteLead('${lead.id}')">Poista</button>`}
+                                        ${lead.status === 'UUSI' ? `<button class="btn btn-outline" style="padding: 0.25rem 0.75rem; font-size: 0.75rem;" onclick="markLeadHandled('${Number(lead.id)}')">Merkitse käsitellyksi</button>` : `<button class="btn btn-outline" style="padding: 0.25rem 0.75rem; font-size: 0.75rem; border-color: #ef4444; color: #ef4444;" onclick="deleteLead('${Number(lead.id)}')">Poista</button>`}
                                     </td>
                                 `;
                                 leadsTbody.appendChild(tr);
@@ -540,10 +543,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                                     <div style="height: 1px; background: var(--border); width: 100%;"></div>
                                     <button class="btn" style="padding: 0.15rem 0.35rem; border: none; font-size: 0.65rem; background: transparent; cursor: pointer; color: var(--text-muted);" onclick="moveProjectRow(this, 1)">&#x25BC;</button>
                                 </div>
-                                ${project.title || '-'}
+                                ${esc(project.title) || '-'}
                             </div>
                         </td>
-                        <td>${project.location || '-'}</td>
+                        <td>${esc(project.location) || '-'}</td>
                         <td><span style="background: var(--accent); padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem;">${statusText}</span></td>
                         <td>${pubText}</td>
                         <td style="text-align: right;">
@@ -622,12 +625,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             usersTbody.innerHTML = '';
             
             if (error) {
-                usersTbody.innerHTML = `<tr><td colspan="4" style="color:red; padding:2rem;"><b>Tietokantavirhe:</b> ${error.message}<br><br>Tämä voi johtua siitä, että admin_users taulussa ei ole "Select" RLS -sääntöä.</td></tr>`;
+                usersTbody.innerHTML = `<tr><td colspan="4" style="color:red; padding:2rem;"><b>Tietokantavirhe:</b> ${esc(error.message)}<br><br>Käyttäjälistaa ei voitu hakea. Tarkista, että olet kirjautunut ylläpitäjänä (sähköpostisi on taulussa admin_users).</td></tr>`;
                 return;
             }
 
             if (!data || data.length === 0) {
-                usersTbody.innerHTML = '<tr><td colspan="4" style="padding:2rem;">Ei käyttäjiä katsottavaksi. Jos olet varma että käyttäjiä on, varmista Supabasesta että <b>admin_users</b> -taululla on RLS-sääntö, joka sallii lukemisen (Select).<br><br><code>CREATE POLICY "Salli luku" ON public.admin_users FOR SELECT USING (true);</code></td></tr>';
+                usersTbody.innerHTML = '<tr><td colspan="4" style="padding:2rem;">Ei käyttäjiä katsottavaksi. Jos käyttäjiä pitäisi olla, tarkista Supabasesta taulun admin_users oikeudet. Älä lisää julkista lukuoikeutta (se paljastaisi ylläpitäjien sähköpostit).</td></tr>';
                 return;
             }
             
@@ -636,11 +639,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const d = new Date(user.created_at);
                 const dateStr = d.toLocaleDateString('fi-FI');
                 tr.innerHTML = `
-                    <td style="font-weight: 500;">${user.email}</td>
-                    <td>${user.role || 'Pääkäyttäjä'}</td>
+                    <td style="font-weight: 500;">${esc(user.email)}</td>
+                    <td>${esc(user.role) || 'Pääkäyttäjä'}</td>
                     <td><span style="background: var(--accent); padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem;">AKTIIVINEN</span></td>
                     <td style="text-align: right;">
-                        <button class="btn btn-outline" style="padding: 0.25rem 0.75rem; font-size: 0.75rem; color: #ef4444; border-color: #ef4444;" onclick="deleteUser('${user.id}')">Poista</button>
+                        <button class="btn btn-outline" style="padding: 0.25rem 0.75rem; font-size: 0.75rem; color: #ef4444; border-color: #ef4444;" onclick="deleteUser('${esc(user.id)}')">Poista</button>
                     </td>
                 `;
                 usersTbody.appendChild(tr);
@@ -729,7 +732,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     itemDiv.style.cssText = "display: flex; justify-content: space-between; align-items: center; padding: 0.5rem; background: white; border: 1px solid var(--border); margin-bottom: 0.5rem; border-radius: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);";
                     itemDiv.innerHTML = `
                         <div style="display: flex; align-items: center; gap: 1rem;">
-                            <img src="${item.url}" style="width: 60px; height: 40px; object-fit: cover; border-radius: 2px;">
+                            <img src="${esc(item.url)}" style="width: 60px; height: 40px; object-fit: cover; border-radius: 2px;">
                             <span style="font-size: 0.875rem; font-weight: 500;">Kuva ${index + 1}</span>
                             <button type="button" class="btn btn-outline mx-2" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;" onclick="moveItem(${index}, -1)">&#x25B2;</button>
                             <button type="button" class="btn btn-outline" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;" onclick="moveItem(${index}, 1)">&#x25BC;</button>
@@ -1111,21 +1114,21 @@ document.addEventListener('DOMContentLoaded', async () => {
                 
                 const group = document.createElement('div');
                 group.className = 'form-group mb-4';
-                group.innerHTML = `<label class="form-label">${key}</label>`;
+                group.innerHTML = `<label class="form-label">${esc(key)}</label>`;
                 
                 if (isImage) {
                     group.innerHTML += `
                         <div style="display: flex; align-items: flex-start; gap: 1rem;">
-                            <img src="${val}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 4px; border: 1px solid var(--border); ${!val && 'display:none;'}">
+                            <img src="${esc(val)}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 4px; border: 1px solid var(--border); ${!val && 'display:none;'}">
                             <div>
-                                <input type="file" class="form-input mb-2 dynamic-file-input" data-key="${key}" accept="image/*">
+                                <input type="file" class="form-input mb-2 dynamic-file-input" data-key="${esc(key)}" accept="image/*">
                             </div>
                         </div>
                     `;
                 } else if (isLargeText) {
-                    group.innerHTML += `<textarea class="form-input dynamic-text-input" data-key="${key}" rows="4">${val}</textarea>`;
+                    group.innerHTML += `<textarea class="form-input dynamic-text-input" data-key="${esc(key)}" rows="4">${esc(val)}</textarea>`;
                 } else {
-                    group.innerHTML += `<input type="text" class="form-input dynamic-text-input" data-key="${key}" value="${val}">`;
+                    group.innerHTML += `<input type="text" class="form-input dynamic-text-input" data-key="${esc(key)}" value="${esc(val)}">`;
                 }
                 
                 container.appendChild(group);
