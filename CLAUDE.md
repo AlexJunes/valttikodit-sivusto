@@ -35,6 +35,10 @@ python3 -m http.server 8080   # avaa http://localhost:8080
 - Uusi sivu: kopioi rakenne `tarinamme.html`:stä, lisää `data-cms`-attribuutit, lisää `sitemap.xml`:ään ja admin-listaan, aja `node update_nav.js` jos admin-navigaatio muuttuu.
 - Kirjoita commit-viestit muotoon `feat:`, `fix:`, `perf:`, `docs:` (kuten historiassa). Sivuston sisältö ja käyttäjille näkyvät tekstit ovat suomeksi.
 
+## Tietokantaoikeudet (tärkeä)
+
+Ylläpito = kirjautunut + sähköposti taulussa `admin_users` (`public.is_site_admin()`). Julkinen (anon) saa vain lukea julkaistut kohteet ja `pages` sekä lisätä liidin/sivukatselun. Älä koskaan lisää julkisia (anon) UPDATE/DELETE/SELECT-käytäntöjä leads-, projects-, pages-, page_views- tai admin_users-tauluihin. Samassa Supabase-projektissa on toisen sovelluksen tauluja (contractors, labor_logs, project_*, safety_inspections, site_diaries, tasks): älä koske niihin. Kaikki DB-datan renderöinti `innerHTML`:llä pitää escapeta (`esc()` admin.js:ssä). Katso `docs/tietoturva.md`.
+
 ## Tunnetut huomiot (tarkistettava)
 
 - `.env.local` on versionhallinnassa (sisältää vain julkiset avaimet; ei käytössä staattisella sivustolla). Harkitse poistoa.
