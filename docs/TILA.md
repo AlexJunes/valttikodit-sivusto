@@ -15,6 +15,8 @@
 | `kohde.html` | Valttikodit Ennakkokohde | – | – | 0 | 1 | – | – | 0 |
 | `kohde_test.html` | – | – | – | 0 | 0 | – | – | 0 |
 | `kohteet.html` | Myytävät kohteet \| Valttikodit | 118 | kyllä | 7 | 1 | – | – | 0 |
+| `ostamme-tontteja.html` | Ostamme tontteja \| Valttikodit | 141 | kyllä | 7 | 1 | – | https://api.web3forms.com/submit | 0 |
+| `referenssit.html` | Referenssit \| Valttikodit | 141 | kyllä | 7 | 1 | – | – | 0 |
 | `tarinamme.html` | Tarinamme \| Valttikodit | 123 | kyllä | 7 | 1 | – | – | 34 |
 | `tietosuojaseloste.html` | Tietosuojaseloste \| Valttikodit | 111 | kyllä | 7 | 1 | – | – | 0 |
 | `yhteys.html` | Ota yhteyttä \| Valttikodit | 117 | kyllä | 7 | 1 | – | https://api.web3forms.com/submit | 7 |
@@ -24,6 +26,8 @@
 - `index.html`: Ensivaikutelmia Otsikko, FAQ 1 Kysymys, FAQ 1 Vastaus, FAQ 2 Kysymys, FAQ 2 Vastaus, FAQ 3 Kysymys, FAQ 3 Vastaus, FAQ Otsikko, Hero Otsikko, Hero Taustakuva, Hero Teksti, Keskustelu Otsikko, Keskustelu Teksti, Kohteet Otsikko, Kohteet Teksti, Palaute 1 Lähde, Palaute 1 Teksti, Palaute 2 Lähde, Palaute 2 Teksti, Palaute 3 Lähde, Palaute 3 Teksti, Palvelu 1 Otsikko, Palvelu 1 Teksti, Palvelu 2 Otsikko, Palvelu 2 Teksti, Palvelu 3 Otsikko, Palvelu 3 Teksti, Palvelut Otsikko, Palvelut Teksti, Tunnelaatikko Kuva, Tunnelaatikko Lainaus, Tunnelaatikko Otsikko, Tunnelaatikko Teksti | globaalit: Alatunniste: Facebook-linkki, Alatunniste: Instagram-linkki, Alatunniste: LinkedIn-linkki, Alatunniste: Osoite, Alatunniste: Postitoimipaikka, Alatunniste: Puhelinnumero, Alatunniste: Sähköposti
 - `kohde.html`:  | globaalit: Alatunniste: Facebook-linkki, Alatunniste: Instagram-linkki, Alatunniste: LinkedIn-linkki, Alatunniste: Osoite, Alatunniste: Postitoimipaikka, Alatunniste: Puhelinnumero, Alatunniste: Sähköposti
 - `kohteet.html`:  | globaalit: Alatunniste: Facebook-linkki, Alatunniste: Instagram-linkki, Alatunniste: LinkedIn-linkki, Alatunniste: Osoite, Alatunniste: Postitoimipaikka, Alatunniste: Puhelinnumero, Alatunniste: Sähköposti
+- `ostamme-tontteja.html`:  | globaalit: Alatunniste: Facebook-linkki, Alatunniste: Instagram-linkki, Alatunniste: LinkedIn-linkki, Alatunniste: Osoite, Alatunniste: Postitoimipaikka, Alatunniste: Puhelinnumero, Alatunniste: Sähköposti
+- `referenssit.html`:  | globaalit: Alatunniste: Facebook-linkki, Alatunniste: Instagram-linkki, Alatunniste: LinkedIn-linkki, Alatunniste: Osoite, Alatunniste: Postitoimipaikka, Alatunniste: Puhelinnumero, Alatunniste: Sähköposti
 - `tarinamme.html`: Arvot Henkilö, Arvot Lainaus, Arvot Otsikko, Ensimmäinen Otsikko, Ensimmäinen Teksti, H1 Kuva, H1 Nimi, H1 Titteli, H2 Kuva, H2 Nimi, H2 Titteli, H3 Kuva, H3 Nimi, H3 Titteli, H4 Kuva, H4 Nimi, H4 Titteli, Kolmas Otsikko, Kolmas Teksti, P1 Otsikko, P1 Teksti, P2 Otsikko, P2 Teksti, P3 Otsikko, P3 Teksti, P4 Otsikko, P4 Teksti, Prosessi Otsikko, Tarinamme Ingressi, Tarinamme Otsikko, Tarinan Kuva, Tiimi Otsikko, Toinen Otsikko, Toinen Teksti | globaalit: Alatunniste: Facebook-linkki, Alatunniste: Instagram-linkki, Alatunniste: LinkedIn-linkki, Alatunniste: Osoite, Alatunniste: Postitoimipaikka, Alatunniste: Puhelinnumero, Alatunniste: Sähköposti
 - `tietosuojaseloste.html`:  | globaalit: Alatunniste: Facebook-linkki, Alatunniste: Instagram-linkki, Alatunniste: LinkedIn-linkki, Alatunniste: Osoite, Alatunniste: Postitoimipaikka, Alatunniste: Puhelinnumero, Alatunniste: Sähköposti
 - `yhteys.html`: Kuvaus, Lomake Otsikko, Osoite, Otsikko, Puhelinnumero, Sähköposti, Yhteystiedot Otsikko | globaalit: Alatunniste: Facebook-linkki, Alatunniste: Instagram-linkki, Alatunniste: LinkedIn-linkki, Alatunniste: Osoite, Alatunniste: Postitoimipaikka, Alatunniste: Puhelinnumero, Alatunniste: Sähköposti
@@ -108,6 +112,8 @@ Lueteltu tiedostot, jotka on kirjattu repoon. Tuotantoon ne ajetaan käsin Supab
 - `kohde.html`
 - `kohde_test.html`
 - `kohteet.html`
+- `ostamme-tontteja.html`
+- `referenssit.html`
 - `robots.txt`
 - `scripts/`
 - `sitemap.xml`

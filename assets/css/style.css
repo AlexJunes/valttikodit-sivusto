@@ -706,3 +706,88 @@ h3 {
          1 0 0 %   {   o p a c i t y :   1 ;   } 
  }  
  
+
+/* ==========================================================================
+   Uudet osiot: Referenssit & Ostamme tontteja (kayttaa olemassa olevia muuttujia)
+   ========================================================================== */
+.dev-banner { background: #fff7e0; border-bottom: 1px solid #f0d58a; color: #7a5b00; text-align: center; font-size: 0.8125rem; font-weight: 500; padding: 0.5rem 1rem; }
+
+.section { padding: 5rem 0; }
+.section--white { background: var(--card-bg); }
+.section--alt { background: var(--accent); }
+
+.page-intro { padding: 4.5rem 0 3.5rem; text-align: center; }
+.page-intro .lead { margin: 0 auto; }
+.eyebrow { display: inline-block; font-size: 0.8125rem; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 600; color: var(--text-muted); margin-bottom: 1rem; }
+
+.section-head { text-align: center; max-width: 720px; margin: 0 auto 3rem; }
+.section-head h2 { margin-bottom: 1rem; }
+.section-head p { color: var(--text-muted); font-size: 1.125rem; line-height: 1.8; }
+
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; text-align: center; }
+.stat strong { display: block; font-size: clamp(2rem, 4vw, 3rem); letter-spacing: -0.02em; line-height: 1.1; margin-bottom: 0.25rem; }
+.stat span { color: var(--text-muted); font-size: 0.9375rem; }
+
+.card-img img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
+.card-place { color: var(--text-muted); font-size: 0.875rem; margin-bottom: 0.25rem; }
+.card-content h3 { font-size: 1.25rem; margin-bottom: 0.25rem; }
+.card-text { color: var(--text-muted); font-size: 0.9375rem; line-height: 1.7; }
+.ref-meta { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0.75rem 0 1rem; }
+.chip { font-size: 0.75rem; font-weight: 600; color: var(--text-color); background: var(--bg-color); border: 1px solid var(--border); padding: 0.2rem 0.65rem; border-radius: 999px; }
+
+.quote-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; }
+.quote-card { background: var(--card-bg); padding: 2rem; border-radius: var(--radius); box-shadow: 0 4px 6px rgba(0, 0, 0, 0.03); border-top: 4px solid var(--primary); }
+.quote-card blockquote { font-size: 1.0625rem; line-height: 1.7; font-style: italic; margin-bottom: 1.25rem; }
+.quote-card cite { font-style: normal; font-weight: 600; color: var(--text-muted); font-size: 0.875rem; }
+
+.cta-band { background: var(--primary); color: #fff; text-align: center; padding: 5rem 1.5rem; }
+.cta-band h2 { color: #fff; }
+.cta-band p { color: rgba(255, 255, 255, 0.8); max-width: 640px; margin: 0 auto 2rem; font-size: 1.125rem; line-height: 1.8; }
+.cta-actions { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+.btn-light { background: #fff; color: var(--primary); }
+.btn-light:hover { background: var(--accent); }
+.btn-ghost-light { background: transparent; color: #fff; border-color: rgba(255, 255, 255, 0.6); }
+.btn-ghost-light:hover { background: #fff; color: var(--primary); }
+
+.prose p { color: var(--text-muted); font-size: 1.125rem; line-height: 1.8; margin-bottom: 1.25rem; }
+.prose h2 { font-size: 2rem; margin-bottom: 1.25rem; }
+
+.criteria { background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 2rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
+.criteria h3 { margin-bottom: 1rem; }
+.criteria li { display: flex; gap: 0.75rem; align-items: flex-start; padding: 0.8rem 0; border-bottom: 1px solid var(--border); font-size: 0.9375rem; line-height: 1.6; }
+.criteria li:last-child { border-bottom: 0; }
+.criteria svg { flex: none; margin-top: 0.15rem; }
+.criteria strong { display: block; }
+.criteria span { color: var(--text-muted); }
+
+.icon-circle { width: 64px; height: 64px; background: rgba(18, 18, 18, 0.05); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; }
+.feature { background: var(--card-bg); padding: 2.5rem; border-radius: var(--radius); box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02); text-align: center; }
+.feature h3 { font-size: 1.25rem; margin-bottom: 1rem; }
+.feature p { color: var(--text-muted); font-size: 0.9375rem; line-height: 1.7; }
+
+.steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 2rem; }
+.step { background: var(--card-bg); padding: 2rem; border-radius: var(--radius); border-top: 4px solid var(--primary); position: relative; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02); }
+.step-num { position: absolute; top: -1.2rem; left: 1.5rem; background: var(--primary); color: #fff; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem; }
+.step h3 { font-size: 1.0625rem; margin: 0.5rem 0 0.75rem; }
+.step p { color: var(--text-muted); font-size: 0.9375rem; line-height: 1.7; }
+
+.faq { max-width: 800px; margin: 0 auto; }
+.faq details { background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1rem; padding: 0 1.5rem; }
+.faq summary { cursor: pointer; font-weight: 600; padding: 1.25rem 0; list-style: none; display: flex; justify-content: space-between; align-items: center; gap: 1rem; min-height: 44px; }
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after { content: "+"; font-size: 1.5rem; line-height: 1; color: var(--text-muted); }
+.faq details[open] summary::after { content: "\2212"; }
+.faq details p { color: var(--text-muted); line-height: 1.8; padding: 0 0 1.25rem; }
+
+.form-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 2rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
+.form-card h2 { font-size: 1.5rem; margin-bottom: 1.5rem; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.form-note { font-size: 0.75rem; color: var(--text-muted); text-align: center; margin-top: 1rem; }
+
+@media (max-width: 768px) {
+    .section { padding: 3.5rem 0; }
+    .page-intro { padding: 3rem 0 2rem; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    .form-row { grid-template-columns: 1fr; }
+    .cta-band { padding: 3.5rem 1.5rem; }
+}
