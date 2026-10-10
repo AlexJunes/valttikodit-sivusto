@@ -4,6 +4,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const SUPABASE_URL = 'https://xbeonksexpjvekqjxoph.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_yfN0ScRrJr-P2Nfa8yRJRw_x_1RM9Tn';
     let supabase = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+    // HTML-turvallinen teksti (katselulokin polku on julkisesti kirjoitettavissa)
+    const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
     if (!supabase) {
         console.error("Supabase not found.");
@@ -232,7 +234,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     }
                     
                     const percentage = totalViews > 0 ? Math.round((count / totalViews) * 100) : 0;
-                    li.innerHTML = `<span><strong>${pName}</strong> <small style="display:block; color: #6b7280; margin-top:2px; font-family:monospace;">${path}</small></span><span style="white-space:nowrap; margin-left:1rem;">${count} katselua (${percentage}%)</span>`;
+                    li.innerHTML = `<span><strong>${esc(pName)}</strong> <small style="display:block; color: #6b7280; margin-top:2px; font-family:monospace;">${esc(path)}</small></span><span style="white-space:nowrap; margin-left:1rem;">${count} katselua (${percentage}%)</span>`;
                     ul.appendChild(li);
                 });
             }
