@@ -50,3 +50,7 @@ Ks. hakemistorakenne repon juuresta. Vanhat: `app/`, `utils/` (Next.js-kokeilu, 
 Kaikilla julkisilla sivuilla on meta description, canonical (www) ja OG-tagit. Kohdesivun meta-tagit, canonical ja schema (`SingleFamilyResidence`, mukana `offers` hinta ja saatavuus) luodaan JavaScriptillä `main.js`:ssä. Sivukohtainen tila: `TILA.md`.
 
 `index.html` sisältää `RealEstateAgent`-schema. `robots.txt` estää `/admin/` ja `/kiitos.html`. **Päivitä `sitemap.xml` käsin** kun sivuja lisätään tai kohteita julkaistaan/poistetaan (kohteet muodossa `kohde.html?kohde=<slug>`). Kuukausittainen SEO-agentti huomauttaa eroista.
+
+## Myy tonttisi (myy-tonttisi.html)
+
+Tonttien hankintasivu (aiemmin "Ostamme tontteja", `ostamme-tontteja.html`, joka on nyt vain ohjaussivu uuteen osoitteeseen). Rakenne: ilmakuvahero (`.hero-myy` + `assets/img/myy-tonttisi/`), tunnusluvut, kaksi tapaa myydä (suora kauppa / yhteistyö), mitä etsimme, edut, prosessi, referenssiohjaus, UKK ja tonttilomake (Web3Forms, lähde "Myy tonttisi -sivu"; lisäkentät `data-extra-label` liitetään liidin viestiin). Tekstit ovat ylläpidosta muokattavia (`data-cms`, sivu `myy-tonttisi`, oletukset `defaultSchemas` admin.js:ssä).
