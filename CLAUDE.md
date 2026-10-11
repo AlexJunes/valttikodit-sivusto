@@ -16,7 +16,7 @@ Dokumentaatio (lue tarvittaessa): `docs/TILA.md` (GENEROITU tuotantotila), `docs
 
 ## Ympäristöt ja testaus
 
-Tuotanto = `main` + tuotanto-Supabase. **Localhost käyttää automaattisesti PAIKALLISTA testi-Supabasea (Docker)**, ei tuotantoa; ks. `docs/ymparistot.md` (käynnistys: `supabase start ...`, `python3 scripts/local_setup.py`, `python3 -m http.server 8099`). Lomakkeet ja ylläpitomuokkaukset ovat turvallisia testata localhostissa. Älä kirjoita koskaan tuotantotietokantaan testitarkoituksessa. Tietokantamuutokset: ensin paikalliseen, sitten tuotantoon (käyttäjä ajaa).
+Tuotanto = `main` + tuotanto-Supabase. **Localhost käyttää automaattisesti PAIKALLISTA testi-Supabasea (Docker)**, ei tuotantoa; ks. `docs/ymparistot.md` (käynnistys: `supabase start ...`, `python3 scripts/local_setup.py`, `python3 scripts/dev_server.py 8099`). Lomakkeet ja ylläpitomuokkaukset ovat turvallisia testata localhostissa. Älä kirjoita koskaan tuotantotietokantaan testitarkoituksessa. Tietokantamuutokset: ensin paikalliseen, sitten tuotantoon (käyttäjä ajaa).
 
 ## Dokumentaation ylläpito (pakollinen)
 
@@ -39,11 +39,11 @@ Jos muutos tehdään suoraan Supabasessa (käsin) ilman repomuutosta, kirjaa se 
 ## Kehitys ja testaus
 
 ```bash
-python3 -m http.server 8080   # avaa http://localhost:8080
+python3 scripts/dev_server.py 8080   # avaa http://localhost:8080 (puhtaat URLit kuten GitHub Pagesissa)
 ```
 
 - Testaa muutos selaimessa ennen PR:ää (desktop + mobiili). Tarkista konsolista virheet.
-- Testaa `/kohteet/<slug>` -reititys paikallisesti kohdesivun kautta: `kohde.html?kohde=<slug>`. Puhdas URL toimii vain GitHub Pagesissa.
+- Puhdas URL `/kohteet/<slug>` toimii myös paikallisesti (`scripts/dev_server.py` käyttäytyy kuin GitHub Pages: palauttaa 404.html:n ja reititys ohjaa kohdesivulle).
 - Uusi sivu: kopioi rakenne `tarinamme.html`:stä, lisää `data-cms`-attribuutit, lisää `sitemap.xml`:ään ja admin-listaan, aja `node update_nav.js` jos admin-navigaatio muuttuu.
 - Kirjoita commit-viestit muotoon `feat:`, `fix:`, `perf:`, `docs:` (kuten historiassa). Sivuston sisältö ja käyttäjille näkyvät tekstit ovat suomeksi.
 

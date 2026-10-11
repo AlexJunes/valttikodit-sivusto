@@ -16,7 +16,7 @@ export PATH="$HOME/.docker/bin:$PATH"            # jos docker ei löydy
 cd ~/Claude/valttikodit-sivusto
 supabase start -x edge-runtime,logflare,vector,imgproxy,realtime,supavisor
 python3 scripts/local_setup.py                   # luo taulut, säännöt, testidatan ja testiylläpitäjän
-python3 -m http.server 8099                      # avaa http://localhost:8099
+python3 scripts/dev_server.py 8099                # avaa http://localhost:8099 (toimii kuten GitHub Pages)
 ```
 
 Pysäytys: `supabase stop`. Tyhjennys ja uudelleenluonti: aja `python3 scripts/local_setup.py` uudelleen (tyhjentää testidatan).
