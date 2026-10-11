@@ -74,6 +74,9 @@
 - https://www.valttikodit.fi/kohteet.html
 - https://www.valttikodit.fi/tarinamme.html
 - https://www.valttikodit.fi/yhteys.html
+- https://www.valttikodit.fi/referenssit.html
+- https://www.valttikodit.fi/referenssi.html?r=sudenkorento-6-a-ja-b
+- https://www.valttikodit.fi/ostamme-tontteja.html
 - https://www.valttikodit.fi/kohde.html?kohde=kotiranta
 - https://www.valttikodit.fi/kohde.html?kohde=kotiranta_b
 - https://www.valttikodit.fi/kohde.html?kohde=saunaranta_a
