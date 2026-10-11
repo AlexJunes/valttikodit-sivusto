@@ -408,6 +408,57 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (!error) dashProjectsCount.textContent = count || '0';
             }
 
+            // --- Liidin tiedot: jäsennys ja tarkastelu-ikkuna ---
+            const parseLead = (lead) => {
+                let source = '', extras = [], text = String(lead.message || '').trim();
+                if (text.startsWith('LÄHDE:')) {
+                    const nl = text.indexOf('\n');
+                    source = (nl === -1 ? text : text.slice(0, nl)).replace('LÄHDE:', '').trim();
+                    text = nl === -1 ? '' : text.slice(nl + 1).trim();
+                }
+                // Lomakkeen lisäkentät ovat omana lohkonaan (rivit "Otsikko: arvo") ennen vapaata viestiä
+                const blocks = text.split(/\n\s*\n/);
+                if (blocks.length && blocks[0].split('\n').every(l => /^[^:\n]{2,40}: .+$/.test(l.trim()))
+                    && (blocks.length > 1 || /tontti/i.test(source))) {
+                    extras = blocks.shift().split('\n').map(l => { const i = l.indexOf(': '); return [l.slice(0, i).trim(), l.slice(i + 2).trim()]; });
+                    text = blocks.join('\n\n').trim();
+                }
+                return { source, extras, text };
+            };
+
+            const leadsById = {};
+            const closeLeadModal = () => { const m = document.getElementById('lead-modal'); if (m) m.close(); };
+            window.openLead = (id) => {
+                const lead = leadsById[id]; if (!lead) return;
+                const { source, extras, text } = parseLead(lead);
+                const d = new Date(lead.created_at);
+                const dateStr = d.toLocaleDateString('fi-FI') + ' klo ' + d.toLocaleTimeString('fi-FI', { hour: '2-digit', minute: '2-digit' });
+                const row = (k, v) => `<div class="lead-row"><dt>${esc(k)}</dt><dd>${v}</dd></div>`;
+                const isNew = lead.status === 'UUSI';
+                let m = document.getElementById('lead-modal');
+                if (!m) { m = document.createElement('dialog'); m.id = 'lead-modal'; m.className = 'lead-modal'; document.body.appendChild(m); m.addEventListener('click', (e) => { if (e.target === m) m.close(); }); }
+                m.innerHTML = `
+                    <div class="lead-modal-head"><div><h2>${esc(lead.name) || 'Nimetön'}</h2><span class="lead-src">${esc(source || '-')}</span></div><button type="button" class="lead-x" aria-label="Sulje" data-lead-close>&times;</button></div>
+                    <dl class="lead-dl">
+                        ${row('Päiväys', esc(dateStr))}
+                        ${row('Tila', isNew ? '<span class="lead-badge lead-badge--new">UUSI</span>' : '<span class="lead-badge">KÄSITELTY</span>')}
+                        ${row('Sähköposti', lead.email ? `<a href="mailto:${esc(lead.email)}">${esc(lead.email)}</a>` : '-')}
+                        ${row('Puhelin', lead.phone ? `<a href="tel:${esc(lead.phone)}">${esc(lead.phone)}</a>` : '-')}
+                        ${extras.map(([k, v]) => row(k, esc(v))).join('')}
+                    </dl>
+                    <h3 class="lead-h3">Viesti</h3>
+                    <div class="lead-text">${text ? esc(text) : '<span style="color: var(--text-muted);">Ei vapaata viestiä.</span>'}</div>
+                    <div class="lead-actions">
+                        ${lead.email ? `<a class="btn btn-primary" href="mailto:${esc(lead.email)}?subject=${encodeURIComponent('Vastaus yhteydenottoosi – Valttikodit')}">Vastaa sähköpostilla</a>` : ''}
+                        ${lead.phone ? `<a class="btn btn-outline" href="tel:${esc(lead.phone)}">Soita</a>` : ''}
+                        ${isNew ? `<button type="button" class="btn btn-outline" data-lead-handle="${esc(lead.id)}">Merkitse käsitellyksi</button>` : `<button type="button" class="btn btn-outline" style="border-color:#ef4444;color:#ef4444;" data-lead-delete="${esc(lead.id)}">Poista</button>`}
+                    </div>`;
+                m.querySelector('[data-lead-close]').onclick = closeLeadModal;
+                const h = m.querySelector('[data-lead-handle]'); if (h) h.onclick = () => window.markLeadHandled(h.getAttribute('data-lead-handle'));
+                const x = m.querySelector('[data-lead-delete]'); if (x) x.onclick = () => window.deleteLead(x.getAttribute('data-lead-delete'));
+                m.showModal();
+            };
+
             // Uudet liidit count & table
             const dashLeadsCount = document.getElementById('dash-leads-count');
             const leadsTbody = document.getElementById('leads-tbody');
@@ -424,7 +475,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                             leadsTbody.innerHTML = '<tr><td colspan="8">Ei yhteydenottopyyntöjä.</td></tr>';
                         } else {
                             leadsData.forEach(lead => {
+                                leadsById[lead.id] = lead;
                                 const tr = document.createElement('tr');
+                                tr.className = 'lead-row-click';
+                                tr.tabIndex = 0;
+                                tr.setAttribute('aria-label', 'Avaa liidin tiedot');
                                 const d = new Date(lead.created_at);
                                 const dateStr = d.toLocaleDateString('fi-FI') + ' ' + d.toLocaleTimeString('fi-FI', {hour: '2-digit', minute:'2-digit'});
                                 const statusHtml = lead.status === 'UUSI' 
@@ -451,10 +506,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                                     <td><span style="font-size: 0.75rem; font-weight: 600; color: var(--text-muted); background: #f3f4f6; padding: 0.25rem 0.5rem; border-radius: 4px;">${esc(sourceStr)}</span></td>
                                     <td><div style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${esc(mainMessage)}">${esc(mainMessage)}</div></td>
                                     <td>${statusHtml}</td>
-                                    <td style="text-align: right;">
+                                    <td style="text-align: right; white-space: nowrap;">
+                                        <button class="btn btn-primary" style="padding: 0.25rem 0.75rem; font-size: 0.75rem; margin-right: 0.35rem;" onclick="openLead('${esc(lead.id)}')">Avaa</button>
                                         ${lead.status === 'UUSI' ? `<button class="btn btn-outline" style="padding: 0.25rem 0.75rem; font-size: 0.75rem;" onclick="markLeadHandled('${esc(lead.id)}')">Merkitse käsitellyksi</button>` : `<button class="btn btn-outline" style="padding: 0.25rem 0.75rem; font-size: 0.75rem; border-color: #ef4444; color: #ef4444;" onclick="deleteLead('${esc(lead.id)}')">Poista</button>`}
                                     </td>
                                 `;
+                                tr.addEventListener('click', (e) => { if (!e.target.closest('a, button')) window.openLead(lead.id); });
+                                tr.addEventListener('keydown', (e) => { if (e.key === 'Enter' && e.target === tr) window.openLead(lead.id); });
                                 leadsTbody.appendChild(tr);
                             });
                         }

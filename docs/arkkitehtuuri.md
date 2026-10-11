@@ -58,3 +58,7 @@ Tonttien hankintasivu (aiemmin "Ostamme tontteja", `ostamme-tontteja.html`, joka
 ## Yhteinen sivurunko ja ulkoasu
 
 Kaikilla sivuilla on sama rytmi: **kuvahero** (`.hero` etusivulla, `.ref-hero` referenssi- ja tonttisivulla; korkeus `clamp(480px, 70vh, 780px)`, h1 enintään 3.75rem) tai **perussivun otsikkoalue** `.page-intro` (pikkuotsikko `.eyebrow`, h1 enintään 3rem, ingressi; vasen tasaus). Lukusivut (Tarinamme, Tietosuoja) käyttävät leveyttä `.container--narrow` (800 px). Osiot käyttävät luokkia `.section`, `.section--white`, `.section--alt` (5rem / mobiilissa 3.5rem); `.py-16` on samat arvot. Uusi sivu: kopioi `.page-intro`-rakenne esim. `kohteet.html`:sta. Huom. `yhteys.html`:ssa ylläpidon "Kuvaus"-kentän arvo voi olla kuva-URL (renderoidaan kuvaksi), joten otsikko ja kuvaus pysyvät vasemmassa sarakkeessa.
+
+## Liidien käsittely (admin/dashboard.html)
+
+Liidirivin klikkaus tai **Avaa**-painike avaa ikkunan, jossa näkyvät kaikki liidin tiedot: päiväys, tila, sähköposti ja puhelin (linkit), lomakkeen lisäkentät omina rivinään (esim. tontin sijainti, koko ja kaavatilanne Myy tonttisi -lomakkeelta) sekä koko vapaa viesti rivinvaihtoineen. Ikkunasta voi vastata sähköpostilla, soittaa, merkitä käsitellyksi tai (käsitellyt) poistaa. Jäsennys: `parseLead()` `assets/js/admin.js`:ssä lukee viestin rakenteen `LÄHDE: …` / lisäkentät `Otsikko: arvo` / vapaa viesti (kirjoitetaan lomakkeelta `main.js`:ssä). Tietokantaan ei tule muutoksia.
