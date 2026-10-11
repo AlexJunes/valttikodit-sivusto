@@ -1,8 +1,11 @@
 // assets/js/analytics-dashboard.js
 document.addEventListener('DOMContentLoaded', async () => {
     // Varmistetaan että Supabase on alustettu (admin.js latautuu myös, mutta ollaan varmoja)
-    const SUPABASE_URL = 'https://xbeonksexpjvekqjxoph.supabase.co';
-    const SUPABASE_ANON_KEY = 'sb_publishable_yfN0ScRrJr-P2Nfa8yRJRw_x_1RM9Tn';
+    // Ympäristö: localhost -> PAIKALLINEN testi-Supabase (Docker, ks. docs/ymparistot.md); muut osoitteet -> tuotanto.
+    // Jos paikallinen Supabase ei ole käynnissä, localhost EI putoa tuotantoon vaan data ei lataudu.
+    const IS_LOCAL_ENV = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+    const SUPABASE_URL = IS_LOCAL_ENV ? 'http://127.0.0.1:54321' : 'https://xbeonksexpjvekqjxoph.supabase.co';
+    const SUPABASE_ANON_KEY = IS_LOCAL_ENV ? 'sb_publishable_ACJWlzQHlZjBrEguHvfOxg_3BJgxAaH' : 'sb_publishable_yfN0ScRrJr-P2Nfa8yRJRw_x_1RM9Tn';
     let supabase = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
     // HTML-turvallinen teksti (katselulokin polku on julkisesti kirjoitettavissa)
     const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));

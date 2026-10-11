@@ -2,7 +2,7 @@
 
 Valttikodit Oy:n verkkosivusto. Staattinen HTML/CSS/Vanilla JS (ei build-vaihetta), Supabase backendina, GitHub Pages hostina. Domain: www.valttikodit.fi (`CNAME`).
 
-Dokumentaatio (lue tarvittaessa): `docs/TILA.md` (GENEROITU tuotantotila), `docs/arkkitehtuuri.md`, `docs/tietokanta.md`, `docs/tietoturva.md`, `docs/agentit.md`. Tietokantamigraatiot: `supabase/migrations/`.
+Dokumentaatio (lue tarvittaessa): `docs/TILA.md` (GENEROITU tuotantotila), `docs/arkkitehtuuri.md`, `docs/tietokanta.md`, `docs/tietoturva.md`, `docs/agentit.md`, `docs/ymparistot.md`. Tietokantamigraatiot: `supabase/migrations/`.
 
 ## Ehdottomat säännöt
 
@@ -13,6 +13,10 @@ Dokumentaatio (lue tarvittaessa): `docs/TILA.md` (GENEROITU tuotantotila), `docs
 5. **Salaisuudet:** `service_role`-avainta, tietokannan salasanaa tai tokeneita ei koskaan kirjoiteta tiedostoihin tai chattiin. Selaimessa olevat Supabase anon/publishable-avain ja Web3Forms-avain ovat julkisia, ja se on tarkoituksellista.
 6. **Henkilötiedot:** liidit (`leads`) sisältävät asiakkaiden nimiä, sähköposteja ja puhelinnumeroita. Raporteissa ja logeissa vain lukumääriä, ei yksittäisiä asiakastietoja.
 7. Kysy ennen kaikkea peruuttamatonta tai ulospäin näkyvää (julkaisu, viestin lähetys, poisto).
+
+## Ympäristöt ja testaus
+
+Tuotanto = `main` + tuotanto-Supabase. **Localhost käyttää automaattisesti PAIKALLISTA testi-Supabasea (Docker)**, ei tuotantoa; ks. `docs/ymparistot.md` (käynnistys: `supabase start ...`, `python3 scripts/local_setup.py`, `python3 -m http.server 8099`). Lomakkeet ja ylläpitomuokkaukset ovat turvallisia testata localhostissa. Älä kirjoita koskaan tuotantotietokantaan testitarkoituksessa. Tietokantamuutokset: ensin paikalliseen, sitten tuotantoon (käyttäjä ajaa).
 
 ## Dokumentaation ylläpito (pakollinen)
 
