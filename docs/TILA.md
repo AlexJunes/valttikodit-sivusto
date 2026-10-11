@@ -16,7 +16,7 @@
 | `kohde_test.html` | – | – | – | 0 | 0 | – | – | 0 |
 | `kohteet.html` | Myytävät kohteet \| Valttikodit | 118 | kyllä | 7 | 1 | – | – | 0 |
 | `ostamme-tontteja.html` | Ostamme tontteja \| Valttikodit | 141 | kyllä | 7 | 1 | – | https://api.web3forms.com/submit | 0 |
-| `referenssit.html` | Referenssit \| Valttikodit | 141 | kyllä | 7 | 1 | – | – | 0 |
+| `referenssit.html` | Sudenkorento 6 A ja B, Liminka \| Referenssi \| Valttikodit | 183 | kyllä | 7 | 1 | kyllä | https://api.web3forms.com/submit | 0 |
 | `tarinamme.html` | Tarinamme \| Valttikodit | 123 | kyllä | 7 | 1 | – | – | 34 |
 | `tietosuojaseloste.html` | Tietosuojaseloste \| Valttikodit | 111 | kyllä | 7 | 1 | – | – | 0 |
 | `yhteys.html` | Ota yhteyttä \| Valttikodit | 117 | kyllä | 7 | 1 | – | https://api.web3forms.com/submit | 7 |
