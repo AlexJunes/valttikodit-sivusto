@@ -18,7 +18,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/style.css?v=42567097">
+    <link rel="stylesheet" href="assets/css/style.css?v=4152f429">
     
     <!-- Supabase JS needed for rendering public pages dynamically -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
@@ -50,10 +50,15 @@
     </header>
 
     <main>
-        <div class="container" style="padding: 4rem 1.5rem; max-width: 800px;" data-aos="fade-up">
-            <h1 style="margin-bottom: 1rem;" data-cms="Tarinamme Otsikko"></h1>
-            <p class="lead mb-8" data-cms="Tarinamme Ingressi">
-            </p>
+        <section class="page-intro" data-aos="fade-up">
+            <div class="container container--narrow">
+                <span class="eyebrow">Tarinamme</span>
+                <h1 data-cms="Tarinamme Otsikko"></h1>
+                <p class="lead" data-cms="Tarinamme Ingressi"></p>
+            </div>
+        </section>
+
+        <div class="container container--narrow" style="padding-top: 0; padding-bottom: 4rem;" data-aos="fade-up">
 
             <!-- Tähän tulee kuva jos se on asetettu adminissa! -->
             <img data-cms="Tarinan Kuva" src="" style="width: 100%; max-height: 500px; object-fit: cover; border-radius: 8px; margin-bottom: 2.5rem; display: none; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);">
@@ -74,7 +79,7 @@
         </div>
 
         <!-- 1. Arvot (Values) -->
-        <section style="background-color: var(--card-bg); padding: 5rem 1.5rem; margin-top: 4rem;" data-aos="fade-up">
+        <section class="section section--white" data-aos="fade-up">
             <div class="container" style="max-width: 800px; text-align: center;">
                 <h2 style="font-size: 2rem; margin-bottom: 2rem; color: var(--primary);" data-cms="Arvot Otsikko"></h2>
                 <blockquote style="font-size: 1.5rem; font-style: italic; color: var(--text-color); margin-bottom: 2rem; line-height: 1.6;" data-cms="Arvot Lainaus">
@@ -84,7 +89,7 @@
         </section>
 
         <!-- 2. Tiimi (Team) -->
-        <section style="padding: 6rem 1.5rem;" data-aos="fade-up">
+        <section class="section" data-aos="fade-up">
             <div class="container">
                 <h2 style="font-size: 2.25rem; margin-bottom: 3rem; text-align: center;" data-cms="Tiimi Otsikko"></h2>
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 2rem;">
@@ -117,7 +122,7 @@
         </section>
 
         <!-- 3. Prosessi (Process Timeline) -->
-        <section style="background-color: var(--card-bg); padding: 6rem 1.5rem;" data-aos="fade-up">
+        <section class="section section--white" data-aos="fade-up">
             <div class="container">
                 <h2 style="font-size: 2.25rem; margin-bottom: 4rem; text-align: center;" data-cms="Prosessi Otsikko"></h2>
                 

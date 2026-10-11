@@ -18,7 +18,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/style.css?v=42567097">
+    <link rel="stylesheet" href="assets/css/style.css?v=4152f429">
     <!-- Supabase CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
     
@@ -50,18 +50,25 @@
     </header>
 
     <main>
-        <div class="container" style="padding: 4rem 1.5rem;" data-aos="fade-up">
-            <h1 style="margin-bottom: 1rem;">Myytävät kohteet</h1>
-            <p class="lead mb-8">
-                Tutustu uusiin ja rakenteilla oleviin Valttikoteihin. Varaamalla ajoissa varmistat
+        <section class="page-intro" data-aos="fade-up">
+            <div class="container">
+                <span class="eyebrow">Kohteet</span>
+                <h1>Myytävät kohteet</h1>
+                <p class="lead">
+                    Tutustu uusiin ja rakenteilla oleviin Valttikoteihin. Varaamalla ajoissa varmistat
                 rakentamisen aloituksen ja pääset vaikuttamaan tulevan kotisi sisustukseen.
-            </p>
+                </p>
+            </div>
+        </section>
 
+        <section class="section" style="padding-top: 1rem;">
+            <div class="container">
             <div class="card-grid" id="project-list" data-aos="fade-up" data-aos-delay="200">
                 <!-- Dynaamiset kohteet haetaan Supabasesta (main.js) -->
                 <p>Ladataan kohteita...</p>
             </div>
-        </div>
+            </div>
+        </section>
     </main>
 
     <footer class="site-footer" style="margin-top: 0; background-color: #f7f5f0; border-top: none; padding-top: 5rem;">
