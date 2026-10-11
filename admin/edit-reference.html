@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="fi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Muokkaa referenssiä | Valttikodit Admin</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/admin.css">
+    <!-- Supabase CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+</head>
+
+<body class="admin-layout">
+
+    <aside class="admin-sidebar" id="sidebar">
+        <div class="admin-brand">Valttikodit Admin</div>
+        <nav class="admin-nav">
+            <a href="dashboard.html">Liidit<span id="unread-leads-badge" style="display:none; color:#ef4444; font-weight:600; margin-left:4px;"></span></a>
+            <a href="projects.html">Kohteet</a>
+            <a href="references.html" class="active">Referenssit</a>
+            <a href="pages.html">Sivut</a>
+            <a href="users.html">Käyttäjät</a>
+            <a href="analytics.html">Analytiikka</a>
+        </nav>
+        <div style="padding: 1rem; border-top: 1px solid var(--border);">
+            <div id="sidebar-user-email"
+                style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">
+                Ladataan...</div>
+        </div>
+    </aside>
+
+    <main class="admin-main">
+        <div style="margin-bottom: 1.5rem;">
+            <a href="references.html" style="font-size: 0.875rem; color: var(--text-muted);">&larr; Takaisin referensseihin</a>
+            <h1 style="font-size: 1.875rem; margin-top: 0.5rem;" id="ref-page-title">Uusi referenssi</h1>
+        </div>
+
+        <form id="ref-edit-form" class="ref-admin-form" novalidate>
+            <div class="admin-card ref-sec">
+                <h2>Perustiedot</h2>
+                <div class="row-grid">
+                    <div class="form-group"><label class="form-label" for="f-title">Otsikko *</label><input class="form-input" id="f-title" required placeholder="esim. Sudenkorento 6 A ja B"></div>
+                    <div class="form-group"><label class="form-label" for="f-slug">Polkutunniste (URL)</label><input class="form-input" id="f-slug" placeholder="täyttyy otsikosta"><small>Käytetään osoitteessa referenssi.html?r=tunniste. Älä vaihda julkaisun jälkeen.</small></div>
+                </div>
+                <div class="row-grid">
+                    <div class="form-group"><label class="form-label" for="f-location">Sijainti</label><input class="form-input" id="f-location" placeholder="esim. Liminka"></div>
+                    <div class="form-group"><label class="form-label" for="f-year">Valmistumisvuosi</label><input class="form-input" id="f-year" placeholder="esim. 2026"></div>
+                </div>
+                <div class="form-group"><label class="form-label" for="f-tagline">Pääotsikon ingressi (heron teksti)</label><textarea class="form-input" id="f-tagline" rows="2" placeholder="1-2 virkettä, jotka vakuuttavat heti"></textarea></div>
+                <div class="form-group"><label class="form-label" for="f-summary">Lyhyt kuvaus listakorttiin</label><textarea class="form-input" id="f-summary" rows="2" placeholder="Näkyy Referenssit-sivun kortissa"></textarea></div>
+                <div class="form-group"><label class="form-label" for="f-meta">Hakukonekuvaus (valinnainen, enintään 160 merkkiä)</label><textarea class="form-input" id="f-meta" rows="2"></textarea></div>
+                <div class="row-grid">
+                    <div class="form-group"><label class="form-label" for="f-related">Linkki myytävään kohteeseen (valinnainen)</label><input class="form-input" id="f-related" list="projects-list" placeholder="kohteen polkutunniste, esim. kotiranta"><datalist id="projects-list"></datalist></div>
+                    <div class="form-group"><label class="form-label" for="f-order">Järjestys (pienin ensin)</label><input class="form-input" id="f-order" type="number" value="0"></div>
+                </div>
+                <label class="check"><input type="checkbox" id="f-published"> Julkaistu (näkyy julkisesti)</label>
+            </div>
+
+            <div class="admin-card ref-sec">
+                <h2>Pääkuva (hero)</h2>
+                <p class="hint">Suositus: vaakasuuntainen kuva, jossa on rauhallinen alue tekstille. Kuva pienennetään automaattisesti.</p>
+                <div class="img-slot" data-slot="hero_image"></div>
+            </div>
+
+            <div class="admin-card ref-sec">
+                <h2>Tunnusluvut (enintään 4)</h2>
+                <p class="hint">Esim. arvo "82,5 m²" ja selite "4 huonetta, keittiö ja sauna". Jätä tyhjäksi, jos et tarvitse.</p>
+                <div id="facts-rows" class="rows"></div>
+            </div>
+
+            <div class="admin-card ref-sec">
+                <h2>Tarina</h2>
+                <div class="form-group"><label class="form-label" for="f-story-title">Otsikko</label><input class="form-input" id="f-story-title" placeholder="esim. Koti, johon on varaa ja jossa arki toimii"></div>
+                <div class="form-group"><label class="form-label" for="f-story-text">Teksti</label><textarea class="form-input" id="f-story-text" rows="9" placeholder="Kirjoita tarina. Kappaleet erotetaan tyhjällä rivillä."></textarea></div>
+                <p class="hint" style="margin-bottom:.5rem;">Tarinan kuva (valinnainen)</p>
+                <div class="img-slot" data-slot="story_image"></div>
+            </div>
+
+            <div class="admin-card ref-sec">
+                <h2>Lainaus (valinnainen)</h2>
+                <div class="form-group"><label class="form-label" for="f-quote">Lainaus</label><textarea class="form-input" id="f-quote" rows="3" placeholder="Esim. asiakkaan tai toimitusjohtajan lausunto (käytä vain luvan kanssa)"></textarea></div>
+                <div class="form-group"><label class="form-label" for="f-quote-author">Kuka sanoi</label><input class="form-input" id="f-quote-author" placeholder="Nimi, titteli"></div>
+            </div>
+
+            <div class="admin-card ref-sec">
+                <h2>Galleria</h2>
+                <p class="hint">Lisää kuvia (voit valita useita kerralla). Kuvaus (alt) auttaa hakukoneita ja ruudunlukijoita. Järjestä nuolilla.</p>
+                <div id="gallery-rows" class="gallery-admin"></div>
+                <label class="btn btn-outline" style="margin-top:1rem; cursor:pointer;">+ Lisää kuvia<input type="file" id="gallery-add" accept="image/*" multiple style="display:none;"></label>
+            </div>
+
+            <div class="admin-card ref-sec">
+                <h2>Ratkaisut (enintään 6)</h2>
+                <p class="hint">Kortit "Ratkaisut, jotka tekevät arjesta sujuvaa" -osioon.</p>
+                <div id="features-rows" class="rows"></div>
+                <button type="button" class="btn btn-outline" id="features-add" style="margin-top:.75rem;">+ Lisää ratkaisu</button>
+            </div>
+
+            <div class="admin-card ref-sec">
+                <h2>Sijainti</h2>
+                <div class="form-group"><label class="form-label" for="f-loc-title">Otsikko</label><input class="form-input" id="f-loc-title" placeholder="esim. Maaseudun rauha, keskustan palvelut"></div>
+                <div class="form-group"><label class="form-label" for="f-loc-text">Teksti</label><textarea class="form-input" id="f-loc-text" rows="6" placeholder="Kappaleet erotetaan tyhjällä rivillä."></textarea></div>
+                <p class="hint" style="margin-bottom:.5rem;">Sijaintikuva (valinnainen)</p>
+                <div class="img-slot" data-slot="location_image"></div>
+            </div>
+
+            <div class="admin-card ref-sec">
+                <h2>Kohteen tiedot</h2>
+                <p class="hint">Rivit taulukkoon "Kohteen tiedot lyhyesti" (esim. Energialuokka: A).</p>
+                <div id="specs-rows" class="rows"></div>
+                <button type="button" class="btn btn-outline" id="specs-add" style="margin-top:.75rem;">+ Lisää rivi</button>
+            </div>
+
+            <div class="ref-savebar">
+                <span id="ref-status" role="status"></span>
+                <button type="button" class="btn btn-outline" id="ref-preview">Tallenna ja esikatsele</button>
+                <button type="submit" class="btn btn-primary" id="ref-save">Tallenna</button>
+            </div>
+        </form>
+    </main>
+
+    <script>window.REF_ICON_OPTIONS = '<option value="sun">Aurinko (valo)</option><option value="layout">Tila / pohjaratkaisu</option><option value="home">Koti / säilytys</option><option value="euro">Hinta / kulut</option><option value="access">Esteettömyys / ihminen</option><option value="pin">Sijainti</option><option value="leaf">Ekologisuus</option><option value="key">Avain / valinnat</option><option value="shield">Turva / laatu</option><option value="heart">Viihtyisyys</option>';</script>
+    <script src="../assets/js/admin.js"></script>
+    <script src="../assets/js/admin-references.js"></script>
+</body>
+
+</html>

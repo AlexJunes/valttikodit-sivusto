@@ -81,7 +81,7 @@ def prod_public(table):
 def main():
     secret = local_keys()
     print('1/6 Poistetaan vanhat testitaulut ja luodaan rakenne...')
-    psql('DROP TABLE IF EXISTS public.admin_users, public.leads, public.page_views, public.pages, public.projects, public.report_tokens CASCADE;'
+    psql('DROP TABLE IF EXISTS public.admin_users, public.leads, public.page_views, public.pages, public.projects, public.report_tokens, public.reference_cases CASCADE;'
          'DROP FUNCTION IF EXISTS public.is_site_admin() CASCADE; DROP FUNCTION IF EXISTS public.report_weekly(text) CASCADE;'
          'DROP POLICY IF EXISTS images_public_read ON storage.objects; DROP POLICY IF EXISTS images_admin_insert ON storage.objects;'
          'DROP POLICY IF EXISTS images_admin_update ON storage.objects; DROP POLICY IF EXISTS images_admin_delete ON storage.objects;')
@@ -90,6 +90,10 @@ def main():
     print('2/6 Ajetaan oikeussäännöt ja raporttifunktio migraatioista...')
     psql(open(os.path.join(ROOT, 'supabase', 'migrations', '2026-10-10_secure_rls.sql'), encoding='utf-8').read())
     psql(open(os.path.join(ROOT, 'supabase', 'migrations', '2026-10-10_report_weekly.sql'), encoding='utf-8').read().replace('<AVAIN>', LOCAL_REPORT_TOKEN))
+
+    print('2b/6 Luodaan referenssitaulu ja esimerkkireferenssi...')
+    for f in ('2026-10-11_reference_cases.sql', '2026-10-11_seed_sudenkorento.sql'):
+        psql(open(os.path.join(ROOT, 'supabase', 'migrations', f), encoding='utf-8').read())
 
     print('3/6 Kopioidaan tuotannon julkinen sisältö (kohteet, sivut)...')
     for table in ('projects', 'pages'):
@@ -132,7 +136,7 @@ FROM generate_series(1, 60) g;
     os.chmod(SECRETS_FILE, 0o600)
 
     print('6/6 Tarkistus...')
-    print(psql("SELECT 'projects' t, count(*) FROM public.projects UNION ALL SELECT 'pages', count(*) FROM public.pages UNION ALL SELECT 'leads', count(*) FROM public.leads UNION ALL SELECT 'page_views', count(*) FROM public.page_views UNION ALL SELECT 'admin_users', count(*) FROM public.admin_users;"))
+    print(psql("SELECT 'projects' t, count(*) FROM public.projects UNION ALL SELECT 'pages', count(*) FROM public.pages UNION ALL SELECT 'leads', count(*) FROM public.leads UNION ALL SELECT 'page_views', count(*) FROM public.page_views UNION ALL SELECT 'admin_users', count(*) FROM public.admin_users UNION ALL SELECT 'reference_cases', count(*) FROM public.reference_cases;"))
     print('Valmis. Testiylläpitäjän tunnukset: ' + SECRETS_FILE)
 
 

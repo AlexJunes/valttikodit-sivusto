@@ -23,6 +23,7 @@ Pysäytys: `supabase stop`. Tyhjennys ja uudelleenluonti: aja `python3 scripts/l
 
 ## Mitä testitietokannassa on
 - Rakenne = tuotannon todellinen rakenne (`supabase/local/schema.sql`, tarkistettu 11.10.2026) + samat oikeussäännöt kuin tuotannossa (migraatiot `supabase/migrations/`).
+- Esimerkkireferenssi (Sudenkorento 6 A ja B) migraatioista `2026-10-11_*.sql`.
 - Kopio tuotannon **julkisesta** sisällöstä: julkaistut kohteet ja sivutekstit. Kuvat luetaan tuotannon Storagesta (vain luku).
 - **Keksityt** testiliidit ja -katselut. Asiakkaiden oikeita liidejä ei koskaan kopioida.
 - Testiylläpitäjä `admin@valttikodit.test`. Salasana: `~/Claude/valttikodit-salaiset/local_admin.txt` (repon ulkopuolella). Ensimmäisellä kirjautumisella (http://localhost:8099/admin/login.html) pyydetään kaksivaiheisen tunnistautumisen rekisteröinti: skannaa QR-koodi omalla Authenticator-sovelluksella.

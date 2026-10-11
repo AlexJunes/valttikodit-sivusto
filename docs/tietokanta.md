@@ -13,6 +13,7 @@ Projekti: `xbeonksexpjvekqjxoph`. Taulujen ja koodin käyttötavat luetellaan au
 | `leads` | Yhteydenotot (nimi, sähköposti, puhelin, viesti, tila UUSI/KÄSITELTY). **Henkilötietoja.** |
 | `page_views` | Oma analytiikka (polku, laite, viittaaja, anonyymi sessio). |
 | `admin_users` | Ylläpitäjät. Sähköposti tässä taulussa = ylläpito-oikeus (`is_site_admin()`). |
+| `reference_cases` | Referenssitarinat (migraatio `2026-10-11_reference_cases.sql`). Sama sivupohja kaikille; sisältö (tekstit, tunnusluvut, galleria, ratkaisut, tiedot) JSONB-kenttinä. Julkinen näkee vain `published = true`; ylläpito hallitsee (`is_site_admin()`). Kuvat Storage-bucketissa `images` polussa `references/<slug>/`. |
 | `report_tokens` | Viikkoraportin avaimen tiiviste (yksi rivi, ei näy suoraan kenellekään). |
 
 **Toisen sovelluksen taulut samassa projektissa** (ei kuulu tähän sivustoon, älä koske): `contractors`, `labor_logs`, `project_billing`, `project_costs`, `project_files`, `project_phases`, `safety_inspections`, `site_diaries`, `tasks`.
@@ -31,6 +32,10 @@ Migraatio: `supabase/migrations/2026-10-10_secure_rls.sql`.
 - Supabase Auth: **rekisteröityminen on pois päältä** (Authentication → Sign In / Providers). Uudet ylläpitäjät kutsutaan Supabase Authin kautta ja lisätään `admin_users`-tauluun.
 
 Tunnettu rajoitus: MFA (`aal2`) vaaditaan vain selaimessa, ei RLS:ssä.
+
+## Referenssit (reference_cases)
+
+Migraatio: `supabase/migrations/2026-10-11_reference_cases.sql`; esimerkkiaineisto (Sudenkorento 6 A ja B): `2026-10-11_seed_sudenkorento.sql` (kuvapolut ovat repon suhteellisia polkuja `assets/img/referenssit/...`). Tuotantoon: aja ensin taulumigraatio, sitten halutessasi seed. Referenssejä lisätään ylläpidosta (`admin/references.html`); kuvat pienennetään selaimessa (max 2000/1800 px, JPEG) ennen Storage-latausta. Julkaisematon referenssi näkyy esikatseluna vain kirjautuneelle ylläpitäjälle.
 
 ## Viikkoraportin funktio
 

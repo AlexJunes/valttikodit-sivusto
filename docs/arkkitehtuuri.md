@@ -23,6 +23,10 @@ Elementti `data-cms="Avain"` täytetään taulun `pages` JSONB-sisällöstä (ri
 
 Taulu `projects`. Julkaistut (`published = true`) näkyvät julkisesti. Tilat: `MARKETING`, `AVAILABLE`, `CONSTRUCTION` (näyttää valmiusasteen palkkina, `details['Valmiusaste (%)']`), `RESERVED` ja `SOLD` (varausnappi poistetaan, SOLD siirtyy "Myydyt kohteet" -lohkoon). Kohdesivu: kuvakaruselli + lightbox, Google Maps iframe (`details['Google Maps Embed']`), materiaalipaketti/PDF, SEO-schema (`SingleFamilyResidence`) generoidaan dynaamisesti.
 
+## Referenssit
+
+Taulu `reference_cases` (ks. `tietokanta.md`). **Lista:** `referenssit.html` (ensimmäinen referenssi isona nostona, loput ruudukkona; skaalautuu 1..N referenssiin). **Yksittäinen sivu:** `referenssi.html?r=<slug>`, jonka kaikki sivut renderöi `assets/js/references.js` samasta pohjasta (hero, tunnusluvut, tarina, lainaus, galleria, ratkaisut, yhteinen prosessiosio, sijainti, tiedot, muut referenssit, yhteydenottolomake). Tyhjät osiot jätetään pois. Meta-tagit, canonical ja JSON-LD luodaan JavaScriptillä (kuten kohdesivulla). **Ylläpito:** `admin/references.html` (lista, järjestys, julkaisu) ja `admin/edit-reference.html` (lomake, kuvien lataus), logiikka `assets/js/admin-references.js`. **Sitemap:** lisää uusi referenssi käsin muodossa `https://www.valttikodit.fi/referenssi.html?r=<slug>` (puhdasta osoitetta ei ole).
+
 ## Lomakkeet ja liidit
 
 `yhteys.html`, kohteen varaus- ja materiaalilomake sekä uutiskirje: tallennus Supabaseen (`leads`, tila `UUSI`/`KÄSITELTY`) **ja** Web3Forms-sähköposti. Supabase-kirjoitus odotetaan ennen ohjausta kiitossivulle; sähköposti lähetetään taustalla.

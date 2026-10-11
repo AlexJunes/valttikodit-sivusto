@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="fi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Referenssit | Valttikodit Admin</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/admin.css">
+    <!-- Supabase CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+</head>
+
+<body class="admin-layout">
+
+    <aside class="admin-sidebar" id="sidebar">
+        <div class="admin-brand">Valttikodit Admin</div>
+        <nav class="admin-nav">
+            <a href="dashboard.html">Liidit<span id="unread-leads-badge" style="display:none; color:#ef4444; font-weight:600; margin-left:4px;"></span></a>
+            <a href="projects.html">Kohteet</a>
+            <a href="references.html" class="active">Referenssit</a>
+            <a href="pages.html">Sivut</a>
+            <a href="users.html">Käyttäjät</a>
+            <a href="analytics.html">Analytiikka</a>
+        </nav>
+        <div style="padding: 1rem; border-top: 1px solid var(--border);">
+            <div id="sidebar-user-email"
+                style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">
+                Ladataan...</div>
+        </div>
+    </aside>
+
+    <main class="admin-main">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; gap: 1rem; flex-wrap: wrap;">
+            <div>
+                <h1 style="font-size: 1.875rem; margin-bottom: 0.25rem;">Referenssit</h1>
+                <p style="color: var(--text-muted); font-size: 0.9375rem;">Referenssit näkyvät sivulla <a href="../referenssit.html" target="_blank" style="display:inline; text-decoration: underline;">Referenssit</a>. Kaikilla on sama sivupohja: täytä vain tiedot ja kuvat.</p>
+            </div>
+            <div style="display: flex; gap: 1rem;">
+                <button class="btn btn-outline" id="ref-save-order" style="display: none;">Tallenna järjestys</button>
+                <button class="btn btn-primary" onclick="window.location.href='edit-reference.html'">Lisää uusi referenssi</button>
+            </div>
+        </div>
+
+        <div class="admin-card" style="padding: 0; overflow-x: auto;">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Otsikko</th>
+                        <th>Sijainti</th>
+                        <th>Julkaistu</th>
+                        <th style="text-align: right;">Toiminnot</th>
+                    </tr>
+                </thead>
+                <tbody id="ref-admin-list">
+                    <tr><td colspan="4">Ladataan...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <script src="../assets/js/admin.js"></script>
+    <script src="../assets/js/admin-references.js"></script>
+</body>
+
+</html>

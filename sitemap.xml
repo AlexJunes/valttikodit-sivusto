@@ -20,7 +20,22 @@
     <lastmod>2026-05-03</lastmod>
     <priority>0.8</priority>
   </url>
-  <!-- Kohdesivut: päivitä käsin, kun kohteita julkaistaan tai poistetaan (slug = admin-paneelin tunnus). Käytä kohde.html?kohde=<slug>: /kohteet/<slug> palauttaa HTTP 404 (GitHub Pages) eikä hakukone indeksoi sitä -->
+  <url>
+    <loc>https://www.valttikodit.fi/referenssit.html</loc>
+    <lastmod>2026-10-11</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.valttikodit.fi/referenssi.html?r=sudenkorento-6-a-ja-b</loc>
+    <lastmod>2026-10-11</lastmod>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.valttikodit.fi/ostamme-tontteja.html</loc>
+    <lastmod>2026-10-11</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <!-- Kohdesivut: päivitä käsin, kun kohteita tai referenssejä julkaistaan tai poistetaan (slug = admin-paneelin tunnus). Käytä kohde.html?kohde=<slug>: /kohteet/<slug> palauttaa HTTP 404 (GitHub Pages) eikä hakukone indeksoi sitä -->
   <url>
     <loc>https://www.valttikodit.fi/kohde.html?kohde=kotiranta</loc>
     <lastmod>2026-10-10</lastmod>

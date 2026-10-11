@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="fi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Referenssit | Valttikodit</title>
+    <meta name="description" content="Tutustu Valttikotien valmistuneisiin koteihin ja niiden tarinoihin Pohjois-Pohjanmaalla. Laadukkaita, toimivia ja kohtuuhintaisia pientaloja.">
+    <link rel="canonical" href="https://www.valttikodit.fi/referenssit.html">
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="fi_FI">
+    <meta property="og:site_name" content="Valttikodit">
+    <meta property="og:title" content="Referenssit | Valttikodit">
+    <meta property="og:description" content="Tutustu Valttikotien valmistuneisiin koteihin ja niiden tarinoihin Pohjois-Pohjanmaalla. Laadukkaita, toimivia ja kohtuuhintaisia pientaloja.">
+    <meta property="og:url" content="https://www.valttikodit.fi/referenssit.html">
+    <meta property="og:image" content="https://www.valttikodit.fi/assets/img/referenssit/sudenkorento/sk-0099-1600.jpg">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/style.css">
+
+    <!-- Supabase JS needed for rendering public pages dynamically -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+
+    <!-- AOS Animaatiot -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+</head>
+<body>
+
+    <header class="site-header">
+        <div class="container header-inner" style="display: flex; justify-content: space-between; align-items: center;">
+            <a href="/" class="logo">Valttikodit</a>
+
+            <button class="mobile-menu-btn" aria-label="Avaa valikko">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
+
+            <nav class="nav-links">
+                <a href="/kohteet">Myytävät kohteet</a>
+                <a href="/referenssit" style="color: var(--primary); font-weight: 600;">Referenssit</a>
+                <a href="/ostamme-tontteja">Ostamme tontteja</a>
+                <a href="/tarinamme">Tarinamme</a>
+                <a href="/yhteys">Ota yhteyttä</a>
+            </nav>
+        </div>
+    </header>
+
+    
+    
+    <main>
+        <section class="page-intro" data-aos="fade-up">
+            <div class="container" style="max-width: 800px;">
+                <span class="eyebrow">Referenssit</span>
+                <h1 data-cms="Otsikko" style="margin-bottom: 1.5rem;">Kodit, jotka on rakennettu elämää varten</h1>
+                <p data-cms="Ingressi" class="lead">Tutustu valmistuneisiin kohteisiimme ja niiden tarinoihin. Jokaisen taustalla on sama ajatus: laadukas, toimiva ja kohtuuhintainen koti, jossa arki sujuu.</p>
+            </div>
+        </section>
+
+        <section class="section" style="padding-top: 1rem;">
+            <div class="container">
+                <div id="ref-list" class="ref-list" aria-live="polite"><p class="ref-empty">Ladataan referenssejä...</p></div>
+            </div>
+        </section>
+
+        <section class="cta-band" data-aos="fade-up">
+            <div class="container" style="max-width: 800px;">
+                <h2 data-cms="Loppuosio Otsikko">Löydä oma kotisi</h2>
+                <p data-cms="Loppuosio Teksti">Tutustu myytäviin kohteisiimme tai ota yhteyttä – kerromme mielellämme, miten oma kotisi rakentuu.</p>
+                <div class="cta-actions">
+                    <a href="/kohteet" class="btn btn-light">Katso myytävät kohteet</a>
+                    <a href="/yhteys" class="btn btn-ghost-light">Ota yhteyttä</a>
+                </div>
+            </div>
+        </section>
+    </main>
+<footer class="site-footer" style="margin-top: 0; background-color: #f7f5f0; border-top: none; padding-top: 5rem;">
+        <div class="container">
+            <div class="footer-grid">
+                <div>
+                    <strong style="display: block; margin-bottom: 1.5rem; font-size: 1.25rem;">Valttikodit Oy</strong>
+                    <p class="text-muted" style="font-size: 0.875rem; line-height: 1.8;"><span data-global-cms="Alatunniste: Osoite"></span><br><span data-global-cms="Alatunniste: Postitoimipaikka"></span></p>
+                    <p class="text-muted" style="font-size: 0.875rem; margin-top: 1rem; line-height: 1.8;"><a
+                            href="" data-global-cms="Alatunniste: Sähköposti"></a><br><a
+                            href="" data-global-cms="Alatunniste: Puhelinnumero"></a></p>
+                </div>
+                <div>
+                    <strong style="display: block; margin-bottom: 1.5rem; font-size: 1.125rem;">Linkit</strong>
+                    <ul style="font-size: 0.875rem; line-height: 2.5;">
+                        <li><a href="/kohteet" class="text-muted">Myytävät kohteet</a></li>
+                        <li><a href="/referenssit" class="text-muted">Referenssit</a></li>
+                        <li><a href="/ostamme-tontteja" class="text-muted">Ostamme tontteja</a></li>
+                        <li><a href="/tarinamme" class="text-muted">Tarinamme</a></li>
+                        <li><a href="/yhteys" class="text-muted">Ota yhteyttä</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <strong style="display: block; margin-bottom: 1.5rem; font-size: 1.125rem;">Seuraa meitä</strong>
+                    <ul style="font-size: 0.875rem; line-height: 2.5;">
+                        <li><a href="#" class="text-muted" data-global-cms="Alatunniste: Instagram-linkki" data-icon-only="false">Instagram</a></li>
+                        <li><a href="#" class="text-muted" data-global-cms="Alatunniste: Facebook-linkki" data-icon-only="false">Facebook</a></li>
+                        <li><a href="#" class="text-muted" data-global-cms="Alatunniste: LinkedIn-linkki" data-icon-only="false">LinkedIn</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div
+                style="border-top: 1px solid rgba(0,0,0,0.1); padding-top: 2rem; font-size: 0.875rem; color: var(--text-muted); display: flex; justify-content: space-between; margin-top: 2rem;">
+                <span>© 2026 Valttikodit Oy. Kaikki oikeudet pidätetään.</span>
+                <a href="tietosuojaseloste.html" style="text-decoration: underline;">Tietosuojaseloste</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Footer scripts -->
+    <script src="assets/js/config.js"></script>
+    <script src="assets/js/main.js" defer></script>
+    <script src="assets/js/references.js" defer></script>
+
+    <!-- AOS JS -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            AOS.init({
+                once: true,
+                offset: 50,
+                duration: 800,
+                easing: 'ease-out-cubic'
+            });
+        });
+    </script>
+</body>
+</html>

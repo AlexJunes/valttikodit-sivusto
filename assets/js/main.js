@@ -40,6 +40,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (cleanPath.includes('kohde.html') && kohdeParam) {
             cleanPath = cleanPath + '?kohde=' + kohdeParam;
         }
+        const referenssiParam = urlParamsAnalytics.get('r');
+        if (cleanPath.includes('referenssi.html') && referenssiParam) {
+            cleanPath = cleanPath + '?r=' + referenssiParam;
+        }
         
         // 1. Sessiotunniste (Vain jos analytiikka on sallittu)
         let sessionId = null;
@@ -389,11 +393,14 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (typeof supabase !== 'undefined') {
                 try {
                     let sourceInfo = formData.get('source') ? `LÄHDE: ${formData.get('source')}\n\n` : '';
+                    // Lomakkeen lisäkentät (data-extra-label) liitetään liidin viestiin
+                    const extraLines = Array.from(contactForm.querySelectorAll('[data-extra-label]')).map(el => { const v = formData.get(el.name); return v ? `${el.getAttribute('data-extra-label')}: ${v}` : ''; }).filter(Boolean);
+                    const extraInfo = extraLines.length ? extraLines.join('\n') + '\n\n' : '';
                     await supabase.from('leads').insert([{
                         name: formData.get('name'),
                         email: formData.get('email'),
                         phone: formData.get('phone') || '',
-                        message: `${sourceInfo}${formData.get('message') || ''}`
+                        message: `${sourceInfo}${extraInfo}${formData.get('message') || ''}`
                     }]);
                 } catch(err) {
                     console.error('Supabase DB error:', err);
