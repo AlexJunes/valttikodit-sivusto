@@ -54,3 +54,7 @@ Kaikilla julkisilla sivuilla on meta description, canonical (www) ja OG-tagit. K
 ## Myy tonttisi (myy-tonttisi.html)
 
 Tonttien hankintasivu (aiemmin "Ostamme tontteja", `ostamme-tontteja.html`, joka on nyt vain ohjaussivu uuteen osoitteeseen). Rakenne: ilmakuvahero (`.hero-myy` + `assets/img/myy-tonttisi/`), tunnusluvut, kaksi tapaa myydä (suora kauppa / yhteistyö), mitä etsimme, edut, prosessi, referenssiohjaus, UKK ja tonttilomake (Web3Forms, lähde "Myy tonttisi -sivu"; lisäkentät `data-extra-label` liitetään liidin viestiin). Tekstit ovat ylläpidosta muokattavia (`data-cms`, sivu `myy-tonttisi`, oletukset `defaultSchemas` admin.js:ssä).
+
+## Yhteinen sivurunko ja ulkoasu
+
+Kaikilla sivuilla on sama rytmi: **kuvahero** (`.hero` etusivulla, `.ref-hero` referenssi- ja tonttisivulla; korkeus `clamp(480px, 70vh, 780px)`, h1 enintaan 3.75rem) tai **perussivun otsikkoalue** `.page-intro` (pikkuotsikko `.eyebrow`, h1 enintaan 3rem, ingressi; vasen tasaus). Lukusivut (Tarinamme, Tietosuoja) kayttavat leveytta `.container--narrow` (800 px). Osiot kayttavat luokkia `.section`, `.section--white`, `.section--alt` (5rem / mobiilissa 3.5rem); `.py-16` on samat arvot. Uusi sivu: kopioi `.page-intro`-rakenne esim. `kohteet.html`:sta. Huom. `yhteys.html`:ssa ylläpidon "Kuvaus"-kentan arvo voi olla kuva-URL (renderoidaan kuvaksi), joten otsikko ja kuvaus pysyvat vasemmassa sarakkeessa.
