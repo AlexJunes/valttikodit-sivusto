@@ -107,7 +107,7 @@ def main():
     psql("""
 INSERT INTO public.leads (name, email, phone, message, status) VALUES
  ('Testi Henkilö', 'testi1@example.test', '040 000 0001', E'LÄHDE: Ota yhteyttä -sivu\\n\\nTämä on keksitty testiliidi.', 'UUSI'),
- ('Maija Mallikas', 'testi2@example.test', '040 000 0002', E'LÄHDE: Ostamme tontteja -sivu\\n\\nTontin sijainti: Liminka\\nTontin koko (m²): 1200\\n\\nKeksitty testiliidi.', 'UUSI'),
+ ('Maija Mallikas', 'testi2@example.test', '040 000 0002', E'LÄHDE: Myy tonttisi -sivu\\n\\nTontin sijainti: Liminka, Forsmaninranta 5\\nTontin koko (m²): 1200\\nKaavatilanne: Asemakaavoitettu\\n\\nKeksitty testiliidi.\\nTontilla on vanha varasto, joka on purkukuntoinen.\\n\\nOtattehan yhteyttä iltaisin.', 'UUSI'),
  ('Matti Meikäläinen', 'testi3@example.test', NULL, 'Keksitty käsitelty testiliidi.', 'KÄSITELTY');
 INSERT INTO public.page_views (path, session_id, device_type, referrer, created_at)
 SELECT (ARRAY['/index.html','/kohteet.html','/kohde.html?kohde=saunaranta_a','/yhteys.html','/tarinamme.html'])[1 + (g % 5)],
