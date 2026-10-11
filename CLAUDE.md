@@ -25,7 +25,7 @@ Tuotanto = `main` + tuotanto-Supabase. **Localhost käyttää automaattisesti PA
 ## Dokumentaation ylläpito (pakollinen)
 
 Dokumentaation pitää vastata tuotantotilaa. **Jokaisen muutoksen yhteydessä** (samassa commitissa/PR:ssä):
-1. Aja `python3 scripts/update_docs.py` ja commitoi päivittynyt `docs/TILA.md` (generoitu, älä muokkaa käsin). Tarkistus: `python3 scripts/update_docs.py --check`. Paikallinen git-hook (`.githooks/pre-commit`, ota käyttöön: `git config core.hooksPath .githooks`) tekee tämän automaattisesti; pilvisessioissa se on ajettava käsin.
+1. Aja `python3 scripts/update_docs.py` ja commitoi päivittynyt `docs/TILA.md` (generoitu, älä muokkaa käsin). Tarkistus: `python3 scripts/update_docs.py --check`. **Välimuistin ohitus:** HTML:n CSS/JS-linkeillä on sisältöön perustuva `?v=<hash>` (`scripts/bump_assets.py`), jotta kävijä ei saa uutta HTML:ää vanhalla tyylitiedostolla (GitHub Pages välimuistittaa 10 min). Hook päivittää ne automaattisesti; pilvisessiossa aja `python3 scripts/bump_assets.py` ennen committia. Paikallinen git-hook (`.githooks/pre-commit`, ota käyttöön: `git config core.hooksPath .githooks`) tekee tämän automaattisesti; pilvisessioissa se on ajettava käsin.
 2. Päivitä käsin kirjoitetut selitykset, jos muutos koskee niitä: tietokantamuutos -> `docs/tietokanta.md` (+ migraatiotiedosto), tietoturva -> `docs/tietoturva.md`, arkkitehtuuri/reititys/SEO/CMS -> `docs/arkkitehtuuri.md`, ajastetut agentit -> `docs/agentit.md`.
 3. Mainitse PR-kuvauksessa, mitkä dokumentit päivitettiin.
 Jos muutos tehdään suoraan Supabasessa (käsin) ilman repomuutosta, kirjaa se `docs/tietokanta.md`:hen ja migraatiotiedostoksi.

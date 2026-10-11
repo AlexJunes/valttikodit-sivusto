@@ -1,4 +1,5 @@
 #!/bin/sh
-# Päivittää docs/TILA.md automaattisesti ennen jokaista commitia.
+# Ennen jokaista commitia: (1) päivittää CSS/JS-versiotunnisteet HTML:ssä, (2) päivittää docs/TILA.md.
 root=$(git rev-parse --show-toplevel)
+python3 -I "$root/scripts/bump_assets.py" >/dev/null && git add "$root"/*.html "$root"/admin/*.html
 python3 -I "$root/scripts/update_docs.py" >/dev/null && git add "$root/docs/TILA.md"
