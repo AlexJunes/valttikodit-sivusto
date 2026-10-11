@@ -16,7 +16,8 @@
 | `kohde_test.html` | – | – | – | 0 | 0 | – | – | 0 |
 | `kohteet.html` | Myytävät kohteet \| Valttikodit | 118 | kyllä | 7 | 1 | – | – | 0 |
 | `ostamme-tontteja.html` | Ostamme tontteja \| Valttikodit | 141 | kyllä | 7 | 1 | – | https://api.web3forms.com/submit | 0 |
-| `referenssit.html` | Sudenkorento 6 A ja B, Liminka \| Referenssi \| Valttikodit | 183 | kyllä | 7 | 1 | kyllä | https://api.web3forms.com/submit | 0 |
+| `referenssi.html` | Referenssi \| Valttikodit | 85 | kyllä | 7 | 0 | – | – | 0 |
+| `referenssit.html` | Referenssit \| Valttikodit | 141 | kyllä | 7 | 1 | – | – | 0 |
 | `tarinamme.html` | Tarinamme \| Valttikodit | 123 | kyllä | 7 | 1 | – | – | 34 |
 | `tietosuojaseloste.html` | Tietosuojaseloste \| Valttikodit | 111 | kyllä | 7 | 1 | – | – | 0 |
 | `yhteys.html` | Ota yhteyttä \| Valttikodit | 117 | kyllä | 7 | 1 | – | https://api.web3forms.com/submit | 7 |
@@ -27,6 +28,7 @@
 - `kohde.html`:  | globaalit: Alatunniste: Facebook-linkki, Alatunniste: Instagram-linkki, Alatunniste: LinkedIn-linkki, Alatunniste: Osoite, Alatunniste: Postitoimipaikka, Alatunniste: Puhelinnumero, Alatunniste: Sähköposti
 - `kohteet.html`:  | globaalit: Alatunniste: Facebook-linkki, Alatunniste: Instagram-linkki, Alatunniste: LinkedIn-linkki, Alatunniste: Osoite, Alatunniste: Postitoimipaikka, Alatunniste: Puhelinnumero, Alatunniste: Sähköposti
 - `ostamme-tontteja.html`:  | globaalit: Alatunniste: Facebook-linkki, Alatunniste: Instagram-linkki, Alatunniste: LinkedIn-linkki, Alatunniste: Osoite, Alatunniste: Postitoimipaikka, Alatunniste: Puhelinnumero, Alatunniste: Sähköposti
+- `referenssi.html`:  | globaalit: Alatunniste: Facebook-linkki, Alatunniste: Instagram-linkki, Alatunniste: LinkedIn-linkki, Alatunniste: Osoite, Alatunniste: Postitoimipaikka, Alatunniste: Puhelinnumero, Alatunniste: Sähköposti
 - `referenssit.html`:  | globaalit: Alatunniste: Facebook-linkki, Alatunniste: Instagram-linkki, Alatunniste: LinkedIn-linkki, Alatunniste: Osoite, Alatunniste: Postitoimipaikka, Alatunniste: Puhelinnumero, Alatunniste: Sähköposti
 - `tarinamme.html`: Arvot Henkilö, Arvot Lainaus, Arvot Otsikko, Ensimmäinen Otsikko, Ensimmäinen Teksti, H1 Kuva, H1 Nimi, H1 Titteli, H2 Kuva, H2 Nimi, H2 Titteli, H3 Kuva, H3 Nimi, H3 Titteli, H4 Kuva, H4 Nimi, H4 Titteli, Kolmas Otsikko, Kolmas Teksti, P1 Otsikko, P1 Teksti, P2 Otsikko, P2 Teksti, P3 Otsikko, P3 Teksti, P4 Otsikko, P4 Teksti, Prosessi Otsikko, Tarinamme Ingressi, Tarinamme Otsikko, Tarinan Kuva, Tiimi Otsikko, Toinen Otsikko, Toinen Teksti | globaalit: Alatunniste: Facebook-linkki, Alatunniste: Instagram-linkki, Alatunniste: LinkedIn-linkki, Alatunniste: Osoite, Alatunniste: Postitoimipaikka, Alatunniste: Puhelinnumero, Alatunniste: Sähköposti
 - `tietosuojaseloste.html`:  | globaalit: Alatunniste: Facebook-linkki, Alatunniste: Instagram-linkki, Alatunniste: LinkedIn-linkki, Alatunniste: Osoite, Alatunniste: Postitoimipaikka, Alatunniste: Puhelinnumero, Alatunniste: Sähköposti
@@ -39,19 +41,23 @@
 - `admin/edit-index.html` – Muokkaa: Kotiranta \| Valttikodit Admin
 - `admin/edit-page.html` – Muokkaa Sivua \| Valttikodit Admin
 - `admin/edit-project.html` – Muokkaa: Kotiranta \| Valttikodit Admin
+- `admin/edit-reference.html` – Muokkaa referenssiä \| Valttikodit Admin
 - `admin/login.html` – Admin Kirjautuminen \| Valttikodit
 - `admin/pages.html` – Sivut Hallinta \| Valttikodit Admin
 - `admin/projects.html` – Kohteet Hallinta \| Valttikodit Admin
+- `admin/references.html` – Referenssit \| Valttikodit Admin
 - `admin/users.html` – Käyttäjien Hallinta \| Valttikodit Admin
 
 ## JavaScript: tietokanta- ja selaintallennuskäyttö
 
 | Tiedosto | Taulut (operaatiot) | RPC | Storage | local/sessionStorage-avaimet |
 |---|---|---|---|---|
+| `assets/js/admin-references.js` | projects (select); reference_cases (delete, insert, select, update) | – | images | – |
 | `assets/js/admin.js` | admin_users (delete, insert, select); leads (delete, select, update); page_views (select); pages (insert, select, update); projects (delete, insert, select, update) | – | images | valtti_admin_auth, valtti_admin_login_time |
 | `assets/js/analytics-dashboard.js` | leads (select); page_views (select) | – | – | – |
 | `assets/js/config.js` | – | – | – | – |
 | `assets/js/main.js` | leads (insert); page_views (insert); pages (select); projects (select) | – | – | v_session, valttikodit_cookie_consent |
+| `assets/js/references.js` | reference_cases (select) | – | – | – |
 
 ## Ulkoiset riippuvuudet (isännät HTML:ssä)
 
@@ -93,6 +99,8 @@ Lueteltu tiedostot, jotka on kirjattu repoon. Tuotantoon ne ajetaan käsin Supab
 
 - `2026-10-10_report_weekly.sql` – ==============================================================================
 - `2026-10-10_secure_rls.sql` – ==============================================================================
+- `2026-10-11_reference_cases.sql` – ==============================================================================
+- `2026-10-11_seed_sudenkorento.sql` – Esimerkkidata: ensimmäinen referenssi (Sudenkorento 6 A ja B). Ajetaan vasta kun reference_cases-taulu on luotu.
 
 ## Repon rakenne (ylin taso)
 
@@ -113,6 +121,7 @@ Lueteltu tiedostot, jotka on kirjattu repoon. Tuotantoon ne ajetaan käsin Supab
 - `kohde_test.html`
 - `kohteet.html`
 - `ostamme-tontteja.html`
+- `referenssi.html`
 - `referenssit.html`
 - `robots.txt`
 - `scripts/`

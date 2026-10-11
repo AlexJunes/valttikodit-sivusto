@@ -14,6 +14,10 @@ Dokumentaatio (lue tarvittaessa): `docs/TILA.md` (GENEROITU tuotantotila), `docs
 6. **Henkilötiedot:** liidit (`leads`) sisältävät asiakkaiden nimiä, sähköposteja ja puhelinnumeroita. Raporteissa ja logeissa vain lukumääriä, ei yksittäisiä asiakastietoja.
 7. Kysy ennen kaikkea peruuttamatonta tai ulospäin näkyvää (julkaisu, viestin lähetys, poisto).
 
+## Referenssit
+
+Referenssit ovat ylläpidosta hallittavia (taulu `reference_cases`, sivut `referenssit.html` + `referenssi.html?r=slug`, ylläpito `admin/references.html`). Älä tee referenssisivuja käsin HTML:nä; muutokset sivupohjaan tehdään `assets/js/references.js`:ään, jolloin ne koskevat kaikkia referenssejä. Uuden referenssin lisäys: ylläpidossa + osoite käsin `sitemap.xml`:ään.
+
 ## Ympäristöt ja testaus
 
 Tuotanto = `main` + tuotanto-Supabase. **Localhost käyttää automaattisesti PAIKALLISTA testi-Supabasea (Docker)**, ei tuotantoa; ks. `docs/ymparistot.md` (käynnistys: `supabase start ...`, `python3 scripts/local_setup.py`, `python3 scripts/dev_server.py 8099`). Lomakkeet ja ylläpitomuokkaukset ovat turvallisia testata localhostissa. Älä kirjoita koskaan tuotantotietokantaan testitarkoituksessa. Tietokantamuutokset: ensin paikalliseen, sitten tuotantoon (käyttäjä ajaa).

@@ -863,3 +863,32 @@ h3 {
 }
 
 .cta-band .form-note { font-size: 0.75rem; line-height: 1.5; margin: 1rem 0 0; max-width: none; text-align: center; }
+
+
+/* Referenssit: lista ja kortit (skaalautuu 1..N referenssiin) */
+.ref-list { min-height: 200px; }
+.ref-empty { text-align: center; color: var(--text-muted); padding: 3rem 0; font-size: 1.0625rem; }
+.ref-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 2rem; }
+.ref-card { display: flex; flex-direction: column; align-items: stretch; min-height: 0; background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; color: inherit; transition: transform 0.2s, box-shadow 0.2s; }
+.ref-card:hover { transform: translateY(-4px); box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08); }
+.ref-card-img { aspect-ratio: 3 / 2; background: var(--accent); overflow: hidden; }
+.ref-card-img img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.5s ease; }
+.ref-card:hover .ref-card-img img { transform: scale(1.04); }
+.ref-card-body { padding: 1.5rem; display: flex; flex-direction: column; gap: 0.5rem; flex: 1; }
+.ref-card-body .eyebrow { margin-bottom: 0.25rem; }
+.ref-card-body h3 { margin: 0; font-size: 1.25rem; }
+.ref-card-body p { color: var(--text-muted); font-size: 0.9375rem; line-height: 1.7; }
+.ref-card-link { margin-top: auto; padding-top: 0.75rem; font-weight: 600; color: var(--primary); }
+.ref-card--featured { flex-direction: row; margin-bottom: 2.5rem; }
+.ref-card--featured .ref-card-img { flex: 1.35; aspect-ratio: auto; min-height: 380px; }
+.ref-card--featured .ref-card-body { flex: 1; padding: 2.5rem; justify-content: center; gap: 0.75rem; }
+.ref-card--featured .ref-card-body h3 { font-size: clamp(1.75rem, 3vw, 2.25rem); letter-spacing: -0.01em; }
+.ref-card--featured .ref-card-body p { font-size: 1.0625rem; }
+.ref-card--featured .ref-card-link { margin-top: 1rem; padding-top: 0; }
+
+@media (max-width: 768px) {
+    .ref-card--featured { flex-direction: column; margin-bottom: 1.5rem; }
+    .ref-card--featured .ref-card-img { flex: none; aspect-ratio: 3 / 2; min-height: 0; }
+    .ref-card--featured .ref-card-body { padding: 1.5rem; }
+    .ref-grid { gap: 1.25rem; }
+}

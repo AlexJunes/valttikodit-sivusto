@@ -40,6 +40,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (cleanPath.includes('kohde.html') && kohdeParam) {
             cleanPath = cleanPath + '?kohde=' + kohdeParam;
         }
+        const referenssiParam = urlParamsAnalytics.get('r');
+        if (cleanPath.includes('referenssi.html') && referenssiParam) {
+            cleanPath = cleanPath + '?r=' + referenssiParam;
+        }
         
         // 1. Sessiotunniste (Vain jos analytiikka on sallittu)
         let sessionId = null;
