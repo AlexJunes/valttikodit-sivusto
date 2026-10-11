@@ -50,7 +50,7 @@ def page_info(path):
         'cms': cms,
         'gcms': gcms,
         'forms': sorted(set(re.findall(r'<form[^>]*action="([^"]+)"', h))),
-        'scripts': sorted(set(re.findall(r'<script[^>]*src="([^"]+)"', h))),
+        'scripts': sorted(set(re.sub(r'\?v=[0-9a-f]+$', '', u) for u in re.findall(r'<script[^>]*src="([^"]+)"', h))),
         'jsonld': 'application/ld+json' in h,
     }
 
