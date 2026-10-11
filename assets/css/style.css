@@ -878,3 +878,14 @@ h3 {
 /* Myy tonttisi -sivun hero (ilmakuva) */
 .hero-myy { background-image: linear-gradient(rgba(10, 10, 10, 0.62), rgba(10, 10, 10, 0.5)), url('../img/myy-tonttisi/ilmakuva-1600.jpg'); }
 @media (max-width: 700px) { .hero-myy { background-image: linear-gradient(rgba(10, 10, 10, 0.62), rgba(10, 10, 10, 0.5)), url('../img/myy-tonttisi/ilmakuva-800.jpg'); } }
+
+/* Myy tonttisi: kevyt luottamusrivi (korvaa suuret tunnusluvut) */
+.trust-strip { background: var(--card-bg); border-bottom: 1px solid var(--border); padding: 1.75rem 0; }
+.trust-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; }
+.trust-item { display: flex; gap: 0.75rem; align-items: flex-start; padding: 0.25rem 1.5rem; border-left: 1px solid var(--border); }
+.trust-item:first-child { border-left: 0; padding-left: 0; }
+.trust-item svg { flex: none; margin-top: 0.1rem; color: var(--primary); }
+.trust-item strong { display: block; font-size: 1rem; font-weight: 600; line-height: 1.35; margin-bottom: 0.2rem; }
+.trust-item span { display: block; font-size: 0.875rem; line-height: 1.5; color: var(--text-muted); }
+@media (max-width: 900px) { .trust-grid { grid-template-columns: repeat(2, 1fr); gap: 1.25rem 0; } .trust-item:nth-child(3) { border-left: 0; padding-left: 0; } }
+@media (max-width: 520px) { .trust-grid { grid-template-columns: 1fr; gap: 1rem; } .trust-item { border-left: 0; padding: 0; } }
