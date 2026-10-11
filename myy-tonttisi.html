@@ -244,8 +244,25 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="location" class="form-label">Tontin sijainti *</label>
-                            <input type="text" id="location" name="location" class="form-input" required placeholder="Osoite tai kiinteistötunnus" data-extra-label="Tontin sijainti">
+                            <label for="address" class="form-label">Tontin osoite *</label>
+                            <input type="text" id="address" name="address" class="form-input" required placeholder="Katuosoite, esim. Kotirannantie 5" autocomplete="street-address" data-extra-label="Tontin osoite">
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="postcode" class="form-label">Postinumero</label>
+                                <input type="text" id="postcode" name="postcode" class="form-input" placeholder="esim. 91900" inputmode="numeric" autocomplete="postal-code" data-extra-label="Postinumero">
+                            </div>
+                            <div class="form-group">
+                                <label for="city" class="form-label">Paikkakunta *</label>
+                                <input type="text" id="city" name="city" class="form-input" required placeholder="esim. Liminka" autocomplete="address-level2" data-extra-label="Paikkakunta">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="property_id" class="form-label">Kiinteistötunnus</label>
+                            <input type="text" id="property_id" name="property_id" class="form-input" placeholder="esim. 425-401-12-34" data-extra-label="Kiinteistötunnus">
+                            <p class="form-note" style="text-align: left; margin-top: 0.4rem;">Valinnainen. Löytyy esimerkiksi kauppakirjasta. Jos osoitetta ei vielä ole, kerro tontin sijainti lisätiedoissa.</p>
                         </div>
 
                         <div class="form-row">
@@ -267,7 +284,7 @@
 
                         <div class="form-group">
                             <label for="message" class="form-label">Lisätietoja</label>
-                            <textarea id="message" name="message" class="form-input" rows="4" placeholder="Kerro esimerkiksi tontin ominaisuuksista tai toiveistasi kaupan suhteen"></textarea>
+                            <textarea id="message" name="message" class="form-input" rows="4" placeholder="Kerro esimerkiksi tontin ominaisuuksista, rakennuksista tai toiveistasi kaupan suhteen"></textarea>
                         </div>
 
                         <input type="checkbox" name="botcheck" class="d-none" style="display: none;">
