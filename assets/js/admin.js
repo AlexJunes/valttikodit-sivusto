@@ -443,7 +443,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                                     <td><div style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${esc(mainMessage)}">${esc(mainMessage)}</div></td>
                                     <td>${statusHtml}</td>
                                     <td style="text-align: right;">
-                                        ${lead.status === 'UUSI' ? `<button class="btn btn-outline" style="padding: 0.25rem 0.75rem; font-size: 0.75rem;" onclick="markLeadHandled('${Number(lead.id)}')">Merkitse käsitellyksi</button>` : `<button class="btn btn-outline" style="padding: 0.25rem 0.75rem; font-size: 0.75rem; border-color: #ef4444; color: #ef4444;" onclick="deleteLead('${Number(lead.id)}')">Poista</button>`}
+                                        ${lead.status === 'UUSI' ? `<button class="btn btn-outline" style="padding: 0.25rem 0.75rem; font-size: 0.75rem;" onclick="markLeadHandled('${esc(lead.id)}')">Merkitse käsitellyksi</button>` : `<button class="btn btn-outline" style="padding: 0.25rem 0.75rem; font-size: 0.75rem; border-color: #ef4444; color: #ef4444;" onclick="deleteLead('${esc(lead.id)}')">Poista</button>`}
                                     </td>
                                 `;
                                 leadsTbody.appendChild(tr);
