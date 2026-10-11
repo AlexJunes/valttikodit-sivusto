@@ -874,3 +874,7 @@ h3 {
     .ref-card--featured .ref-card-body { padding: 1.5rem; }
     .ref-grid { gap: 1.25rem; }
 }
+
+/* Myy tonttisi -sivun hero (ilmakuva) */
+.hero-myy { background-image: linear-gradient(rgba(10, 10, 10, 0.62), rgba(10, 10, 10, 0.5)), url('../img/myy-tonttisi/ilmakuva-1600.jpg'); }
+@media (max-width: 700px) { .hero-myy { background-image: linear-gradient(rgba(10, 10, 10, 0.62), rgba(10, 10, 10, 0.5)), url('../img/myy-tonttisi/ilmakuva-800.jpg'); } }
