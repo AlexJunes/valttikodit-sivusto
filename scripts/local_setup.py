@@ -82,7 +82,7 @@ def main():
     secret = local_keys()
     print('1/6 Poistetaan vanhat testitaulut ja luodaan rakenne...')
     psql('DROP TABLE IF EXISTS public.admin_users, public.leads, public.page_views, public.pages, public.projects, public.report_tokens CASCADE;'
-         'DROP FUNCTION IF EXISTS public.is_site_admin(); DROP FUNCTION IF EXISTS public.report_weekly(text);')
+         'DROP FUNCTION IF EXISTS public.is_site_admin() CASCADE; DROP FUNCTION IF EXISTS public.report_weekly(text) CASCADE;')
     psql(open(os.path.join(ROOT, 'supabase', 'local', 'schema.sql'), encoding='utf-8').read())
 
     print('2/6 Ajetaan oikeussäännöt ja raporttifunktio migraatioista...')
