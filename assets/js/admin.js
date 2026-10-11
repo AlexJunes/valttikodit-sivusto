@@ -1,6 +1,15 @@
 // assets/js/admin.js
-const SUPABASE_URL = 'https://xbeonksexpjvekqjxoph.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_yfN0ScRrJr-P2Nfa8yRJRw_x_1RM9Tn';
+// Ympäristö: localhost -> PAIKALLINEN testi-Supabase (Docker, ks. docs/ymparistot.md); muut osoitteet -> tuotanto.
+// Jos paikallinen Supabase ei ole käynnissä, localhost EI putoa tuotantoon vaan data ei lataudu.
+const IS_LOCAL_ENV = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+const SUPABASE_URL = IS_LOCAL_ENV ? 'http://127.0.0.1:54321' : 'https://xbeonksexpjvekqjxoph.supabase.co';
+const SUPABASE_ANON_KEY = IS_LOCAL_ENV ? 'sb_publishable_ACJWlzQHlZjBrEguHvfOxg_3BJgxAaH' : 'sb_publishable_yfN0ScRrJr-P2Nfa8yRJRw_x_1RM9Tn';
+if (IS_LOCAL_ENV) {
+    const b = document.createElement('div');
+    b.textContent = 'LOCAL – testitietokanta';
+    b.style.cssText = 'position:fixed;left:8px;bottom:8px;z-index:99999;background:#7a5b00;color:#fff;font:600 11px/1 system-ui,sans-serif;padding:6px 8px;border-radius:4px;opacity:.85;pointer-events:none;';
+    document.addEventListener('DOMContentLoaded', () => document.body.appendChild(b));
+}
 
 // Muuttaa tietokannasta tulevan tekstin turvalliseksi ennen HTML:ään liittämistä (XSS-esto)
 const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
