@@ -171,7 +171,7 @@
         // 5. Galleria
         if (gallery.length) {
             out.push(`<section class="section"><div class="container">
-                <div class="section-head" data-aos="fade-up"><span class="eyebrow">Kodin sisällä</span><h2>Näin valmis koti näyttää</h2><p>Oikeita kuvia valmistuneesta kohteesta. Napauta kuvaa nähdäksesi sen isompana.</p></div>
+                <div class="section-head" data-aos="fade-up"><span class="eyebrow">Kodin sisällä</span><h2>Tältä valmis koti näyttää</h2><p>Oikeita kuvia valmistuneesta kohteesta. Napauta kuvaa nähdäksesi sen isompana.</p></div>
                 <div class="gal-grid">
                 ${gallery.map((g) => `<figure class="gal-item" data-aos="fade-up">
                     <button type="button" class="gal-open" data-full="${esc(safeUrl(g.url))}" data-alt="${esc(g.alt || g.caption || ref.title)}" aria-label="Suurenna kuva: ${esc(g.alt || g.caption || '')}">
