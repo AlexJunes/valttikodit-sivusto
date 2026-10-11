@@ -89,12 +89,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         gallery: [], features: [], specs: [], facts: [{}, {}, {}, {}], slugTouched: false
     };
 
+    // Ylläpitosivut ovat kansiossa /admin/, joten repon suhteelliset kuvapolut (assets/...) haetaan yhden tason ylempää
+    const previewUrl = (u) => (/^(https?:|blob:|data:|\/)/i.test(u || '') ? u : '../' + String(u || '').replace(/^\.\.\//, ''));
+    const IMG_ERR = 'onerror="this.style.opacity=0.35;this.title=\'Kuvaa ei voitu ladata\'"';
+
     const slugify = (t) => String(t || '').toLowerCase().replace(/[äå]/g, 'a').replace(/ö/g, 'o').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
 
     // --- kuvapaikat (hero, tarina, sijainti) ---
     const renderSlot = (el) => {
         const key = el.dataset.slot, s = state.slots[key];
-        el.innerHTML = `${s.url ? `<img src="${esc(s.url)}" alt="">` : '<div class="img-empty">Ei kuvaa</div>'}
+        el.innerHTML = `${s.url ? `<img src="${esc(previewUrl(s.url))}" alt="" ${IMG_ERR}>` : '<div class="img-empty">Ei kuvaa</div>'}
             <div class="img-actions">
                 <label class="btn btn-outline" style="cursor:pointer;">${s.url ? 'Vaihda kuva' : 'Valitse kuva'}<input type="file" accept="image/*" style="display:none;"></label>
                 ${s.url ? '<button type="button" class="btn btn-outline" data-rm style="color:#ef4444;border-color:#ef4444;">Poista kuva</button>' : ''}
@@ -145,7 +149,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // --- galleria ---
     const renderGallery = () => {
         $('gallery-rows').innerHTML = state.gallery.map((g, i) => `<div class="g-item">
-            <img src="${esc(g.url)}" alt="">
+            <img src="${esc(previewUrl(g.url))}" alt="" ${IMG_ERR}>
             <div class="g-fields">
                 <input class="form-input" data-gal="${i}" data-k="caption" placeholder="Kuvateksti (näkyy kuvan alla)" value="${esc(g.caption || '')}">
                 <input class="form-input" data-gal="${i}" data-k="alt" placeholder="Kuvaus hakukoneille ja ruudunlukijoille (alt)" value="${esc(g.alt || '')}">
@@ -153,6 +157,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             <div class="g-btns">
                 <button type="button" data-gal-act="up" data-i="${i}" aria-label="Ylös">&#x25B2;</button>
                 <button type="button" data-gal-act="down" data-i="${i}" aria-label="Alas">&#x25BC;</button>
+                <label class="g-replace" title="Vaihda kuva (kuvateksti ja alt säilyvät)">Vaihda<input type="file" accept="image/*" data-gal-replace="${i}" style="display:none;"></label>
                 <button type="button" data-gal-act="del" data-i="${i}" style="color:#ef4444;" aria-label="Poista">&times;</button>
             </div></div>`).join('') || '<p class="hint">Ei kuvia vielä.</p>';
     };
@@ -164,6 +169,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (a === 'up' && i > 0) [g[i - 1], g[i]] = [g[i], g[i - 1]];
         if (a === 'down' && i < g.length - 1) [g[i + 1], g[i]] = [g[i], g[i + 1]];
         if (a === 'del') g.splice(i, 1);
+        renderGallery();
+    });
+    $('gallery-rows').addEventListener('change', (e) => {
+        const inp = e.target.closest('input[data-gal-replace]');
+        if (!inp || !inp.files[0]) return;
+        const g = state.gallery[Number(inp.dataset.galReplace)];
+        g.file = inp.files[0];
+        g.url = URL.createObjectURL(inp.files[0]);
         renderGallery();
     });
     $('gallery-add').addEventListener('change', (e) => {
