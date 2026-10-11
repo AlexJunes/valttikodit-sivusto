@@ -688,24 +688,6 @@ h3 {
         gap: 2rem;
     }
 }
- / *   C M S   L a t a u s v i i v e   ( E s t ä ä   v a n h a n   t e k s t i n   v ä l ä h t e l y n )   * / 
- [ d a t a - c m s ] ,   [ d a t a - g l o b a l - c m s ]   { 
-         o p a c i t y :   0 ; 
-         t r a n s i t i o n :   o p a c i t y   0 . 4 s   e a s e ; 
-         a n i m a t i o n :   f a d e I n F a l l b a c k   1 . 5 s   f o r w a r d s ; 
- } 
- 
- b o d y . c m s - l o a d e d   [ d a t a - c m s ] ,   b o d y . c m s - l o a d e d   [ d a t a - g l o b a l - c m s ]   { 
-         a n i m a t i o n :   n o n e ; 
-         o p a c i t y :   1 ; 
- } 
- 
- @ k e y f r a m e s   f a d e I n F a l l b a c k   { 
-         0 %   {   o p a c i t y :   0 ;   } 
-         8 0 %   {   o p a c i t y :   0 ;   } 
-         1 0 0 %   {   o p a c i t y :   1 ;   } 
- }  
- 
 
 /* ==========================================================================
    Uudet osiot: Referenssit & Ostamme tontteja (kayttaa olemassa olevia muuttujia)
