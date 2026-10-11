@@ -13,7 +13,8 @@
       "Bash(ls:*)",
       "Bash(grep:*)",
       "Bash(python3 scripts/update_docs.py:*)",
-      "Bash(python3 -I scripts/update_docs.py:*)"
+      "Bash(python3 -I scripts/update_docs.py:*)",
+      "Bash(python3 scripts/dev_server.py:*)"
     ],
     "ask": [
       "Bash(git push:*)",

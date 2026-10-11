@@ -10,6 +10,6 @@ Valttikotien verkkosivusto: staattinen HTML/CSS/Vanilla JS (ei build-vaihetta), 
 
 ## Paikallinen kehitys
 ```bash
-python3 -m http.server 8080   # avaa http://localhost:8080
+python3 scripts/dev_server.py 8080   # avaa http://localhost:8080 (puhtaat URLit kuten GitHub Pagesissa)
 python3 scripts/update_docs.py  # päivitä docs/TILA.md
 ```

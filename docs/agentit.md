@@ -26,4 +26,4 @@ Remote Control: tämän repon Code-istunto näkyy Claude-puhelinsovelluksessa (C
 - Kaikki muutosehdotukset tulevat PR:inä tai raportissa, ei suoraan tuotantoon.
 
 ## Kehityskäytäntö
-Uusi osio tai muutos: Claude tekee haaran, testaa paikallisesti (`python3 -m http.server`), avaa PR:n. Julkaisu tapahtuu vasta kun käyttäjä mergeää. Katso `CLAUDE.md`.
+Uusi osio tai muutos: Claude tekee haaran, testaa paikallisesti (`python3 scripts/dev_server.py`), avaa PR:n. Julkaisu tapahtuu vasta kun käyttäjä mergeää. Katso `CLAUDE.md`.
