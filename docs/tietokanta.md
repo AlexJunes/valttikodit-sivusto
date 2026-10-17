@@ -47,3 +47,7 @@ Migraatio: `supabase/migrations/2026-10-10_report_weekly.sql`. Funktio `public.r
 2. Käyttäjä tarkistaa SQL:n, tekee varmuuskopion ja ajaa sen Supabase SQL Editorissa.
 3. Testaus (ylläpito + julkinen sivusto), sitten PR mergataan.
 4. Päivitä tämä tiedosto ja aja `python3 scripts/update_docs.py`.
+
+## Raportointifunktiot
+
+`report_weekly(p_token)` (2026-10-10) ja `report_daily(p_token)` (2026-10-17): SECURITY DEFINER, palauttavat vain aggregaatteja ja vaativat avaimen (`report_tokens`, tiiviste; sama avain molemmille). Päivät lasketaan ajassa Europe/Helsinki. `report_daily` jäsentää liidin lähteen viestin ensimmäiseltä riviltä `LÄHDE: …` (vain lukumäärät lähteittäin).
