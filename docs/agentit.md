@@ -27,3 +27,7 @@ Remote Control: tämän repon Code-istunto näkyy Claude-puhelinsovelluksessa (C
 
 ## Kehityskäytäntö
 Uusi osio tai muutos: Claude tekee haaran, testaa paikallisesti (`python3 scripts/dev_server.py`), avaa PR:n. Julkaisu tapahtuu vasta kun käyttäjä mergeää. Katso `CLAUDE.md`.
+
+## Päivittäinen analyysi- ja liidiraportti
+
+Routine `trig_01KrSNbdov1gXyVV5ruHRf7w` ("valttikodit.fi – päivittäinen analyysi- ja liidiraportti"), joka päivä klo 06:00 UTC (08/09 Suomen aikaa). Hakee Supabasen funktiolla `report_daily(p_token)` (migraatio `2026-10-17_report_daily.sql`, sama `REPORT_TOKEN` kuin viikkoraportissa) vain aggregaatit: 14 päivän sarja (katselut, sessiot, liidit), eilisen sivut/laitteet, viittaajat, liidit lähteittäin (jäsennetään viestin `LÄHDE:`-rivistä), käsittelemättömät liidit ja niiden ikä, kohteiden tilat. Ei henkilötietoja. Raportti on Jani-tasoinen yhteenveto: tila (OK/HUOMIO/KRIITTINEN), uudet liidit, liikenne ja konversio (suuntaa-antava), sivut ja kanavat sekä 2–3 toimenpide-ehdotusta. Toimitus: raportti näkyy ajon lokissa claude.ai:ssa ja push-ilmoitus tiivistelmästä; sähköpostitoimitus vaatii erillisen sähköpostipalvelun (ks. liidiagenttisuunnitelma). Tilastoharha: sessiot lasketaan vain evästeet hyväksyneistä.

@@ -105,6 +105,7 @@ Lueteltu tiedostot, jotka on kirjattu repoon. Tuotantoon ne ajetaan käsin Supab
 - `2026-10-10_secure_rls.sql` – ==============================================================================
 - `2026-10-11_reference_cases.sql` – ==============================================================================
 - `2026-10-11_seed_sudenkorento.sql` – Esimerkkidata: ensimmainen referenssi (Sudenkorento 6 A ja B). Ajetaan vasta kun reference_cases-taulu on luotu.
+- `2026-10-17_report_daily.sql` – ==============================================================================
 
 ## Repon rakenne (ylin taso)
 
