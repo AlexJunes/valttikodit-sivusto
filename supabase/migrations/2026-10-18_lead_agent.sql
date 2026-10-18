@@ -2,7 +2,7 @@
 -- Liidiagentin tietokantatuki (luku ja luokittelu, rajatut funktiot)
 -- ==============================================================================
 -- Ajetaan KASIN Supabase SQL Editorissa. Vaatii taulun public.leads.
--- HUOM: tama antaa agentille pääsyn liidien HENKILOTIETOIHIN (nimi, sahkoposti,
+-- HUOM: tama antaa agentille paasyn liidien HENKILOTIETOIHIN (nimi, sahkoposti,
 -- puhelin, viesti), joten kaytetaan ERI avainta kuin raporttifunktioissa.
 --
 -- OHJE:
