@@ -416,6 +416,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                     source = (nl === -1 ? text : text.slice(0, nl)).replace('LÄHDE:', '').trim();
                     text = nl === -1 ? '' : text.slice(nl + 1).trim();
                 }
+                // Kampanjarivi (esim. 'Kampanja: facebook / social / saunaranta-b') heti lähderivin jälkeen
+                let campaign = '';
+                const cm = text.match(/^Kampanja:\s*([^\n]+)\n?/);
+                if (cm) { campaign = cm[1].trim(); text = text.slice(cm[0].length).trim(); }
                 // Lomakkeen lisäkentät ovat omana lohkonaan (rivit "Otsikko: arvo") ennen vapaata viestiä
                 const blocks = text.split(/\n\s*\n/);
                 if (blocks.length && blocks[0].split('\n').every(l => /^[^:\n]{2,40}: .+$/.test(l.trim()))
@@ -423,6 +427,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     extras = blocks.shift().split('\n').map(l => { const i = l.indexOf(': '); return [l.slice(0, i).trim(), l.slice(i + 2).trim()]; });
                     text = blocks.join('\n\n').trim();
                 }
+                if (campaign) extras.unshift(['Kampanja', campaign]);
                 return { source, extras, text };
             };
 
