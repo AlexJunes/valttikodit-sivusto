@@ -24,6 +24,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     }
 
+    // Kampanjarivi liidin viestiin (esim. 'Kampanja: facebook / social / saunaranta-b'); tyhjä jos tunnistetta ei ole
+    const campaignLine = () => {
+        const u = window.__vUtm || {};
+        const parts = [u.utm_source, u.utm_medium, u.utm_campaign].filter(Boolean);
+        return parts.length ? `Kampanja: ${parts.join(' / ')}` : '';
+    };
+
     // EVÄSTEHALLINTA JA ANALYTIIKKA
     if (typeof supabase !== 'undefined') {
         const CONSENT_KEY = 'valttikodit_cookie_consent';
@@ -45,6 +52,23 @@ document.addEventListener('DOMContentLoaded', async () => {
             cleanPath = cleanPath + '?r=' + referenssiParam;
         }
         
+        // Kampanjatunnisteet (UTM): luetaan osoitteesta ENNEN kuin osoite mahdollisesti muuttuu (kohdesivun siistiminen).
+        // Tallennetaan sessioon vain jos analytiikka on sallittu; ilman suostumusta tunniste liitetään vain tämän sivun katseluun ja lomakkeeseen.
+        const cleanUtm = (v) => String(v || '').trim().toLowerCase().replace(/[^a-z0-9_\-äöå.]/g, '-').slice(0, 60);
+        let utm = {};
+        ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content'].forEach((k) => {
+            const v = cleanUtm(urlParamsAnalytics.get(k));
+            if (v) utm[k] = v;
+        });
+        try {
+            if (Object.keys(utm).length) {
+                if (consent && consent.analytics) sessionStorage.setItem('v_utm', JSON.stringify(utm));
+            } else if (consent && consent.analytics) {
+                utm = JSON.parse(sessionStorage.getItem('v_utm') || '{}') || {};
+            }
+        } catch (e) {}
+        window.__vUtm = utm;
+
         // 1. Sessiotunniste (Vain jos analytiikka on sallittu)
         let sessionId = null;
         if (consent && consent.analytics) {
@@ -69,11 +93,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         try {
+            // utm_*-kentät lähetetään vain kun tunniste on olemassa (tavallinen liikenne toimii ilman tietokantamuutosta)
             supabase.from('page_views').insert([{ 
                 path: cleanPath,
                 session_id: sessionId,
                 device_type: device,
-                referrer: ref
+                referrer: ref,
+                ...utm
             }]).then(() => {});
         } catch(e) {
             console.error("Pageview log failed:", e);
@@ -392,7 +418,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             // Tallenna liidi Supabaseen analytiikkaa ja Dashboardia varten
             if (typeof supabase !== 'undefined') {
                 try {
-                    let sourceInfo = formData.get('source') ? `LÄHDE: ${formData.get('source')}\n\n` : '';
+                    let sourceInfo = formData.get('source') ? `LÄHDE: ${formData.get('source')}\n${campaignLine() ? campaignLine() + '\n' : ''}\n` : '';
                     // Lomakkeen lisäkentät (data-extra-label) liitetään liidin viestiin
                     const extraLines = Array.from(contactForm.querySelectorAll('[data-extra-label]')).map(el => { const v = formData.get(el.name); return v ? `${el.getAttribute('data-extra-label')}: ${v}` : ''; }).filter(Boolean);
                     const extraInfo = extraLines.length ? extraLines.join('\n') + '\n\n' : '';
@@ -445,7 +471,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (typeof supabase !== 'undefined') {
                 try {
                     const kohdeStr = formData.get('kohdeOtsikko') ? ` (${formData.get('kohdeOtsikko')})` : '';
-                    const messageStr = `LÄHDE: Materiaalipaketin lataus${kohdeStr}.\nMarkkinointilupa annettu.`;
+                    const messageStr = `LÄHDE: Materiaalipaketin lataus${kohdeStr}.${campaignLine() ? '\n' + campaignLine() : ''}\nMarkkinointilupa annettu.`;
                     
                     supabase.from('leads').insert([{
                         name: formData.get('name'),
@@ -499,7 +525,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 try {
                     const kohdeEl = document.querySelector('[data-project="title"]');
                     const kohdeStr = kohdeEl ? ` (${kohdeEl.textContent})` : '';
-                    const messageStr = `LÄHDE: Kohdevaraus${kohdeStr}.\nMarkkinointilupa annettu.`;
+                    const messageStr = `LÄHDE: Kohdevaraus${kohdeStr}.${campaignLine() ? '\n' + campaignLine() : ''}\nMarkkinointilupa annettu.`;
                     
                     supabase.from('leads').insert([{
                         name: formData.get('name'),
