@@ -11,7 +11,7 @@ Dokumentaatio (lue tarvittaessa): `docs/TILA.md` (GENEROITU tuotantotila), `docs
 3. **Älä muuta `404.html`:n reititysloogikkaa.** Se mahdollistaa osoitteet `/kohteet/<slug>` (ks. `docs/arkkitehtuuri.md`).
 4. **Ei build-työkaluja.** Älä lisää Node/npm/bundleria tuotantosivustoon. `app/` ja `utils/` ovat vanhoja Next.js-jäänteitä: älä käytä, älä aja `next build`.
 5. **Salaisuudet:** `service_role`-avainta, tietokannan salasanaa tai tokeneita ei koskaan kirjoiteta tiedostoihin tai chattiin. Selaimessa olevat Supabase anon/publishable-avain ja Web3Forms-avain ovat julkisia, ja se on tarkoituksellista.
-6. **Henkilötiedot:** liidit (`leads`) sisältävät asiakkaiden nimiä, sähköposteja ja puhelinnumeroita. Raporteissa ja logeissa vain lukumääriä, ei yksittäisiä asiakastietoja.
+6. **Henkilötiedot:** liidit (`leads`) sisältävät asiakkaiden nimiä, sähköposteja ja puhelinnumeroita. Raporteissa ja logeissa vain lukumääriä, ei yksittäisiä asiakastietoja. Poikkeus: liidiagentti (docs/agentit.md) saa käsitellä yksittäisiä liidejä ja lähettää ne vain osoitteisiin pekka.junes@gmail.com ja jani.junes@valttikodit.fi; päiväraportit pysyvät aggregaatteina.
 7. Kysy ennen kaikkea peruuttamatonta tai ulospäin näkyvää (julkaisu, viestin lähetys, poisto).
 
 ## Referenssit

@@ -51,3 +51,10 @@ Migraatio: `supabase/migrations/2026-10-10_report_weekly.sql`. Funktio `public.r
 ## Raportointifunktiot
 
 `report_weekly(p_token)` (2026-10-10) ja `report_daily(p_token)` (2026-10-17): SECURITY DEFINER, palauttavat vain aggregaatteja ja vaativat avaimen (`report_tokens`, tiiviste; sama avain molemmille). Päivät lasketaan ajassa Europe/Helsinki. `report_daily` jäsentää liidin lähteen viestin ensimmäiseltä riviltä `LÄHDE: …` (vain lukumäärät lähteittäin).
+
+## Liidiagentti (agent_get_leads, agent_mark_lead, notify_new_lead)
+
+Migraatio `2026-10-18_lead_agent.sql`: leads-tauluun sarakkeet `category`, `agent_status` (NULL / PROCESSING / DONE / FAILED / SKIPPED), `agent_claimed_at`, `agent_attempts`, `agent_processed_at`; nykyiset liidit merkitään SKIPPED. Funktiot (SECURITY DEFINER, oma avain `agent_tokens`, EI sama kuin raporttiavain, koska palauttavat henkilötietoja):
+- `agent_get_leads(p_token, p_limit)` hakee ja varaa (PROCESSING) käsittelemättömät liidit, varaus vanhenee 30 min, enintään 3 yritystä.
+- `agent_mark_lead(p_token, p_lead_id, p_category)` merkitsee liidin DONE ja tallentaa luokan (TALON_OSTAJA, TONTIN_MYYJA, ALIHANKKIJA, MUU, ROSKAPOSTI). Ei muuta kirjoitusta.
+Migraatio `2026-10-18_lead_agent_trigger.sql`: pg_net-laukaisin `trg_notify_new_lead` lähettää uudesta liidistä pilviagentille (Claude routine, API-trigger) vain tekstin `lead_id=<uuid>`; URL ja avain Vaultissa (`lead_routine_url`, `lead_routine_token`); virheet nielaistaan, liidin tallennus ei koskaan epäonnistu.

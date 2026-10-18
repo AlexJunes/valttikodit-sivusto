@@ -81,8 +81,8 @@ def prod_public(table):
 def main():
     secret = local_keys()
     print('1/6 Poistetaan vanhat testitaulut ja luodaan rakenne...')
-    psql('DROP TABLE IF EXISTS public.admin_users, public.leads, public.page_views, public.pages, public.projects, public.report_tokens, public.reference_cases CASCADE;'
-         'DROP FUNCTION IF EXISTS public.is_site_admin() CASCADE; DROP FUNCTION IF EXISTS public.report_weekly(text) CASCADE; DROP FUNCTION IF EXISTS public.report_daily(text) CASCADE;'
+    psql('DROP TABLE IF EXISTS public.admin_users, public.leads, public.page_views, public.pages, public.projects, public.report_tokens, public.reference_cases, public.agent_tokens CASCADE;'
+         'DROP FUNCTION IF EXISTS public.is_site_admin() CASCADE; DROP FUNCTION IF EXISTS public.report_weekly(text) CASCADE; DROP FUNCTION IF EXISTS public.report_daily(text) CASCADE; DROP FUNCTION IF EXISTS public.agent_get_leads(text, integer) CASCADE; DROP FUNCTION IF EXISTS public.agent_mark_lead(text, uuid, text) CASCADE; DROP FUNCTION IF EXISTS public.notify_new_lead() CASCADE;'
          'DROP POLICY IF EXISTS images_public_read ON storage.objects; DROP POLICY IF EXISTS images_admin_insert ON storage.objects;'
          'DROP POLICY IF EXISTS images_admin_update ON storage.objects; DROP POLICY IF EXISTS images_admin_delete ON storage.objects;')
     psql(open(os.path.join(ROOT, 'supabase', 'local', 'schema.sql'), encoding='utf-8').read())
@@ -91,6 +91,7 @@ def main():
     psql(open(os.path.join(ROOT, 'supabase', 'migrations', '2026-10-10_secure_rls.sql'), encoding='utf-8').read())
     psql(open(os.path.join(ROOT, 'supabase', 'migrations', '2026-10-10_report_weekly.sql'), encoding='utf-8').read().replace('<AVAIN>', LOCAL_REPORT_TOKEN))
     psql(open(os.path.join(ROOT, 'supabase', 'migrations', '2026-10-17_report_daily.sql'), encoding='utf-8').read())
+    psql(open(os.path.join(ROOT, 'supabase', 'migrations', '2026-10-18_lead_agent.sql'), encoding='utf-8').read().replace('<AVAIN>', 'local-agent-token'))
 
     print('2b/6 Luodaan referenssitaulu ja esimerkkireferenssi...')
     for f in ('2026-10-11_reference_cases.sql', '2026-10-11_seed_sudenkorento.sql'):
