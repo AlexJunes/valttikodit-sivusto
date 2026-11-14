@@ -269,6 +269,63 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (m) m.textContent = 'Ajastettu Facebookiin.';
     };
 
+    // ---------- Tulokset-välilehti ----------
+    const fmtN = (n) => (n == null ? '–' : Number(n).toLocaleString('fi-FI'));
+    const sum = (a) => a.reduce((x, y) => x + (Number(y) || 0), 0);
+    const renderResults = (d) => {
+        const page = d.page || [], posts = d.posts || [], camps = d.campaigns || [];
+        const last7 = page.slice(-7), prev7 = page.slice(-14, -7);
+        const v7 = sum(last7.map((x) => x.views)), vp = prev7.length >= 7 ? sum(prev7.map((x) => x.views)) : null;
+        const delta = vp ? Math.round(((v7 - vp) / vp) * 100) : null;
+        const followers = page.length ? page[page.length - 1].followers : null;
+        const since30 = Date.now() - 30 * 86400000;
+        const posts30 = posts.filter((x) => Date.parse(x.created_time) >= since30).length;
+        const siteViews = sum(camps.map((c) => c.site_views)), leads = sum(camps.map((c) => c.leads));
+        $('so-sync-info').textContent = d.synced_at ? 'Tilastot päivitetty ' + new Date(d.synced_at).toLocaleString('fi-FI') : 'Tilastoja ei ole vielä haettu. Paina "Päivitä tilastot nyt".';
+        $('so-cards').innerHTML = [
+            ['Seuraajat', fmtN(followers), ''], ['Sivun näytöt 7 pv', fmtN(v7), delta == null ? '' : `${delta >= 0 ? '+' : ''}${delta} % edelliseen viikkoon`],
+            ['Julkaisuja 30 pv', fmtN(posts30), ''], ['Kävijöitä Facebookista sivustolle', fmtN(siteViews), `${fmtN(leads)} liidiä kampanjoista`],
+        ].map(([t, v, s]) => `<div class="so-card"><div class="so-sub">${esc(t)}</div><div class="so-card-v">${esc(v)}</div><div class="so-sub">${esc(s)}</div></div>`).join('');
+        // viivakuvaaja (SVG)
+        const vals = page.map((x) => Number(x.views) || 0);
+        if (vals.length > 1) {
+            const W = 760, H = 120, max = Math.max(...vals, 1);
+            const pts = vals.map((v, i) => `${(i / (vals.length - 1)) * W},${H - 8 - (v / max) * (H - 24)}`).join(' ');
+            $('so-chart').innerHTML = `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;max-height:140px;"><polyline fill="none" stroke="#1d4ed8" stroke-width="2" points="${pts}"/></svg><div class="so-sub">${esc(page[0].day)} – ${esc(page[page.length - 1].day)}, korkein ${fmtN(max)} näyttöä/pv</div>`;
+        } else $('so-chart').innerHTML = '<div class="so-sub">Ei vielä riittävästi dataa.</div>';
+        $('so-res-posts').innerHTML = posts.length ? posts.map((x) => `<tr><td>${esc(new Date(x.created_time).toLocaleDateString('fi-FI'))}</td>
+            <td style="max-width:360px;">${x.title ? `<strong>${esc(x.title)}</strong>${x.campaign ? ` <span class="so-sub">(${esc(x.campaign)})</span>` : ''}` : esc((x.message || '(ei tekstiä)').slice(0, 90))}${x.permalink ? ` <a href="${esc(x.permalink)}" target="_blank" rel="noopener">↗</a>` : ''}</td>
+            <td>${fmtN(x.views)}</td><td>${fmtN(x.unique_views)}</td><td>${fmtN(x.clicks)}</td><td>${fmtN(x.reactions)}</td><td>${x.utm_content ? fmtN(x.site_views) : '<span class="so-sub">–</span>'}</td></tr>`).join('') : '<tr><td colspan="7">Ei julkaisuja. Paina "Päivitä tilastot nyt".</td></tr>';
+        $('so-res-camps').innerHTML = camps.length ? camps.map((c) => `<tr><td>${esc(c.campaign)}</td><td>${fmtN(c.site_views)}</td><td>${fmtN(c.leads)}</td></tr>`).join('') : '<tr><td colspan="3">Ei kampanjaliikennettä vielä. Se alkaa kertyä, kun julkaisut, joissa on seurantalinkki, menevät ulos.</td></tr>';
+    };
+    let resLoaded = false;
+    const loadResults = async () => {
+        const { data, error } = await sb.rpc('social_results', { p_days: 90 });
+        if (error) { $('so-sync-info').textContent = 'Virhe: ' + error.message; return null; }
+        renderResults(data); return data;
+    };
+    const syncNow = async (silent) => {
+        const b = $('so-sync'); if (b) { b.disabled = true; b.textContent = 'Päivitetään...'; }
+        try {
+            const j = await callFn('sync');
+            if (!j.ok && !silent) alert('Päivitys epäonnistui: ' + j.error);
+            if (j.errors && j.errors.length && !silent) alert('Osa tiedoista puuttui:\n' + j.errors.slice(0, 4).join('\n'));
+        } catch (e) { if (!silent) alert('Päivitys epäonnistui: ' + e.message); }
+        await loadResults(); if (b) { b.disabled = false; b.textContent = 'Päivitä tilastot nyt'; }
+    };
+    $('so-sync').addEventListener('click', () => syncNow(false));
+    $('so-tabs').addEventListener('click', async (e) => {
+        const b = e.target.closest('[data-tab]'); if (!b) return;
+        document.querySelectorAll('#so-tabs .so-tab').forEach((t) => t.classList.toggle('active', t === b));
+        $('so-tab-posts').style.display = b.dataset.tab === 'posts' ? '' : 'none';
+        $('so-tab-results').style.display = b.dataset.tab === 'results' ? '' : 'none';
+        if (b.dataset.tab === 'results' && !resLoaded) {
+            resLoaded = true;
+            const d = await loadResults();
+            if (d && (!d.synced_at || Date.now() - Date.parse(d.synced_at) > 20 * 3600 * 1000)) await syncNow(true);   // vanhentuneet tilastot haetaan automaattisesti
+        }
+    });
+
     await load();
     // Tarkista ajastetut julkaisut, joiden aika on ohi (merkitään julkaistuiksi)
     try { if (posts.some((x) => x.status === 'SCHEDULED' && x.scheduled_at && Date.parse(x.scheduled_at) < Date.now())) { const j = await callFn('refresh'); if (j.ok && j.published) await load(); } } catch (e) {}

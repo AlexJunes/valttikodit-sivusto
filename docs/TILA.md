@@ -55,7 +55,7 @@
 | Tiedosto | Taulut (operaatiot) | RPC | Storage | local/sessionStorage-avaimet |
 |---|---|---|---|---|
 | `assets/js/admin-references.js` | projects (select); reference_cases (delete, insert, select, update) | – | images | – |
-| `assets/js/admin-social.js` | reference_cases (select); social_audit (select); social_campaigns (insert, select); social_posts (delete, insert, select, update) | – | images | – |
+| `assets/js/admin-social.js` | reference_cases (select); social_audit (select); social_campaigns (insert, select); social_posts (delete, insert, select, update) | social_results | images | – |
 | `assets/js/admin.js` | admin_users (delete, insert, select); leads (delete, select, update); page_views (select); pages (insert, select, update); projects (delete, insert, select, update) | – | images | valtti_admin_auth, valtti_admin_login_time |
 | `assets/js/analytics-dashboard.js` | leads (select); page_views (select) | – | – | – |
 | `assets/js/config.js` | – | – | – | – |
@@ -112,6 +112,8 @@ Lueteltu tiedostot, jotka on kirjattu repoon. Tuotantoon ne ajetaan käsin Supab
 - `2026-10-18_lead_agent_trigger.sql` – ==============================================================================
 - `2026-10-18_utm_tracking.sql` – ==============================================================================
 - `2026-11-14_social.sql` – ==============================================================================
+- `2026-11-14_social_cron.sql` – ==============================================================================
+- `2026-11-14_social_metrics.sql` – ==============================================================================
 
 ## Repon rakenne (ylin taso)
 

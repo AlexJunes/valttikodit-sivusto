@@ -37,24 +37,29 @@ export async function handle(req, env, f = fetch, now = () => Date.now()) {
   const PAGE = env.META_PAGE_ID, TOKEN = env.META_PAGE_TOKEN;
   const scrub = (s) => String(s == null ? '' : s).split(TOKEN || '\u0000').join('***').slice(0, 500);
 
-  // 1. Tunnistautuminen: yllapitaja + MFA (aal2)
-  const jwt = (req.headers.get('authorization') || '').replace(/^Bearer\s+/i, '');
-  const claims = jwt ? decodeJwt(jwt) : null;
-  if (!claims || claims.aal !== 'aal2') return json(req, 403, { ok: false, error: 'Kirjautuminen ja kaksivaiheinen tunnistus vaaditaan' });
-  const adminRes = await f(`${env.SUPABASE_URL}/rest/v1/rpc/is_site_admin`, {
-    method: 'POST', headers: { apikey: env.SUPABASE_ANON_KEY, Authorization: `Bearer ${jwt}`, 'Content-Type': 'application/json' }, body: '{}',
-  });
-  if (!adminRes.ok || (await adminRes.json()) !== true) return json(req, 403, { ok: false, error: 'Vain yll\u00e4pit\u00e4j\u00e4' });
-  const actor = claims.email || 'tuntematon';
-
+  // 1. Tunnistautuminen: (a) ajastettu yoajo salaisuudella (vain sync) tai (b) yllapitaja + MFA (aal2)
   let body = {};
-  try { body = await req.json(); } catch (e) { return json(req, 400, { ok: false, error: 'Virheellinen pyynt\u00f6' }); }
+  try { body = await req.json(); } catch (e) { return json(req, 400, { ok: false, error: 'Virheellinen pyynto' }); }
+  const cronOk = !!env.CRON_SECRET && req.headers.get('x-cron-secret') === env.CRON_SECRET;
+  let actor = 'cron';
+  if (cronOk) {
+    if (body.action !== 'sync') return json(req, 403, { ok: false, error: 'Cron saa tehda vain sync-toiminnon' });
+  } else {
+    const jwt = (req.headers.get('authorization') || '').replace(/^Bearer\s+/i, '');
+    const claims = jwt ? decodeJwt(jwt) : null;
+    if (!claims || claims.aal !== 'aal2') return json(req, 403, { ok: false, error: 'Kirjautuminen ja kaksivaiheinen tunnistus vaaditaan' });
+    const adminRes = await f(`${env.SUPABASE_URL}/rest/v1/rpc/is_site_admin`, {
+      method: 'POST', headers: { apikey: env.SUPABASE_ANON_KEY, Authorization: `Bearer ${jwt}`, 'Content-Type': 'application/json' }, body: '{}',
+    });
+    if (!adminRes.ok || (await adminRes.json()) !== true) return json(req, 403, { ok: false, error: 'Vain yllapitaja' });
+    actor = claims.email || 'tuntematon';
+  }
   if (!PAGE || !TOKEN) return json(req, 500, { ok: false, error: 'Facebook-asetukset (META_PAGE_ID, META_PAGE_TOKEN) puuttuvat julkaisupalvelusta' });
 
   const SR = env.SUPABASE_SERVICE_ROLE_KEY;
-  const db = async (method, path, payload) => {
+  const db = async (method, path, payload, prefer) => {
     const r = await f(`${env.SUPABASE_URL}/rest/v1/${path}`, {
-      method, headers: { apikey: SR, Authorization: `Bearer ${SR}`, 'Content-Type': 'application/json', Prefer: 'return=representation' },
+      method, headers: { apikey: SR, Authorization: `Bearer ${SR}`, 'Content-Type': 'application/json', Prefer: prefer || 'return=representation' },
       body: payload ? JSON.stringify(payload) : undefined,
     });
     const t = await r.text();
@@ -127,7 +132,7 @@ export async function handle(req, env, f = fetch, now = () => Date.now()) {
     }
 
     // ---- refresh (onko ajastettu julkaisu ehtinyt julkaistua) ----
-    if (body.action === 'refresh') {
+    const doRefresh = async () => {
       const rows = await db('GET', `social_posts?status=eq.SCHEDULED&scheduled_at=lte.${new Date(now()).toISOString()}&select=id,fb_post_id`);
       let published = 0;
       for (const p of rows) {
@@ -139,7 +144,55 @@ export async function handle(req, env, f = fetch, now = () => Date.now()) {
           }
         } catch (e) { /* seuraava */ }
       }
-      return json(req, 200, { ok: true, checked: rows.length, published });
+      return { checked: rows.length, published };
+    };
+    if (body.action === 'refresh') return json(req, 200, { ok: true, ...(await doRefresh()) });
+
+    // ---- sync: hae Facebook-tilastot tauluihin (sivu paivittain + julkaisut) ----
+    if (body.action === 'sync') {
+      const dayOf = (ms) => new Date(ms).toISOString().slice(0, 10);
+      const nowMs = now(), today = dayOf(nowMs);
+      const summary = { page_days: 0, posts: 0, metrics: 0, errors: [] };
+      const upsert = (table, rows, conflict) => rows.length ? db('POST', `${table}?on_conflict=${conflict}`, rows, 'resolution=merge-duplicates,return=minimal') : Promise.resolve();
+      const num = (v) => (typeof v === 'number' ? v : (v && typeof v === 'object' ? Object.values(v).reduce((a, b) => a + (Number(b) || 0), 0) : null));
+      try { summary.refresh = await doRefresh(); } catch (e) { summary.errors.push('refresh: ' + scrub(e.message)); }
+
+      // Sivun tason luvut (viimeiset 8 vrk)
+      const cols = { views: 'page_media_view', page_views: 'page_views_total', engagements: 'page_post_engagements', followers: 'page_follows' };
+      const days = {};
+      for (const [col, metric] of Object.entries(cols)) {
+        try {
+          const r = await graph('GET', `${PAGE}/insights`, { metric, period: 'day', since: String(Math.floor((nowMs - 8 * 86400000) / 1000)), until: String(Math.floor(nowMs / 1000)) });
+          for (const v of ((r.data && r.data[0] && r.data[0].values) || [])) {
+            const d = dayOf(Date.parse(v.end_time) - 86400000);
+            (days[d] = days[d] || { day: d })[col] = num(v.value);
+          }
+        } catch (e) { summary.errors.push(metric + ': ' + scrub(e.message)); }
+      }
+      const pageRows = Object.values(days).map((r) => ({ views: null, page_views: null, engagements: null, followers: null, ...r, fetched_at: new Date(nowMs).toISOString() }));
+      try { await upsert('social_page_metrics', pageRows, 'day'); summary.page_days = pageRows.length; } catch (e) { summary.errors.push('page_metrics: ' + scrub(e.message)); }
+
+      // Julkaisut (viimeiset 120 vrk) ja niiden luvut
+      let fbPosts = [];
+      try {
+        const r = await graph('GET', `${PAGE}/posts`, { fields: 'id,created_time,message,permalink_url', limit: '50', since: String(Math.floor((nowMs - 120 * 86400000) / 1000)) });
+        fbPosts = r.data || [];
+        await upsert('social_fb_posts', fbPosts.map((p) => ({ fb_post_id: p.id, created_time: p.created_time, message: (p.message || '').slice(0, 300), permalink: p.permalink_url || null, updated_at: new Date(nowMs).toISOString() })), 'fb_post_id');
+        summary.posts = fbPosts.length;
+      } catch (e) { summary.errors.push('posts: ' + scrub(e.message)); }
+      const metricRows = [];
+      const one = async (p) => {
+        try {
+          const r = await graph('GET', `${p.id}/insights`, { metric: 'post_media_view,post_total_media_view_unique,post_clicks,post_reactions_by_type_total' });
+          const m = {}; for (const d of (r.data || [])) m[d.name] = num(d.values && d.values[0] && d.values[0].value);
+          metricRows.push({ fb_post_id: p.id, day: today, views: m.post_media_view ?? null, unique_views: m.post_total_media_view_unique ?? null, clicks: m.post_clicks ?? null, reactions: m.post_reactions_by_type_total ?? null, fetched_at: new Date(nowMs).toISOString() });
+        } catch (e) { summary.errors.push('insights ' + p.id + ': ' + scrub(e.message)); }
+      };
+      const list = fbPosts.slice(0, 40);
+      for (let i = 0; i < list.length; i += 5) await Promise.all(list.slice(i, i + 5).map(one));
+      try { await upsert('social_post_metrics', metricRows, 'fb_post_id,day'); summary.metrics = metricRows.length; } catch (e) { summary.errors.push('post_metrics: ' + scrub(e.message)); }
+      try { await db('POST', 'social_sync_log', [{ source: body.source || actor, summary }], 'return=minimal'); } catch (e) { /* loki ei ole kriittinen */ }
+      return json(req, 200, { ok: true, ...summary });
     }
 
     return json(req, 400, { ok: false, error: 'Tuntematon toiminto' });

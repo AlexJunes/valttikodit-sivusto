@@ -8,7 +8,7 @@
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/style.css?v=4152f429">
-    <link rel="stylesheet" href="../assets/css/admin.css?v=400f8535">
+    <link rel="stylesheet" href="../assets/css/admin.css?v=4f93605f">
     <!-- Supabase CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
 </head>
@@ -47,6 +47,12 @@
 
         <div id="so-health-result" class="so-note" style="display:none;"></div>
 
+        <div class="so-tabs" id="so-tabs">
+            <button class="so-tab active" data-tab="posts">Julkaisut</button>
+            <button class="so-tab" data-tab="results">Tulokset</button>
+        </div>
+
+        <div id="so-tab-posts">
         <div class="so-filters" id="so-filters">
             <button class="so-chip active" data-f="all">Kaikki</button>
             <button class="so-chip" data-f="DRAFT">Luonnokset</button>
@@ -72,10 +78,38 @@
                 </tbody>
             </table>
         </div>
+        </div>
+
+        <div id="so-tab-results" style="display:none;">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;margin-bottom:1rem;">
+                <div class="so-sub" id="so-sync-info">Ladataan...</div>
+                <button class="btn btn-outline" id="so-sync">P&auml;ivit&auml; tilastot nyt</button>
+            </div>
+            <div id="so-cards" class="so-cards"></div>
+            <div class="admin-card" style="margin-bottom:1.25rem;">
+                <h2 style="font-size:1.0625rem;margin-bottom:0.75rem;">Sivun n&auml;yt&ouml;t p&auml;ivitt&auml;in</h2>
+                <div id="so-chart"></div>
+            </div>
+            <h2 style="font-size:1.0625rem;margin:1.25rem 0 0.6rem;">Julkaisut (90 vrk)</h2>
+            <div class="admin-card" style="padding:0;overflow-x:auto;">
+                <table class="admin-table">
+                    <thead><tr><th>P&auml;iv&auml;</th><th>Julkaisu</th><th>N&auml;yt&ouml;t</th><th>Eri henkil&ouml;it&auml;</th><th>Klikkaukset</th><th>Reaktiot</th><th>K&auml;vij&ouml;it&auml; sivustolle</th></tr></thead>
+                    <tbody id="so-res-posts"><tr><td colspan="7">Ladataan...</td></tr></tbody>
+                </table>
+            </div>
+            <h2 style="font-size:1.0625rem;margin:1.25rem 0 0.6rem;">Kampanjat (kampanjatunnisteiden kautta)</h2>
+            <div class="admin-card" style="padding:0;overflow-x:auto;">
+                <table class="admin-table">
+                    <thead><tr><th>Kampanja</th><th>K&auml;vij&ouml;it&auml; sivustolle</th><th>Liidit</th></tr></thead>
+                    <tbody id="so-res-camps"><tr><td colspan="3">Ladataan...</td></tr></tbody>
+                </table>
+            </div>
+            <p class="so-sub" style="margin-top:1rem;">Facebook-luvut p&auml;ivittyv&auml;t y&ouml;llä. Sivuston k&auml;vij&auml;- ja liidiluvut kertyv&auml;t vain linkeist&auml;, joissa on seurantatunniste (Some-sivulta ajastetut julkaisut). Liidit lasketaan kampanjatasolla.</p>
+        </div>
     </main>
 
     <script src="../assets/js/admin.js?v=e2eca4c6"></script>
-    <script src="../assets/js/admin-social.js?v=4755e9a0"></script>
+    <script src="../assets/js/admin-social.js?v=d7e33b15"></script>
 </body>
 
 </html>
