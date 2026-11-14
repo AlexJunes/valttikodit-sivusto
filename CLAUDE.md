@@ -60,3 +60,7 @@ Ylläpito = kirjautunut + sähköposti taulussa `admin_users` (`public.is_site_a
 - `.env.local` on versionhallinnassa (sisältää vain julkiset avaimet; ei käytössä staattisella sivustolla). Harkitse poistoa.
 - README.md on vanhentunut (mainitsee mm. `kohdesivut/`, `valtti-tapa.html`).
 - RLS-säännöt: `docs/tietoturva.md` listaa tarkastettavat kohdat. Selvitä todellinen tila Supabasesta ennen muutoksia.
+
+## Some-hallinta
+
+Facebook-julkaisut tehdään vain ylläpidon Some-sivulta Edge Functionin `supabase/functions/social-publish` kautta (hyväksyntä ennen ajastusta). Facebook-avainta ei koskaan kirjoiteta tiedostoihin, selaimeen tai tietokantaan. Agentit eivät julkaise tai kommentoi sosiaalisessa mediassa; ne tekevät luonnoksia. Älä testaa oikeaan Facebook-sivuun ilman käyttäjän lupaa (käytä `scripts/social_dev_function.mjs`).

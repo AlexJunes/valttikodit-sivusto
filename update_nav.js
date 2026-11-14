@@ -13,6 +13,7 @@ for (const file of files) {
     if (file === 'dashboard.html') activeItem = 'dashboard.html';
     else if (file === 'projects.html' || file === 'edit-project.html') activeItem = 'projects.html';
     else if (file === 'references.html' || file === 'edit-reference.html') activeItem = 'references.html';
+    else if (file === 'social.html') activeItem = 'social.html';
     else if (file === 'pages.html' || file === 'edit-page.html' || file === 'edit-index.html') activeItem = 'pages.html';
     else if (file === 'users.html') activeItem = 'users.html';
     else if (file === 'analytics.html') activeItem = 'analytics.html';
@@ -21,6 +22,7 @@ for (const file of files) {
             <a href="dashboard.html"${activeItem === 'dashboard.html' ? ' class="active"' : ''}>Liidit<span id="unread-leads-badge" style="display:none; color:#ef4444; font-weight:600; margin-left:4px;"></span></a>
             <a href="projects.html"${activeItem === 'projects.html' ? ' class="active"' : ''}>Kohteet</a>
             <a href="references.html"${activeItem === 'references.html' ? ' class="active"' : ''}>Referenssit</a>
+            <a href="social.html"${activeItem === 'social.html' ? ' class="active"' : ''}>Some</a>
             <a href="pages.html"${activeItem === 'pages.html' ? ' class="active"' : ''}>Sivut</a>
             <a href="users.html"${activeItem === 'users.html' ? ' class="active"' : ''}>Käyttäjät</a>
             <a href="analytics.html"${activeItem === 'analytics.html' ? ' class="active"' : ''}>Analytiikka</a>

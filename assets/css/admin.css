@@ -221,3 +221,27 @@
 .lead-actions { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1.5rem; }
 @media (max-width: 520px) { .lead-row { grid-template-columns: 1fr; gap: 0.15rem; } }
 .lead-dl a { color: var(--primary); text-decoration: underline; }
+
+/* Some-hallinta (admin/social.html) */
+.so-filters { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem; }
+.so-chip { border: 1px solid var(--border); background: #fff; border-radius: 999px; padding: 0.35rem 0.9rem; font-size: 0.8125rem; cursor: pointer; }
+.so-chip.active { background: #121212; color: #fff; border-color: #121212; }
+.so-status { display: inline-block; padding: 0.2rem 0.55rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; }
+.so-sub { font-size: 0.8125rem; color: var(--text-muted); margin-top: 0.2rem; }
+.so-row { cursor: pointer; }
+.so-row:hover { background: #f9fafb; }
+.so-note { padding: 0.65rem 0.9rem; border-radius: 8px; font-size: 0.875rem; margin: 0.6rem 0; background: #f3f4f6; }
+.so-ok { background: #ecfdf5; color: #065f46; }
+.so-err { background: #fef2f2; color: #991b1b; }
+.so-warn { background: #fffbeb; color: #92400e; }
+.so-modal { width: min(1040px, calc(100vw - 2rem)); }
+.so-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 1.75rem; }
+.so-fb { border: 1px solid var(--border); border-radius: 10px; padding: 1rem; background: #fff; max-width: 420px; }
+.so-fb-head { display: flex; gap: 0.6rem; align-items: center; margin-bottom: 0.6rem; }
+.so-fb-logo { width: 36px; height: 36px; border-radius: 50%; background: #8b8f6a; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; }
+.so-fb-text { white-space: pre-wrap; word-break: break-word; font-size: 0.9375rem; line-height: 1.5; margin-bottom: 0.6rem; }
+.so-fb img { width: 100%; border-radius: 6px; display: block; margin-bottom: 0.5rem; }
+.so-fb-link { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; }
+.so-hist { list-style: none; padding: 0; margin: 0.4rem 0 0; font-size: 0.8125rem; color: var(--text-muted); }
+.so-hist li { padding: 0.2rem 0; border-bottom: 1px solid var(--border); }
+@media (max-width: 860px) { .so-grid { grid-template-columns: 1fr; } }

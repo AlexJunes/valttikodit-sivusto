@@ -34,3 +34,9 @@ Tilanne: käsikirjan mukainen *tavoitetila*. Todellista tilaa Supabasessa ei ole
 ## Muutosprosessi
 
 Jokainen tietokantamuutos: migraatiotiedosto `supabase/migrations/` → käyttäjän tarkistus → käyttäjä ajaa SQL Editorissa → commit.
+
+## Some-hallinta ja Facebook-avain
+
+- Facebook-sivun pysyvä avain (`META_PAGE_TOKEN`) ja `META_PAGE_ID` ovat vain Supabase Edge Functionin salaisuuksia (sekä tarvittaessa luku-agenttien ympäristössä); niitä ei ole selaimessa, tietokannassa eikä repossa.
+- Julkaisupalvelu vaatii kirjautuneen ylläpitäjän ja MFA:n (aal2), tarkistaa `is_site_admin()` ja sallii vain ajastuksen, peruutuksen, luvun ja yhteystestin. Virheviesteistä poistetaan avain.
+- Hyväksyntä, ajastus ja peruutus kirjataan tauluun `social_audit`. Agentit (esim. some-suunnittelija) eivät julkaise: ne tekevät vain luonnoksia.

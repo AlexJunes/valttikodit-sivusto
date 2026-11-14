@@ -58,3 +58,7 @@ Migraatio `2026-10-18_lead_agent.sql`: leads-tauluun sarakkeet `category`, `agen
 - `agent_get_leads(p_token, p_limit)` hakee ja varaa (PROCESSING) käsittelemättömät liidit, varaus vanhenee 30 min, enintään 3 yritystä.
 - `agent_mark_lead(p_token, p_lead_id, p_category)` merkitsee liidin DONE ja tallentaa luokan (TALON_OSTAJA, TONTIN_MYYJA, ALIHANKKIJA, MUU, ROSKAPOSTI). Ei muuta kirjoitusta.
 Migraatio `2026-10-18_lead_agent_trigger.sql`: pg_net-laukaisin `trg_notify_new_lead` lähettää uudesta liidistä pilviagentille (Claude routine, API-trigger) vain tekstin `lead_id=<uuid>`; URL ja avain Vaultissa (`lead_routine_url`, `lead_routine_token`); virheet nielaistaan, liidin tallennus ei koskaan epäonnistu.
+
+## Some-hallinta (social_campaigns, social_posts, social_audit)
+
+Migraatio `2026-11-14_social.sql`. RLS: vain ylläpito (`is_site_admin()`). Suojalaukaisin `social_posts_guard` estää selainta asettamasta tiloja SCHEDULED/PUBLISHED/FAILED tai kirjoittamasta Facebook-tunnisteita (vain julkaisupalvelu / service role saa), mitätöi hyväksynnän sisältömuutoksessa, estää ajastetun julkaisun muokkauksen ja ajastetun/julkaistun poiston. `social_posts_audit` kirjaa tapahtumat tauluun `social_audit` (vain luku ylläpidolle).

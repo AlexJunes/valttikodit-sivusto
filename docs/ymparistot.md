@@ -44,3 +44,7 @@ Pysäytys: `supabase stop`. Tyhjennys ja uudelleenluonti: aja `python3 scripts/l
 - Kuvat ja tiedostot, jotka ladataan testiylläpidossa, menevät paikalliseen Storageen.
 - Paikallisen Postgresin versio (17) voi poiketa tuotannosta.
 - Julkinen esikatseluosoite jokaiselle PR:lle puuttuu (mahdollinen jatkokehitys: Cloudflare Pages).
+
+## Some-hallinnan paikallinen testaus
+
+`python3 scripts/dev_server.py 8099` + `node scripts/social_dev_function.mjs` (julkaisupalvelu osoitteessa 127.0.0.1:8788 ja Facebook-Graph-jäljitelmä :8789; kutsulokin näkee osoitteesta http://127.0.0.1:8788/_calls). Oikeaan Facebookiin ei lähde mitään.

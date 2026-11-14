@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="fi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Some | Valttikodit Admin</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/style.css?v=4152f429">
+    <link rel="stylesheet" href="../assets/css/admin.css?v=400f8535">
+    <!-- Supabase CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+</head>
+
+<body class="admin-layout">
+
+    <aside class="admin-sidebar" id="sidebar">
+        <div class="admin-brand">Valttikodit Admin</div>
+        <nav class="admin-nav">
+            <a href="dashboard.html">Liidit<span id="unread-leads-badge" style="display:none; color:#ef4444; font-weight:600; margin-left:4px;"></span></a>
+            <a href="projects.html">Kohteet</a>
+            <a href="references.html">Referenssit</a>
+            <a href="social.html" class="active">Some</a>
+            <a href="pages.html">Sivut</a>
+            <a href="users.html">Käyttäjät</a>
+            <a href="analytics.html">Analytiikka</a>
+        </nav>
+        <div style="padding: 1rem; border-top: 1px solid var(--border);">
+            <div id="sidebar-user-email"
+                style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">
+                Ladataan...</div>
+        </div>
+    </aside>
+
+    <main class="admin-main">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; gap: 1rem; flex-wrap: wrap;">
+            <div>
+                <h1 style="font-size: 1.875rem; margin-bottom: 0.25rem;">Some</h1>
+                <p style="color: var(--text-muted); font-size: 0.9375rem;">Facebook-julkaisut: luonnos, hyväksyntä ja ajastus. Mitään ei julkaista ilman hyväksyntääsi.</p>
+            </div>
+            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                <button class="btn btn-outline" id="so-health">Testaa Facebook-yhteys</button>
+                <button class="btn btn-primary" id="so-new">Uusi julkaisu</button>
+            </div>
+        </div>
+
+        <div id="so-health-result" class="so-note" style="display:none;"></div>
+
+        <div class="so-filters" id="so-filters">
+            <button class="so-chip active" data-f="all">Kaikki</button>
+            <button class="so-chip" data-f="DRAFT">Luonnokset</button>
+            <button class="so-chip" data-f="APPROVED">Hyväksytyt</button>
+            <button class="so-chip" data-f="SCHEDULED">Ajastetut</button>
+            <button class="so-chip" data-f="PUBLISHED">Julkaistut</button>
+            <button class="so-chip" data-f="CANCELLED">Peruttu</button>
+        </div>
+
+        <div class="admin-card" style="padding: 0; overflow-x: auto;">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Julkaisu</th>
+                        <th>Kampanja</th>
+                        <th>Ajankohta</th>
+                        <th>Tila</th>
+                        <th style="text-align: right;">Toiminnot</th>
+                    </tr>
+                </thead>
+                <tbody id="so-list">
+                    <tr><td colspan="5">Ladataan...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <script src="../assets/js/admin.js?v=e2eca4c6"></script>
+    <script src="../assets/js/admin-social.js?v=4755e9a0"></script>
+</body>
+
+</html>
