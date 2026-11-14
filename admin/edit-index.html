@@ -8,7 +8,7 @@
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/style.css?v=4152f429">
-    <link rel="stylesheet" href="../assets/css/admin.css?v=a5595327">
+    <link rel="stylesheet" href="../assets/css/admin.css?v=47fac795">
     <!-- Supabase CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
 <!DOCTYPE html>
@@ -21,7 +21,7 @@
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/style.css?v=4152f429">
-    <link rel="stylesheet" href="../assets/css/admin.css?v=a5595327">
+    <link rel="stylesheet" href="../assets/css/admin.css?v=47fac795">
     <!-- Supabase CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
 </head>
@@ -34,10 +34,15 @@
             <a href="dashboard.html">Liidit<span id="unread-leads-badge" style="display:none; color:#ef4444; font-weight:600; margin-left:4px;"></span></a>
             <a href="projects.html">Kohteet</a>
             <a href="references.html">Referenssit</a>
+            <a href="social.html">Some</a>
             <a href="pages.html" class="active">Sivut</a>
             <a href="users.html">Käyttäjät</a>
             <a href="analytics.html">Analytiikka</a>
-            <a href="login.html" style="color: red; font-size: 0.875rem; font-weight: 500;">Kirjaudu ulos</a>
+        </nav>
+        <div style="padding: 1rem; border-top: 1px solid var(--border);">
+            <div id="sidebar-user-email"
+                style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">
+                Ladataan...</div>
         </div>
     </aside>
 
