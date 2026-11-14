@@ -40,3 +40,7 @@ Jokainen tietokantamuutos: migraatiotiedosto `supabase/migrations/` → käyttä
 - Facebook-sivun pysyvä avain (`META_PAGE_TOKEN`) ja `META_PAGE_ID` ovat vain Supabase Edge Functionin salaisuuksia (sekä tarvittaessa luku-agenttien ympäristössä); niitä ei ole selaimessa, tietokannassa eikä repossa.
 - Julkaisupalvelu vaatii kirjautuneen ylläpitäjän ja MFA:n (aal2), tarkistaa `is_site_admin()` ja sallii vain ajastuksen, peruutuksen, luvun ja yhteystestin. Virheviesteistä poistetaan avain.
 - Hyväksyntä, ajastus ja peruutus kirjataan tauluun `social_audit`. Agentit (esim. some-suunnittelija) eivät julkaise: ne tekevät vain luonnoksia.
+
+### Some-yöajo ja funktion tunnistus
+
+Funktio `social-publish` tunnistaa kutsujan itse: joko ylläpitäjän istunto + MFA (kaikki toiminnot) tai `x-cron-secret` (ainoastaan `sync`). Siksi funktion "Enforce JWT Verification" on pois päältä (pg_cron-kutsulla ei ole käyttäjän JWT:tä). Salaisuus `CRON_SECRET` on funktion salaisuus ja Vaultissa (`social_cron_secret`); sitä ei ole repossa. `sync` vain lukee Facebookia ja kirjoittaa tilastotauluihin.

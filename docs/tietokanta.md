@@ -62,3 +62,7 @@ Migraatio `2026-10-18_lead_agent_trigger.sql`: pg_net-laukaisin `trg_notify_new_
 ## Some-hallinta (social_campaigns, social_posts, social_audit)
 
 Migraatio `2026-11-14_social.sql`. RLS: vain ylläpito (`is_site_admin()`). Suojalaukaisin `social_posts_guard` estää selainta asettamasta tiloja SCHEDULED/PUBLISHED/FAILED tai kirjoittamasta Facebook-tunnisteita (vain julkaisupalvelu / service role saa), mitätöi hyväksynnän sisältömuutoksessa, estää ajastetun julkaisun muokkauksen ja ajastetun/julkaistun poiston. `social_posts_audit` kirjaa tapahtumat tauluun `social_audit` (vain luku ylläpidolle).
+
+## Some-tulokset (social_fb_posts, social_post_metrics, social_page_metrics, social_sync_log)
+
+Migraatio `2026-11-14_social_metrics.sql` (+ `2026-11-14_social_cron.sql` yöajolle). RLS: vain ylläpito lukee; kirjoittaa vain julkaisupalvelu (service role). Funktio `social_results(p_days)` (SECURITY DEFINER, vain `is_site_admin()`) palauttaa yhdistetyn näkymän, `social_cron_sync()` lukee osoitteen ja salaisuuden Vaultista (`social_function_url`, `social_cron_secret`) ja kutsuu pg_netillä Edge Functionia.
