@@ -64,7 +64,8 @@ export async function handle(req, env, f = fetch, now = () => Date.now()) {
   const graph = async (method, path, params) => {
     const form = new URLSearchParams({ ...(params || {}), access_token: TOKEN });
     const url = `${GRAPH}/${path}`;
-    const r = method === 'GET' ? await f(`${url}?${form}`) : await f(url, { method, body: method === 'DELETE' ? undefined : form, headers: method === 'DELETE' ? undefined : { 'Content-Type': 'application/x-www-form-urlencoded' } });
+    // GET ja DELETE: avain kyselyparametrina; POST: lomakkeen mukana
+    const r = (method === 'GET' || method === 'DELETE') ? await f(`${url}?${form}`, { method }) : await f(url, { method, body: form, headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
     const t = await r.text();
     let j = {}; try { j = t ? JSON.parse(t) : {}; } catch (e) { j = { raw: t }; }
     if (!r.ok || j.error) throw new Error(scrub((j.error && (j.error.message || j.error.error_user_msg)) || 'Facebook-virhe ' + r.status));
@@ -115,7 +116,12 @@ export async function handle(req, env, f = fetch, now = () => Date.now()) {
       const post = await getPost(body.post_id);
       if (post.status !== 'SCHEDULED' || !post.fb_post_id) return json(req, 200, { ok: false, error: 'Vain ajastetun julkaisun ajastuksen voi perua' });
       try { await graph('DELETE', post.fb_post_id); }
-      catch (e) { if (!/does not exist|cannot be loaded|not found/i.test(String(e.message))) throw e; }
+      catch (e) {
+        // Jos poisto "epaonnistui", tarkista ettei julkaisu edelleen ole Facebookissa; vasta sitten merkitaan peruutetuksi
+        let stillThere = false;
+        try { await graph('GET', post.fb_post_id, { fields: 'id' }); stillThere = true; } catch (e2) { stillThere = false; }
+        if (stillThere) return json(req, 200, { ok: false, error: 'Facebook ei poistanut ajastettua julkaisua: ' + scrub(e && e.message) + ' Poista se Facebookin Suunnittelutyokalusta kasin.' });
+      }
       await db('PATCH', `social_posts?id=eq.${post.id}`, { status: 'CANCELLED', fb_post_id: null, last_error: null });
       return json(req, 200, { ok: true, actor });
     }

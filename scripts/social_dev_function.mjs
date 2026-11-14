@@ -23,8 +23,11 @@ const env = {
 const calls = [];
 http.createServer((req, res) => {   // Graph-jäljitelmä
   let b = ''; req.on('data', (c) => (b += c)); req.on('end', () => {
-    calls.push({ method: req.method, url: req.url.replace(/access_token=[^&]*/, 'access_token=***'), body: b.replace(/access_token=[^&]*/, 'access_token=***') });
+    const hasToken = /access_token=local-test-token/.test(req.url + '&' + b);   // Facebook vaatii avaimen myos DELETE-kutsussa
+    calls.push({ method: req.method, url: req.url.replace(/access_token=[^&]*/, 'access_token=***'), body: b.replace(/access_token=[^&]*/, 'access_token=***'), hasToken });
     res.setHeader('Content-Type', 'application/json');
+    if (!hasToken) { res.statusCode = 400; res.end(JSON.stringify({ error: { message: "Unsupported delete request. Object with ID does not exist, cannot be loaded due to missing permissions, or does not support this operation" } })); return; }
+    if (req.method === 'GET' && /fields=id$/.test(req.url.replace(/&access_token=[^&]*/, ''))) { res.end(JSON.stringify({ id: 'x' })); return; }
     if (req.method === 'POST') res.end(JSON.stringify({ id: '1234567890_' + (100 + calls.length) }));
     else if (req.method === 'DELETE') res.end(JSON.stringify({ success: true }));
     else if (/fields=name/.test(req.url)) res.end(JSON.stringify({ name: 'Valttikodit Oy (testi)', followers_count: 58 }));
