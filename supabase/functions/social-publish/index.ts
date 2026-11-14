@@ -184,7 +184,7 @@ export async function handle(req, env, f = fetch, now = () => Date.now()) {
       const one = async (p) => {
         try {
           const r = await graph('GET', `${p.id}/insights`, { metric: 'post_media_view,post_total_media_view_unique,post_clicks,post_reactions_by_type_total' });
-          const m = {}; for (const d of (r.data || [])) m[d.name] = num(d.values && d.values[0] && d.values[0].value);
+          const m = {}; for (const d of (r.data || [])) { if (d.period && d.period !== 'lifetime') continue; m[d.name] = num(d.values && d.values[0] && d.values[0].value); }   // vain kumulatiivinen (lifetime) arvo; paivakohtainen rivi ylikirjoittaisi sen nollalla
           metricRows.push({ fb_post_id: p.id, day: today, views: m.post_media_view ?? null, unique_views: m.post_total_media_view_unique ?? null, clicks: m.post_clicks ?? null, reactions: m.post_reactions_by_type_total ?? null, fetched_at: new Date(nowMs).toISOString() });
         } catch (e) { summary.errors.push('insights ' + p.id + ': ' + scrub(e.message)); }
       };

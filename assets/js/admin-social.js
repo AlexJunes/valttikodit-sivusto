@@ -291,7 +291,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (vals.length > 1) {
             const W = 760, H = 120, max = Math.max(...vals, 1);
             const pts = vals.map((v, i) => `${(i / (vals.length - 1)) * W},${H - 8 - (v / max) * (H - 24)}`).join(' ');
-            $('so-chart').innerHTML = `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;max-height:140px;"><polyline fill="none" stroke="#1d4ed8" stroke-width="2" points="${pts}"/></svg><div class="so-sub">${esc(page[0].day)} – ${esc(page[page.length - 1].day)}, korkein ${fmtN(max)} näyttöä/pv</div>`;
+            $('so-chart').innerHTML = `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" style="width:100%;height:140px;display:block;"><polyline vector-effect="non-scaling-stroke" fill="none" stroke="#1d4ed8" stroke-width="2" points="${pts}"/></svg><div class="so-sub">${esc(page[0].day)} – ${esc(page[page.length - 1].day)}, korkein ${fmtN(max)} näyttöä/pv</div>`;
         } else $('so-chart').innerHTML = '<div class="so-sub">Ei vielä riittävästi dataa.</div>';
         $('so-res-posts').innerHTML = posts.length ? posts.map((x) => `<tr><td>${esc(new Date(x.created_time).toLocaleDateString('fi-FI'))}</td>
             <td style="max-width:360px;">${x.title ? `<strong>${esc(x.title)}</strong>${x.campaign ? ` <span class="so-sub">(${esc(x.campaign)})</span>` : ''}` : esc((x.message || '(ei tekstiä)').slice(0, 90))}${x.permalink ? ` <a href="${esc(x.permalink)}" target="_blank" rel="noopener">↗</a>` : ''}</td>

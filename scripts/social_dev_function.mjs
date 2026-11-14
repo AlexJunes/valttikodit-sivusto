@@ -35,7 +35,10 @@ http.createServer((req, res) => {   // Graph-jäljitelmä
         res.end(JSON.stringify({ data: [{ name: metrics[0], period: 'day', values: vals }] })); return;
       }
       const o = { post_media_view: 337, post_total_media_view_unique: 190, post_clicks: 14, post_reactions_by_type_total: { like: 12, love: 2 } };
-      res.end(JSON.stringify({ data: metrics.map((m) => ({ name: m, values: [{ value: o[m] ?? 0 }] })) })); return;
+      // Facebook palauttaa osalle mittareista sekä lifetime- että day-rivin (day-rivi voi olla 0)
+      const data = metrics.map((m) => ({ name: m, period: 'lifetime', values: [{ value: o[m] ?? 0 }] }));
+      if (metrics.includes('post_total_media_view_unique')) data.push({ name: 'post_total_media_view_unique', period: 'day', values: [{ value: 0, end_time: '2026-11-10T08:00:00+0000' }] });
+      res.end(JSON.stringify({ data })); return;
     }
     if (req.method === 'GET' && /^\/1234567890\/posts\?/.test(req.url)) {   // sivun julkaisut (yksi vastaa ajastettua testijulkaisua)
       const mine = calls.filter((c) => c.method === 'POST' && /\/(feed|photos)$/.test(c.url)).length ? '1234567890_101' : null;
