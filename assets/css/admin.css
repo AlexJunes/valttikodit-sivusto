@@ -262,3 +262,8 @@
 .so-img-opt:hover { border-color: #111827; }
 .so-img-opt img { width: 100%; height: 72px; object-fit: cover; display: block; }
 .so-img-opt span { padding: 0 0.35rem 0.3rem; font-size: 0.7rem; color: #4b5563; line-height: 1.2; }
+
+/* Pitkillakin sivuilla koko valikko ja alapalkki pysyvat nakyvissa */
+@media (min-width: 769px) {
+    .admin-sidebar { position: sticky; top: 0; height: 100vh; overflow-y: auto; flex-shrink: 0; }
+}
