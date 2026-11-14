@@ -4,33 +4,43 @@ const path = require('path');
 const dir = path.join(__dirname, 'admin');
 const files = fs.readdirSync(dir).filter(f => f.endsWith('.html') && f !== 'login.html');
 
+const ACTIVE = {
+    'dashboard.html': 'dashboard.html',
+    'projects.html': 'projects.html', 'edit-project.html': 'projects.html',
+    'references.html': 'references.html', 'edit-reference.html': 'references.html',
+    'social.html': 'social.html',
+    'pages.html': 'pages.html', 'edit-page.html': 'pages.html', 'edit-index.html': 'pages.html',
+    'users.html': 'users.html',
+    'analytics.html': 'analytics.html'
+};
+const ITEMS = [
+    ['dashboard.html', 'Liidit<span id="unread-leads-badge" style="display:none; color:#ef4444; font-weight:600; margin-left:4px;"></span>'],
+    ['projects.html', 'Kohteet'],
+    ['references.html', 'Referenssit'],
+    ['social.html', 'Some'],
+    ['pages.html', 'Sivut'],
+    ['users.html', 'Käyttäjät'],
+    ['analytics.html', 'Analytiikka']
+];
+
 for (const file of files) {
     const filePath = path.join(dir, file);
-    let content = fs.readFileSync(filePath, 'utf8');
+    const content = fs.readFileSync(filePath, 'utf8');
+    const active = ACTIVE[file] || '';
 
-    // Määritetään kunkin sivun "active" luokka
-    let activeItem = '';
-    if (file === 'dashboard.html') activeItem = 'dashboard.html';
-    else if (file === 'projects.html' || file === 'edit-project.html') activeItem = 'projects.html';
-    else if (file === 'references.html' || file === 'edit-reference.html') activeItem = 'references.html';
-    else if (file === 'social.html') activeItem = 'social.html';
-    else if (file === 'pages.html' || file === 'edit-page.html' || file === 'edit-index.html') activeItem = 'pages.html';
-    else if (file === 'users.html') activeItem = 'users.html';
-    else if (file === 'analytics.html') activeItem = 'analytics.html';
+    // Koko sivupalkki kerralla: admin.js lisää sähköpostin alle uloskirjautumislinkin
+    const aside = `<aside class="admin-sidebar" id="sidebar">
+        <div class="admin-brand">Valttikodit Admin</div>
+        <nav class="admin-nav">
+${ITEMS.map(([href, label]) => `            <a href="${href}"${href === active ? ' class="active"' : ''}>${label}</a>`).join('\n')}
+        </nav>
+        <div style="padding: 1rem; border-top: 1px solid var(--border);">
+            <div id="sidebar-user-email"
+                style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">
+                Ladataan...</div>
+        </div>
+    </aside>`;
 
-    const cleanNav = `<nav class="admin-nav">
-            <a href="dashboard.html"${activeItem === 'dashboard.html' ? ' class="active"' : ''}>Liidit<span id="unread-leads-badge" style="display:none; color:#ef4444; font-weight:600; margin-left:4px;"></span></a>
-            <a href="projects.html"${activeItem === 'projects.html' ? ' class="active"' : ''}>Kohteet</a>
-            <a href="references.html"${activeItem === 'references.html' ? ' class="active"' : ''}>Referenssit</a>
-            <a href="social.html"${activeItem === 'social.html' ? ' class="active"' : ''}>Some</a>
-            <a href="pages.html"${activeItem === 'pages.html' ? ' class="active"' : ''}>Sivut</a>
-            <a href="users.html"${activeItem === 'users.html' ? ' class="active"' : ''}>Käyttäjät</a>
-            <a href="analytics.html"${activeItem === 'analytics.html' ? ' class="active"' : ''}>Analytiikka</a>
-        </nav>`;
-
-    // Replace the existing nav completely using Regex
-    const newContent = content.replace(/<nav class="admin-nav">[\s\S]*?<\/nav>/, cleanNav);
-    
-    fs.writeFileSync(filePath, newContent, 'utf8');
+    fs.writeFileSync(filePath, content.replace(/<aside class="admin-sidebar"[^>]*>[\s\S]*?<\/aside>/, aside), 'utf8');
     console.log(`Updated ${file}`);
 }

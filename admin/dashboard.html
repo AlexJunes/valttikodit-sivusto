@@ -8,7 +8,7 @@
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/style.css?v=4152f429">
-    <link rel="stylesheet" href="../assets/css/admin.css?v=06e4de3a">
+    <link rel="stylesheet" href="../assets/css/admin.css?v=9b14e881">
     <!-- Supabase CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
 </head>
@@ -16,7 +16,6 @@
 <body class="admin-layout">
 
     <aside class="admin-sidebar" id="sidebar">
-        <!-- Renderöidään JS:llä ylläpidon puolella tai suoraan HTMlL:ssä. Tässä suoraan HTML lokaalin yksinkertaisuuden vuoksi -->
         <div class="admin-brand">Valttikodit Admin</div>
         <nav class="admin-nav">
             <a href="dashboard.html" class="active">Liidit<span id="unread-leads-badge" style="display:none; color:#ef4444; font-weight:600; margin-left:4px;"></span></a>
@@ -28,10 +27,9 @@
             <a href="analytics.html">Analytiikka</a>
         </nav>
         <div style="padding: 1rem; border-top: 1px solid var(--border);">
-            <div
+            <div id="sidebar-user-email"
                 style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">
-                admin@valttikodit.local</div>
-            <a href="login.html" style="color: red; font-size: 0.875rem; font-weight: 500;">Kirjaudu ulos</a>
+                Ladataan...</div>
         </div>
     </aside>
 

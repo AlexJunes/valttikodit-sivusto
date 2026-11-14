@@ -267,3 +267,5 @@
 @media (min-width: 769px) {
     .admin-sidebar { position: sticky; top: 0; height: 100vh; overflow-y: auto; flex-shrink: 0; }
 }
+
+.so-tip { position: absolute; pointer-events: none; background: #111827; color: #fff; font-size: 0.75rem; line-height: 1.35; padding: 0.35rem 0.6rem; border-radius: 6px; white-space: nowrap; z-index: 2; }
