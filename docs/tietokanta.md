@@ -66,3 +66,7 @@ Migraatio `2026-11-14_social.sql`. RLS: vain ylläpito (`is_site_admin()`). Suoj
 ## Some-tulokset (social_fb_posts, social_post_metrics, social_page_metrics, social_sync_log)
 
 Migraatio `2026-11-14_social_metrics.sql` (+ `2026-11-14_social_cron.sql` yöajolle). RLS: vain ylläpito lukee; kirjoittaa vain julkaisupalvelu (service role). Funktio `social_results(p_days)` (SECURITY DEFINER, vain `is_site_admin()`) palauttaa yhdistetyn näkymän, `social_cron_sync()` lukee osoitteen ja salaisuuden Vaultista (`social_function_url`, `social_cron_secret`) ja kutsuu pg_netillä Edge Functionia.
+
+## Some-agentti (social_agent_tokens, social_posts.source/agent_note)
+
+Migraatio `2026-11-14_social_agent.sql`. Taulu `social_agent_tokens` sisältää vain agentin avaimen tiivisteen (sha256), ei avainta. Funktiot `social_agent_context(p_token)` (tulokset, kampanjat, viimeaikaiset julkaisut luettavaksi) ja `social_agent_create_draft(...)` (luo vain luonnoksen; `source='agent'`, `created_by='agentti'`, perustelu `agent_note`) ovat SECURITY DEFINER ja avaimen tarkistavia. Rajat: enintään 5 agentin luonnosta viikossa, enintään 8 hyväksymätöntä agentin luonnosta, ajankohta 1 h – 29 vrk päässä, kuva https, linkki vain www.valttikodit.fi, kampanjatunnus `[a-z0-9-]{1,50}`. Suojalaukaisin estää selainta asettamasta `source='agent'`. Taulut eivät ole anon-käyttäjän luettavissa; vain nämä funktiot.

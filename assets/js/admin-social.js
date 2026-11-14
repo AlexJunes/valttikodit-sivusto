@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         listEl.innerHTML = rows.map((x) => {
             const camp = campaigns.find((c) => c.id === x.campaign_id);
             return `<tr data-id="${esc(x.id)}" class="so-row">
-                <td style="font-weight:500;">${esc(x.title)}<div class="so-sub">${esc((x.body || '').slice(0, 70))}${(x.body || '').length > 70 ? '…' : ''}</div></td>
+                <td style="font-weight:500;">${esc(x.title)}${x.source === 'agent' ? ' <span class="so-agent">Agentin ehdotus</span>' : ''}<div class="so-sub">${esc((x.body || '').slice(0, 70))}${(x.body || '').length > 70 ? '…' : ''}</div></td>
                 <td>${camp ? esc(camp.name) : '–'}</td>
                 <td>${esc(fmt(x.scheduled_at))}</td>
                 <td>${chip(x.status)}${x.last_error ? `<div class="so-sub" style="color:#b91c1c;">${esc(x.last_error)}</div>` : ''}</td>
@@ -100,6 +100,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         modal.innerHTML = `
             <div class="lead-modal-head"><div><h2>${cur.id ? 'Julkaisu' : 'Uusi julkaisu'} ${cur.id ? chip(cur.status) : ''}</h2></div><button type="button" class="lead-x" data-close aria-label="Sulje">&times;</button></div>
             ${cur.last_error ? `<div class="so-note so-err">${esc(cur.last_error)}</div>` : ''}
+            ${cur.source === 'agent' ? `<div class="so-note"><strong>Agentin ehdotus.</strong> Tarkista teksti, kuva ja ajankohta ennen hyväksyntää.${cur.agent_note ? `<br>Perustelu: ${esc(cur.agent_note)}` : ''}</div>` : ''}
             <div class="so-grid">
                 <div>
                     <label class="form-label">Sisäinen nimi *</label>
