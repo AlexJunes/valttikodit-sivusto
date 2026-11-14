@@ -34,12 +34,30 @@ document.addEventListener('DOMContentLoaded', async () => {
         const [p, c, pr, rf] = await Promise.all([
             sb.from('social_posts').select('*').order('scheduled_at', { ascending: false, nullsFirst: true }).order('created_at', { ascending: false }),
             sb.from('social_campaigns').select('*').order('created_at', { ascending: false }),
-            sb.from('projects').select('slug,title,status').eq('published', true).order('title'),
-            sb.from('reference_cases').select('slug,title').eq('published', true).order('title'),
+            sb.from('projects').select('slug,title,status,hero_image,gallery_images,details').eq('published', true).order('title'),
+            sb.from('reference_cases').select('slug,title,hero_image,gallery').eq('published', true).order('title'),
         ]);
         if (p.error) { listEl.innerHTML = `<tr><td colspan="5" style="color:red;">Virhe: ${esc(p.error.message)}</td></tr>`; return; }
-        posts = p.data || []; campaigns = c.data || []; projects = pr.data || []; refs = rf.data || [];
+        posts = p.data || []; campaigns = c.data || []; projects = pr.data || []; refs = rf.data || []; buildSiteImages();
         render();
+    };
+
+    // Sivuston kuvat valitsinta varten: kohteet, referenssit ja Myy tonttisi -sivun ilmakuva
+    let siteImages = [];
+    const absUrl = (u) => { if (!u || typeof u !== 'string') return null; if (/^https:\/\//.test(u)) return u; if (/^(\.\.\/)?assets\//.test(u)) return SITE + '/' + u.replace(/^\.\.\//, ''); return null; };
+    const buildSiteImages = () => {
+        const seen = new Set(), out = [];
+        const add = (u, label, group) => { const a = absUrl(u); if (a && !seen.has(a)) { seen.add(a); out.push({ url: a, label, group }); } };
+        add('assets/img/myy-tonttisi/ilmakuva2-1600.jpg', 'Ilmakuva (Myy tonttisi)', 'Tontit');
+        projects.forEach((x) => {
+            add(x.details && x.details['Esitekuva'], x.title + ' (esitekuva)', 'Kohteet'); add(x.hero_image, x.title, 'Kohteet');
+            (Array.isArray(x.gallery_images) ? x.gallery_images : []).forEach((u) => add(u, x.title, 'Kohteet'));
+        });
+        refs.forEach((x) => {
+            add(x.hero_image, x.title, 'Referenssit');
+            (Array.isArray(x.gallery) ? x.gallery : []).forEach((g) => add(g && g.url ? g.url : g, x.title, 'Referenssit'));
+        });
+        siteImages = out;
     };
 
     const render = () => {
@@ -113,6 +131,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     <label class="form-label" style="margin-top:0.9rem;">Kuva</label>
                     <input id="so-img" class="form-input" placeholder="Kuvan osoite (https://…) tai lataa kuva alta" value="${esc(cur.image_url || '')}" ${dis}>
                     <input type="file" id="so-img-file" accept="image/*" style="margin-top:0.4rem;" ${dis}>
+                    ${locked ? '' : '<button type="button" id="so-img-pick" class="btn btn-outline" style="margin-top:0.4rem;padding:0.3rem 0.8rem;font-size:0.8rem;">Valitse sivuston kuvista</button><div id="so-img-grid" class="so-img-grid" hidden></div>'}
                     <label class="form-label" style="margin-top:0.9rem;">Linkki</label>
                     <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
                         <select id="so-kind" class="form-input" style="flex:1;min-width:150px;" ${dis}>${kinds.map(([v, t]) => `<option value="${v}" ${v === (cur.link_kind || '') ? 'selected' : ''}>${t}</option>`).join('')}</select>
@@ -204,6 +223,16 @@ document.addEventListener('DOMContentLoaded', async () => {
                 campaigns.unshift(data);
                 $('so-camp').innerHTML = `<option value="">(ei kampanjaa)</option>${campaigns.map((c) => `<option value="${esc(c.id)}">${esc(c.name)}</option>`).join('')}<option value="__new">+ Uusi kampanja…</option>`;
                 $('so-camp').value = data.id; refreshPreview();
+            });
+            $('so-img-pick').addEventListener('click', () => {
+                const g = $('so-img-grid');
+                if (!g.hidden) { g.hidden = true; return; }
+                g.innerHTML = siteImages.length ? siteImages.map((im) => `<button type="button" class="so-img-opt" data-url="${esc(im.url)}" title="${esc(im.group + ': ' + im.label)}"><img src="${esc(im.url)}" alt="${esc(im.label)}" loading="lazy"><span>${esc(im.label)}</span></button>`).join('') : '<div class="so-sub">Sivustolla ei ole valittavia kuvia.</div>';
+                g.hidden = false;
+            });
+            $('so-img-grid').addEventListener('click', (e) => {
+                const b = e.target.closest('[data-url]'); if (!b) return;
+                $('so-img').value = b.dataset.url; $('so-img-grid').hidden = true; refreshPreview();
             });
             $('so-img-file').addEventListener('change', async (e) => {
                 const file = e.target.files[0]; if (!file) return;
