@@ -68,3 +68,7 @@ Myy tonttisi -lomake kerää tontin tarkan sijainnin kenttinä Tontin osoite (pa
 ## Kampanjaseuranta (UTM)
 
 Kampanjatunnisteet (`utm_source`, `utm_medium`, `utm_campaign`, `utm_content`) tallentuvat sivukatseluihin (`page_views`) ja liidin viestiin (`Kampanja: …`). Linkkien muoto ja nimeäminen: `docs/markkinointilinkit.md`. Migraatio `2026-10-18_utm_tracking.sql` lisää sarakkeet ja laajentaa `report_daily`-funktiota.
+
+## Some-hallinta (admin/social.html)
+
+Ylläpidon Some-sivulla luodaan Facebook-julkaisuja: luonnos → hyväksyntä → ajastus. Julkaisuja ei koskaan tehdä heti vaan ne ajastetaan Facebookin omalla ajastuksella (11 min – 29 vrk eteenpäin); ajastuksen voi perua. Tilat: DRAFT, APPROVED, SCHEDULED, PUBLISHED, CANCELLED, FAILED. Linkkeihin lisätään automaattisesti kampanjatunnisteet (`utm_source=facebook&utm_medium=social&utm_campaign=<kampanja>&utm_content=<nimi>`, ks. `markkinointilinkit.md`). Selaimessa ei ole Facebook-avainta: ajastus, peruutus ja yhteystesti kulkevat Supabase Edge Functionin `social-publish` (`supabase/functions/social-publish/index.ts`) kautta, joka tunnistaa kutsujan (ylläpitäjä + MFA) ja kutsuu Facebookia (vain ajastettu POST, peruutus DELETE, luku GET). Käyttöliittymä: `assets/js/admin-social.js`. Paikallinen testi: `node scripts/social_dev_function.mjs` (Graph-jäljitelmä, ei oikeaa Facebookia).
