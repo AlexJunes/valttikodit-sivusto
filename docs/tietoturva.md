@@ -44,3 +44,7 @@ Jokainen tietokantamuutos: migraatiotiedosto `supabase/migrations/` → käyttä
 ### Some-yöajo ja funktion tunnistus
 
 Funktio `social-publish` tunnistaa kutsujan itse: joko ylläpitäjän istunto + MFA (kaikki toiminnot) tai `x-cron-secret` (ainoastaan `sync`). Siksi funktion "Enforce JWT Verification" on pois päältä (pg_cron-kutsulla ei ole käyttäjän JWT:tä). Salaisuus `CRON_SECRET` on funktion salaisuus ja Vaultissa (`social_cron_secret`); sitä ei ole repossa. `sync` vain lukee Facebookia ja kirjoittaa tilastotauluihin.
+
+### Some-agentti (luonnosten kirjoitus)
+
+Agentilla on oma avain (`SOCIAL_AGENT_TOKEN`, vain pilviympäristössä; tietokannassa vain sha256-tiiviste). Avaimella voi vain lukea Some-kontekstin ja luoda luonnoksia rajoitetusti (ks. `tietokanta.md`). Agentti ei saa Facebook-avainta, ei voi hyväksyä, ajastaa tai julkaista, eikä muokata tai poistaa julkaisuja. Ihminen hyväksyy kaikki luonnokset Some-sivulla (MFA). Agentin luomat luonnokset merkitään "Agentin ehdotus" ja kirjataan auditointiin toimijalla `agentti`. Avaimen vaihto: aja migraatio uudella avaimella ja päivitä ympäristömuuttuja.

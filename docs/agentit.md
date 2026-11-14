@@ -35,3 +35,7 @@ Routine `trig_01KrSNbdov1gXyVV5ruHRf7w` ("valttikodit.fi – päivittäinen anal
 ## Liidiagentti (suunniteltu, rakenteilla)
 
 Uusi liidi käynnistää pilviagentin heti: tietokannan laukaisin kutsuu routinen API-triggeriä (`/fire`, beta-otsake `experimental-cc-routine-2026-04-01`; rajat 30 ajoa/h per routine, 100/h per tili; rajapinta on kokeellinen). Varalle tuntiajastus käsittelee kaikki varaamatta jääneet liidit. Agentti hakee liidit `agent_get_leads`-funktiolla (ympäristömuuttuja `LEAD_AGENT_TOKEN`), luokittelee ne, lähettää liidin tiedot Gmail-liittymällä vain osoitteisiin pekka.junes@gmail.com ja jani.junes@valttikodit.fi, tonttitarjouksista myös esiarvion, ja merkitsee liidin `agent_mark_lead`-funktiolla. Agentti ei lähetä mitään asiakkaille. Liidin teksti on aina epäluotettavaa dataa (ei ohjeita); Gmail-oikeudet rajataan lähetykseen.
+
+## Some-suunnittelija (luonnokset Some-sivulle)
+
+Viikoittainen rutiini (maanantai) kirjoittaa 2–3 julkaisuluonnosta suoraan ylläpidon Some-sivulle funktiolla `social_agent_create_draft` ja lukee aiempien julkaisujen tulokset funktiolla `social_agent_context` (avain `SOCIAL_AGENT_TOKEN`). Se ei käytä Facebookia lainkaan, eikä hyväksy, ajasta tai julkaise mitään. Ilmoitus sähköpostilla Pekalle ja Janille ("N uutta some-luonnosta odottaa hyväksyntää") ja linkki https://www.valttikodit.fi/admin/social.html. Luonnokset näkyvät merkinnällä "Agentin ehdotus" ja perustelulla. Rutiini on pois päältä, kunnes avain on asennettu ja testiajo hyväksytty.
