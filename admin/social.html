@@ -8,7 +8,7 @@
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/style.css?v=4152f429">
-    <link rel="stylesheet" href="../assets/css/admin.css?v=06e4de3a">
+    <link rel="stylesheet" href="../assets/css/admin.css?v=9b14e881">
     <!-- Supabase CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
 </head>
@@ -85,12 +85,17 @@
                 <div class="so-sub" id="so-sync-info">Ladataan...</div>
                 <button class="btn btn-outline" id="so-sync">P&auml;ivit&auml; tilastot nyt</button>
             </div>
+            <div class="so-filters" id="so-range" style="margin-bottom:1rem;">
+                <button class="so-chip" data-days="7">7 pv</button>
+                <button class="so-chip active" data-days="30">30 pv</button>
+                <button class="so-chip" data-days="90">90 pv</button>
+            </div>
             <div id="so-cards" class="so-cards"></div>
             <div class="admin-card" style="margin-bottom:1.25rem;">
                 <h2 style="font-size:1.0625rem;margin-bottom:0.75rem;">Sivun n&auml;yt&ouml;t p&auml;ivitt&auml;in</h2>
                 <div id="so-chart"></div>
             </div>
-            <h2 style="font-size:1.0625rem;margin:1.25rem 0 0.6rem;">Julkaisut (90 vrk)</h2>
+            <h2 id="so-res-title" style="font-size:1.0625rem;margin:1.25rem 0 0.6rem;">Julkaisut (30 vrk)</h2>
             <div class="admin-card" style="padding:0;overflow-x:auto;">
                 <table class="admin-table">
                     <thead><tr><th>P&auml;iv&auml;</th><th>Julkaisu</th><th>N&auml;yt&ouml;t</th><th>Eri henkil&ouml;it&auml;</th><th>Klikkaukset</th><th>Reaktiot</th><th>K&auml;vij&ouml;it&auml; sivustolle</th></tr></thead>
@@ -109,7 +114,7 @@
     </main>
 
     <script src="../assets/js/admin.js?v=e2eca4c6"></script>
-    <script src="../assets/js/admin-social.js?v=550cf9d7"></script>
+    <script src="../assets/js/admin-social.js?v=b68ed23c"></script>
 </body>
 
 </html>

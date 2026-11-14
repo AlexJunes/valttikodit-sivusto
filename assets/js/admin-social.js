@@ -302,35 +302,73 @@ document.addEventListener('DOMContentLoaded', async () => {
     // ---------- Tulokset-välilehti ----------
     const fmtN = (n) => (n == null ? '–' : Number(n).toLocaleString('fi-FI'));
     const sum = (a) => a.reduce((x, y) => x + (Number(y) || 0), 0);
+    let resDays = 30, chartPage = [];
+    const niceMax = (m) => { const e = Math.pow(10, Math.floor(Math.log10(Math.max(m, 1)))); const f = m / e; return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 5 ? 5 : 10) * e; };
+    const dayLabel = (d) => { const [, m, dd] = d.split('-'); return Number(dd) + '.' + Number(m) + '.'; };
+    const drawChart = () => {
+        const el = $('so-chart'); const page = chartPage;
+        if (page.length < 2) { el.innerHTML = '<div class="so-sub">Ei vielä riittävästi dataa.</div>'; return; }
+        const W = Math.max(320, el.clientWidth || 700), H = 230, L = 46, R = 14, T = 12, B = 30;
+        const vals = page.map((x) => Number(x.views) || 0), top = niceMax(Math.max(...vals, 1)), n = page.length;
+        const X = (i) => L + (i / (n - 1)) * (W - L - R), Y = (v) => T + (1 - v / top) * (H - T - B);
+        const ticks = [0, 1, 2, 3, 4].map((k) => (top / 4) * k);
+        const step = Math.max(1, Math.ceil(n / Math.max(2, Math.floor((W - L - R) / 62))));
+        const grid = ticks.map((t) => `<line x1="${L}" x2="${W - R}" y1="${Y(t)}" y2="${Y(t)}" stroke="#e5e7eb"/><text x="${L - 8}" y="${Y(t) + 4}" text-anchor="end" font-size="11" fill="#6b7280">${esc(fmtN(Math.round(t * 10) / 10))}</text>`).join('');
+        const xl = page.map((x, i) => (i % step === 0 || i === n - 1) && (n - 1 - i >= step * 0.6 || i === n - 1) ? `<text x="${X(i)}" y="${H - 8}" text-anchor="${i === 0 ? 'start' : i === n - 1 ? 'end' : 'middle'}" font-size="11" fill="#6b7280">${esc(dayLabel(x.day))}</text>` : '').join('');
+        const pts = vals.map((v, i) => `${X(i)},${Y(v)}`).join(' ');
+        el.style.position = 'relative';
+        el.innerHTML = `<svg width="${W}" height="${H}" style="display:block;max-width:100%;" role="img" aria-label="Sivun näytöt päivittäin">${grid}${xl}
+            <polygon points="${L},${Y(0)} ${pts} ${X(n - 1)},${Y(0)}" fill="#1d4ed8" opacity="0.08"/>
+            <polyline fill="none" stroke="#1d4ed8" stroke-width="2" stroke-linejoin="round" points="${pts}"/>
+            <line id="so-hl" x1="0" x2="0" y1="${T}" y2="${H - B}" stroke="#9ca3af" stroke-dasharray="3 3" style="display:none;"/>
+            <circle id="so-hd" r="4" fill="#1d4ed8" stroke="#fff" stroke-width="2" style="display:none;"/>
+            <rect id="so-hover" x="${L}" y="${T}" width="${W - L - R}" height="${H - T - B}" fill="transparent"/></svg>
+            <div id="so-tip" class="so-tip" style="display:none;"></div>
+            <div class="so-sub">${esc(page[0].day)} – ${esc(page[n - 1].day)}, korkein ${fmtN(Math.max(...vals))} näyttöä/pv</div>`;
+        const svg = el.querySelector('svg'), tip = $('so-tip'), hl = $('so-hl'), hd = $('so-hd');
+        const hide = () => { tip.style.display = 'none'; hl.style.display = 'none'; hd.style.display = 'none'; };
+        const move = (e) => {
+            const r = svg.getBoundingClientRect(); const px = (e.clientX - r.left) * (W / r.width);
+            const i = Math.max(0, Math.min(n - 1, Math.round(((px - L) / (W - L - R)) * (n - 1))));
+            hl.setAttribute('x1', X(i)); hl.setAttribute('x2', X(i)); hl.style.display = '';
+            hd.setAttribute('cx', X(i)); hd.setAttribute('cy', Y(vals[i])); hd.style.display = '';
+            tip.innerHTML = `<strong>${esc(fmtN(vals[i]))}</strong> näyttöä<br>${esc(dayLabel(page[i].day))}`;
+            tip.style.display = 'block';
+            const tx = X(i) * (r.width / W);
+            tip.style.left = Math.min(Math.max(tx - tip.offsetWidth / 2, 0), r.width - tip.offsetWidth) + 'px';
+            tip.style.top = Math.max(0, Y(vals[i]) * (r.height / H) - tip.offsetHeight - 10) + 'px';
+        };
+        $('so-hover').addEventListener('mousemove', move); $('so-hover').addEventListener('mouseleave', hide);
+        $('so-hover').addEventListener('touchstart', (e) => move(e.touches[0]), { passive: true }); $('so-hover').addEventListener('touchmove', (e) => move(e.touches[0]), { passive: true });
+    };
+    let resizeT; window.addEventListener('resize', () => { clearTimeout(resizeT); resizeT = setTimeout(() => { if ($('so-tab-results').style.display !== 'none') drawChart(); }, 150); });
     const renderResults = (d) => {
         const page = d.page || [], posts = d.posts || [], camps = d.campaigns || [];
-        const last7 = page.slice(-7), prev7 = page.slice(-14, -7);
-        const v7 = sum(last7.map((x) => x.views)), vp = prev7.length >= 7 ? sum(prev7.map((x) => x.views)) : null;
-        const delta = vp ? Math.round(((v7 - vp) / vp) * 100) : null;
+        const vN = sum(page.map((x) => x.views));
         const followers = page.length ? page[page.length - 1].followers : null;
-        const since30 = Date.now() - 30 * 86400000;
-        const posts30 = posts.filter((x) => Date.parse(x.created_time) >= since30).length;
+        const postsN = posts.length;
         const siteViews = sum(camps.map((c) => c.site_views)), leads = sum(camps.map((c) => c.leads));
         $('so-sync-info').textContent = d.synced_at ? 'Tilastot päivitetty ' + new Date(d.synced_at).toLocaleString('fi-FI') : 'Tilastoja ei ole vielä haettu. Paina "Päivitä tilastot nyt".';
         $('so-cards').innerHTML = [
-            ['Seuraajat', fmtN(followers), ''], ['Sivun näytöt 7 pv', fmtN(v7), delta == null ? '' : `${delta >= 0 ? '+' : ''}${delta} % edelliseen viikkoon`],
-            ['Julkaisuja 30 pv', fmtN(posts30), ''], ['Kävijöitä Facebookista sivustolle', fmtN(siteViews), `${fmtN(leads)} liidiä kampanjoista`],
+            ['Seuraajat', fmtN(followers), ''], [`Sivun näytöt ${resDays} pv`, fmtN(vN), ''],
+            [`Julkaisuja ${resDays} pv`, fmtN(postsN), ''], ['Kävijöitä Facebookista sivustolle', fmtN(siteViews), `${fmtN(leads)} liidiä kampanjoista`],
         ].map(([t, v, s]) => `<div class="so-card"><div class="so-sub">${esc(t)}</div><div class="so-card-v">${esc(v)}</div><div class="so-sub">${esc(s)}</div></div>`).join('');
-        // viivakuvaaja (SVG)
-        const vals = page.map((x) => Number(x.views) || 0);
-        if (vals.length > 1) {
-            const W = 760, H = 120, max = Math.max(...vals, 1);
-            const pts = vals.map((v, i) => `${(i / (vals.length - 1)) * W},${H - 8 - (v / max) * (H - 24)}`).join(' ');
-            $('so-chart').innerHTML = `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" style="width:100%;height:140px;display:block;"><polyline vector-effect="non-scaling-stroke" fill="none" stroke="#1d4ed8" stroke-width="2" points="${pts}"/></svg><div class="so-sub">${esc(page[0].day)} – ${esc(page[page.length - 1].day)}, korkein ${fmtN(max)} näyttöä/pv</div>`;
-        } else $('so-chart').innerHTML = '<div class="so-sub">Ei vielä riittävästi dataa.</div>';
+        chartPage = page; drawChart();
+        $('so-res-title').textContent = `Julkaisut (${resDays} vrk)`;
         $('so-res-posts').innerHTML = posts.length ? posts.map((x) => `<tr><td>${esc(new Date(x.created_time).toLocaleDateString('fi-FI'))}</td>
             <td style="max-width:360px;">${x.title ? `<strong>${esc(x.title)}</strong>${x.campaign ? ` <span class="so-sub">(${esc(x.campaign)})</span>` : ''}` : esc((x.message || '(ei tekstiä)').slice(0, 90))}${x.permalink ? ` <a href="${esc(x.permalink)}" target="_blank" rel="noopener">↗</a>` : ''}</td>
             <td>${fmtN(x.views)}</td><td>${fmtN(x.unique_views)}</td><td>${fmtN(x.clicks)}</td><td>${fmtN(x.reactions)}</td><td>${x.utm_content ? fmtN(x.site_views) : '<span class="so-sub">–</span>'}</td></tr>`).join('') : '<tr><td colspan="7">Ei julkaisuja. Paina "Päivitä tilastot nyt".</td></tr>';
         $('so-res-camps').innerHTML = camps.length ? camps.map((c) => `<tr><td>${esc(c.campaign)}</td><td>${fmtN(c.site_views)}</td><td>${fmtN(c.leads)}</td></tr>`).join('') : '<tr><td colspan="3">Ei kampanjaliikennettä vielä. Se alkaa kertyä, kun julkaisut, joissa on seurantalinkki, menevät ulos.</td></tr>';
     };
     let resLoaded = false;
+    $('so-range').addEventListener('click', async (e) => {
+        const b = e.target.closest('[data-days]'); if (!b) return;
+        resDays = Number(b.dataset.days);
+        document.querySelectorAll('#so-range [data-days]').forEach((x) => x.classList.toggle('active', x === b));
+        await loadResults();
+    });
     const loadResults = async () => {
-        const { data, error } = await sb.rpc('social_results', { p_days: 90 });
+        const { data, error } = await sb.rpc('social_results', { p_days: resDays });
         if (error) { $('so-sync-info').textContent = 'Virhe: ' + error.message; return null; }
         renderResults(data); return data;
     };
