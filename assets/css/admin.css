@@ -269,3 +269,5 @@
 }
 
 .so-tip { position: absolute; pointer-events: none; background: #111827; color: #fff; font-size: 0.75rem; line-height: 1.35; padding: 0.35rem 0.6rem; border-radius: 6px; white-space: nowrap; z-index: 2; }
+
+.so-reel { background: #dbeafe; color: #1d4ed8; }

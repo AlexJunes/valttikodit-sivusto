@@ -70,3 +70,7 @@ Migraatio `2026-11-14_social_metrics.sql` (+ `2026-11-14_social_cron.sql` yöajo
 ## Some-agentti (social_agent_tokens, social_posts.source/agent_note)
 
 Migraatio `2026-11-14_social_agent.sql`. Taulu `social_agent_tokens` sisältää vain agentin avaimen tiivisteen (sha256), ei avainta. Funktiot `social_agent_context(p_token)` (tulokset, kampanjat, viimeaikaiset julkaisut luettavaksi) ja `social_agent_create_draft(...)` (luo vain luonnoksen; `source='agent'`, `created_by='agentti'`, perustelu `agent_note`) ovat SECURITY DEFINER ja avaimen tarkistavia. Rajat: enintään 5 agentin luonnosta viikossa, enintään 8 hyväksymätöntä agentin luonnosta, ajankohta 1 h – 29 vrk päässä, kuva https, linkki vain www.valttikodit.fi, kampanjatunnus `[a-z0-9-]{1,50}`. Suojalaukaisin estää selainta asettamasta `source='agent'`. Taulut eivät ole anon-käyttäjän luettavissa; vain nämä funktiot.
+
+## Some: Reels-videot (social_posts.video_url)
+
+Migraatio `2026-11-17_social_reels.sql`. Sarake `video_url` (vain https). Kun se on asetettu, julkaisu ajastetaan Reels-videona. Suojalaukaisin `social_posts_guard` käsittelee videon vaihdon sisältömuutoksena (mitätöi hyväksynnän, estetty ajastetulle julkaisulle).

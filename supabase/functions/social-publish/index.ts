@@ -34,6 +34,7 @@ export async function handle(req, env, f = fetch, now = () => Date.now()) {
   if (req.method !== 'POST') return json(req, 405, { ok: false, error: 'Vain POST' });
 
   const GRAPH = env.GRAPH_BASE || 'https://graph.facebook.com/v26.0';
+  const RUPLOAD = env.RUPLOAD_BASE || 'https://rupload.facebook.com/video-upload/v26.0';
   const PAGE = env.META_PAGE_ID, TOKEN = env.META_PAGE_TOKEN;
   const scrub = (s) => String(s == null ? '' : s).split(TOKEN || '\u0000').join('***').slice(0, 500);
 
@@ -103,7 +104,26 @@ export async function handle(req, env, f = fetch, now = () => Date.now()) {
 
       const unix = String(Math.floor(t / 1000));
       let r;
-      if (post.image_url) {
+      if (post.video_url) {
+        // Reels-video: 1) aloita lataus, 2) Facebook hakee videon julkisesta osoitteesta, 3) ajasta
+        if (!/^https:\/\//.test(post.video_url)) return fail(post, 'Videon osoitteen pit\u00e4\u00e4 alkaa https://');
+        const description = post.link_url ? `${post.body}\n\n${post.link_url}` : post.body;
+        const st = await graph('POST', `${PAGE}/video_reels`, { upload_phase: 'start' });
+        const vid = String(st.video_id || '');
+        if (!/^\d+$/.test(vid)) return fail(post, 'Facebook ei palauttanut videon tunnistetta');
+        const drop = async () => { try { await graph('DELETE', vid); } catch (e) { /* ei kriittinen */ } };
+        const up = await f(`${RUPLOAD}/${vid}`, { method: 'POST', headers: { Authorization: `OAuth ${TOKEN}`, file_url: post.video_url } });
+        const ut = await up.text(); let uj = {}; try { uj = ut ? JSON.parse(ut) : {}; } catch (e) { uj = {}; }
+        if (!up.ok || uj.success !== true) {
+          await drop();
+          return fail(post, 'Videon siirto Facebookiin ep\u00e4onnistui: ' + scrub((uj.error && uj.error.message) || (uj.debug_info && uj.debug_info.message) || ('virhe ' + up.status)));
+        }
+        try {
+          const fin = await graph('POST', `${PAGE}/video_reels`, { upload_phase: 'finish', video_id: vid, video_state: 'SCHEDULED', scheduled_publish_time: unix, description });
+          if (fin.success !== true) throw new Error('Facebook ei vahvistanut ajastusta');
+        } catch (e) { await drop(); return fail(post, 'Reels-videon ajastus ep\u00e4onnistui: ' + scrub(e && e.message)); }
+        r = { id: vid };
+      } else if (post.image_url) {
         const caption = post.link_url ? `${post.body}\n\n${post.link_url}` : post.body;
         r = await graph('POST', `${PAGE}/photos`, { url: post.image_url, caption, published: 'false', scheduled_publish_time: unix });
       } else {
@@ -133,14 +153,37 @@ export async function handle(req, env, f = fetch, now = () => Date.now()) {
 
     // ---- refresh (onko ajastettu julkaisu ehtinyt julkaistua) ----
     const doRefresh = async () => {
-      const rows = await db('GET', `social_posts?status=eq.SCHEDULED&scheduled_at=lte.${new Date(now()).toISOString()}&select=id,fb_post_id`);
-      let published = 0; const errors = [];
+      const nowIso = new Date(now()).toISOString();
+      // Ajankohdan ohittaneet julkaisut + kaikki ajastetut videot (videon kasittely voi epaonnistua jo ennen julkaisuaikaa)
+      const due = await db('GET', `social_posts?status=eq.SCHEDULED&scheduled_at=lte.${nowIso}&select=id,fb_post_id,video_url`);
+      const vids = await db('GET', `social_posts?status=eq.SCHEDULED&scheduled_at=gt.${nowIso}&video_url=not.is.null&select=id,fb_post_id,video_url`);
+      const rows = due.concat(vids);
+      let published = 0, failed = 0; const errors = [];
+      const iso = (v) => (v && !isNaN(Date.parse(v)) ? new Date(Date.parse(v)).toISOString() : new Date(now()).toISOString());
       for (const p of rows) {
         try {
-          // Kuvajulkaisun ajastus palauttaa KUVAN tunnisteen (ei alaviivaa). Julkaisun tila luetaan sen
-          // tarinasta (page_story_id); kuvalla itsellaan ei ole is_published-kenttaa.
           let storyId = String(p.fb_post_id || '');
           if (!storyId) continue;
+          if (p.video_url && !storyId.includes('_')) {
+            // Reels-video: tila luetaan videon status-kentasta
+            const v = await graph('GET', storyId, { fields: 'status,post_id,permalink_url,created_time' });
+            const stt = v.status || {}, pub = stt.publishing_phase || {};
+            const bad = ['error', 'upload_failed'].includes(stt.video_status) || pub.publish_status === 'error'
+              || (stt.processing_phase && stt.processing_phase.status === 'error') || (stt.uploading_phase && stt.uploading_phase.status === 'error');
+            if (bad) {
+              const why = (stt.processing_phase && stt.processing_phase.error && stt.processing_phase.error.message) || (stt.uploading_phase && stt.uploading_phase.error && stt.uploading_phase.error.message) || '';
+              try { await graph('DELETE', storyId); } catch (e) { /* ei kriittinen */ }
+              await db('PATCH', `social_posts?id=eq.${p.id}`, { status: 'FAILED', fb_post_id: null, last_error: ('Facebook ei pystynyt k\u00e4sittelem\u00e4\u00e4n videota. ' + scrub(why)).trim() });
+              failed++;
+            } else if (pub.publish_status === 'published') {
+              const link = v.permalink_url ? (String(v.permalink_url).startsWith('/') ? 'https://www.facebook.com' + v.permalink_url : v.permalink_url) : null;
+              await db('PATCH', `social_posts?id=eq.${p.id}`, { status: 'PUBLISHED', published_at: iso(pub.publish_time || v.created_time), fb_permalink: link, fb_post_id: v.post_id ? `${PAGE}_${v.post_id}` : storyId });
+              published++;
+            }
+            continue;
+          }
+          // Kuvajulkaisun ajastus palauttaa KUVAN tunnisteen (ei alaviivaa). Julkaisun tila luetaan sen
+          // tarinasta (page_story_id); kuvalla itsellaan ei ole is_published-kenttaa.
           if (!storyId.includes('_')) {
             const ph = await graph('GET', storyId, { fields: 'page_story_id' });
             storyId = ph.page_story_id || '';
@@ -148,13 +191,12 @@ export async function handle(req, env, f = fetch, now = () => Date.now()) {
           }
           const r = await graph('GET', storyId, { fields: 'is_published,permalink_url,created_time' });
           if (r.is_published === true) {
-            const at = r.created_time && !isNaN(Date.parse(r.created_time)) ? new Date(Date.parse(r.created_time)).toISOString() : new Date(now()).toISOString();
-            await db('PATCH', `social_posts?id=eq.${p.id}`, { status: 'PUBLISHED', published_at: at, fb_permalink: r.permalink_url || null, fb_post_id: storyId });
+            await db('PATCH', `social_posts?id=eq.${p.id}`, { status: 'PUBLISHED', published_at: iso(r.created_time), fb_permalink: r.permalink_url || null, fb_post_id: storyId });
             published++;
           }
         } catch (e) { errors.push(scrub(e && e.message)); }
       }
-      return { checked: rows.length, published, errors };
+      return { checked: rows.length, published, failed, errors };
     };
     if (body.action === 'refresh') return json(req, 200, { ok: true, ...(await doRefresh()) });
 

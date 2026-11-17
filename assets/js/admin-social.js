@@ -66,7 +66,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         listEl.innerHTML = rows.map((x) => {
             const camp = campaigns.find((c) => c.id === x.campaign_id);
             return `<tr data-id="${esc(x.id)}" class="so-row">
-                <td style="font-weight:500;">${esc(x.title)}${x.source === 'agent' ? ' <span class="so-agent">Agentin ehdotus</span>' : ''}<div class="so-sub">${esc((x.body || '').slice(0, 70))}${(x.body || '').length > 70 ? '…' : ''}</div></td>
+                <td style="font-weight:500;">${esc(x.title)}${x.source === 'agent' ? ' <span class="so-agent">Agentin ehdotus</span>' : ''}${x.video_url ? ' <span class="so-agent so-reel">Reels</span>' : ''}<div class="so-sub">${esc((x.body || '').slice(0, 70))}${(x.body || '').length > 70 ? '…' : ''}</div></td>
                 <td>${camp ? esc(camp.name) : '–'}</td>
                 <td>${esc(fmt(x.scheduled_at))}</td>
                 <td>${chip(x.status)}${x.last_error ? `<div class="so-sub" style="color:#b91c1c;">${esc(x.last_error)}</div>` : ''}</td>
@@ -108,7 +108,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     const openEditor = async (post) => {
-        cur = post ? { ...post } : { id: null, title: '', body: '', image_url: '', link_kind: '', link_slug: '', link_url: '', scheduled_at: null, status: 'DRAFT', campaign_id: null };
+        cur = post ? { ...post } : { id: null, title: '', body: '', image_url: '', video_url: '', link_kind: '', link_slug: '', link_url: '', scheduled_at: null, status: 'DRAFT', campaign_id: null };
         const locked = ['SCHEDULED', 'PUBLISHED'].includes(cur.status);
         const dis = locked ? 'disabled' : '';
         const kinds = [['', 'Ei linkkiä'], ['kohde', 'Kohdesivu'], ['referenssi', 'Referenssi'], ['tontti', 'Myy tonttisi -sivu'], ['muu', 'Muu valttikodit.fi-osoite']];
@@ -132,6 +132,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                     <input id="so-img" class="form-input" placeholder="Kuvan osoite (https://…) tai lataa kuva alta" value="${esc(cur.image_url || '')}" ${dis}>
                     <input type="file" id="so-img-file" accept="image/*" style="margin-top:0.4rem;" ${dis}>
                     ${locked ? '' : '<button type="button" id="so-img-pick" class="btn btn-outline" style="margin-top:0.4rem;padding:0.3rem 0.8rem;font-size:0.8rem;">Valitse sivuston kuvista</button><div id="so-img-grid" class="so-img-grid" hidden></div>'}
+                    <label class="form-label" style="margin-top:0.9rem;">Reels-video (valinnainen)</label>
+                    <input type="hidden" id="so-video" value="${esc(cur.video_url || '')}">
+                    <div id="so-video-info" class="so-sub"></div>
+                    ${locked ? '' : '<input type="file" id="so-video-file" accept="video/mp4,video/quicktime" style="margin-top:0.4rem;"> <button type="button" id="so-video-del" class="btn btn-outline" style="padding:0.25rem 0.7rem;font-size:0.75rem;">Poista video</button>'}
+                    <div class="so-sub">Pystyvideo (9:16), 3–90 s, mp4 tai mov, enintään 50 Mt. Kun video on valittu, julkaisu tehdään Reels-videona eikä kuvaa käytetä.</div>
                     <label class="form-label" style="margin-top:0.9rem;">Linkki</label>
                     <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
                         <select id="so-kind" class="form-input" style="flex:1;min-width:150px;" ${dis}>${kinds.map(([v, t]) => `<option value="${v}" ${v === (cur.link_kind || '') ? 'selected' : ''}>${t}</option>`).join('')}</select>
@@ -147,7 +152,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 <div>
                     <div class="form-label">Esikatselu</div>
                     <div class="so-fb"><div class="so-fb-head"><span class="so-fb-logo">V</span><div><strong>Valttikodit Oy</strong><div class="so-sub" id="so-fb-when"></div></div></div>
-                        <div class="so-fb-text" id="so-fb-text"></div><img id="so-fb-img" alt="" style="display:none;"><div class="so-fb-link" id="so-fb-link"></div></div>
+                        <div class="so-fb-text" id="so-fb-text"></div><img id="so-fb-img" alt="" style="display:none;"><video id="so-fb-video" controls muted playsinline preload="metadata" style="display:none;width:100%;max-height:420px;background:#000;"></video><div class="so-fb-link" id="so-fb-link"></div></div>
                     ${hist.length ? `<div class="form-label" style="margin-top:1.25rem;">Historia</div><ul class="so-hist">${hist.map((h) => `<li>${esc(fmt(h.at))} – ${esc(h.actor)}: ${esc(h.action)}</li>`).join('')}</ul>` : ''}
                     ${cur.fb_permalink ? `<p style="margin-top:1rem;"><a href="${esc(cur.fb_permalink)}" target="_blank" rel="noopener">Avaa julkaisu Facebookissa</a></p>` : ''}
                 </div>
@@ -168,7 +173,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const readForm = () => {
         const kind = $('so-kind').value;
         const f = { title: $('so-title').value.trim(), campaign_id: $('so-camp').value && $('so-camp').value !== '__new' ? $('so-camp').value : null,
-            body: $('so-body').value, image_url: $('so-img').value.trim() || null, kind, slug: ($('so-slug').value || '') , custom: $('so-custom').value.trim(),
+            body: $('so-body').value, image_url: $('so-img').value.trim() || null, video_url: $('so-video').value.trim() || null, kind, slug: ($('so-slug').value || '') , custom: $('so-custom').value.trim(),
             when: $('so-when').value ? new Date($('so-when').value).toISOString() : null };
         f.link_url = buildLink(f) || null;
         return f;
@@ -183,7 +188,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (f.image_url && !/^https:\/\//.test(f.image_url)) errs.push('Kuvan osoitteen pitää alkaa https://');
         if (/€|\bhinta|hintaan|euro/i.test(f.body)) warns.push('Tekstissä on hintaan viittaava maininta: tarkista, että tiedot ovat oikein ja noudattavat markkinointisääntöjä.');
         if (!f.link_url) warns.push('Julkaisussa ei ole linkkiä, joten kävijöitä ei voida seurata.');
-        if (!f.image_url) warns.push('Kuvaton julkaisu tavoittaa yleensä huonommin.');
+        if (f.video_url && f.link_url) warns.push('Reels-videon tekstissä linkki ei ole klikattava. Kävijöitä tulee siksi vähemmän kuin kuvajulkaisun linkistä.');
+        if (!f.image_url && !f.video_url) warns.push('Kuvaton julkaisu tavoittaa yleensä huonommin.');
         if (f.body.length > 700) warns.push('Teksti on pitkä (yli 700 merkkiä).');
         return { errs, warns };
     };
@@ -200,7 +206,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         $('so-count').textContent = f.body.length;
         $('so-fb-text').textContent = f.body || '(teksti)';
         $('so-fb-when').textContent = f.when ? fmt(f.when) : 'ajankohtaa ei asetettu';
-        const im = $('so-fb-img'); if (f.image_url) { im.src = f.image_url; im.style.display = 'block'; } else im.style.display = 'none';
+        const im = $('so-fb-img'), vd = $('so-fb-video');
+        if (f.video_url) { if (vd.getAttribute('src') !== f.video_url) vd.src = f.video_url; vd.style.display = 'block'; im.style.display = 'none'; }
+        else { vd.style.display = 'none'; if (vd.getAttribute('src')) vd.removeAttribute('src'); if (f.image_url) { im.src = f.image_url; im.style.display = 'block'; } else im.style.display = 'none'; }
+        $('so-video-info').textContent = f.video_url ? 'Video valittu: julkaistaan Reels-videona.' : 'Ei videota.';
         $('so-fb-link').textContent = f.link_url ? f.link_url.replace(/^https:\/\//, '').split('?')[0] : '';
         $('so-linkview').textContent = f.link_url ? 'Valmis seurantalinkki: ' + f.link_url : '';
         const { errs, warns } = checks(f);
@@ -234,6 +243,31 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const b = e.target.closest('[data-url]'); if (!b) return;
                 $('so-img').value = b.dataset.url; $('so-img-grid').hidden = true; refreshPreview();
             });
+            // Reels-video: tarkista kesto ja koko ennen latausta
+            const videoMeta = (file) => new Promise((res, rej) => {
+                const v = document.createElement('video'); v.preload = 'metadata';
+                v.onloadedmetadata = () => { const m = { d: v.duration, w: v.videoWidth, h: v.videoHeight }; URL.revokeObjectURL(v.src); res(m); };
+                v.onerror = () => { URL.revokeObjectURL(v.src); rej(new Error('Videota ei voitu lukea. Käytä mp4- tai mov-tiedostoa.')); };
+                v.src = URL.createObjectURL(file);
+            });
+            $('so-video-file').addEventListener('change', async (e) => {
+                const file = e.target.files[0]; if (!file) return;
+                const info = $('so-video-info');
+                try {
+                    if (!/^video\/(mp4|quicktime)$/.test(file.type)) throw new Error('Käytä mp4- tai mov-tiedostoa.');
+                    if (file.size > 50 * 1024 * 1024) throw new Error('Video on liian suuri (' + Math.round(file.size / 1048576) + ' Mt). Enimmäiskoko on 50 Mt. Pienennä video ensin.');
+                    const m = await videoMeta(file);
+                    if (!(m.d >= 3 && m.d <= 90)) throw new Error('Videon pituuden pitää olla 3–90 sekuntia (nyt ' + Math.round(m.d) + ' s).');
+                    if (m.w && m.h && m.w >= m.h && !confirm('Video ei ole pystysuuntainen (' + m.w + ' × ' + m.h + '). Facebook suosittelee Reels-videoille pystykuvaa 9:16. Ladataanko silti?')) { e.target.value = ''; return; }
+                    info.textContent = 'Ladataan videota...';
+                    const ext = file.type === 'video/quicktime' ? 'mov' : 'mp4';
+                    const path = `social/video-${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+                    const up = await sb.storage.from('images').upload(path, file, { contentType: file.type });
+                    if (up.error) throw up.error;
+                    $('so-video').value = sb.storage.from('images').getPublicUrl(path).data.publicUrl; refreshPreview();
+                } catch (err) { e.target.value = ''; refreshPreview(); alert('Videon lataus epäonnistui: ' + (err.message || err)); }
+            });
+            $('so-video-del').addEventListener('click', () => { $('so-video').value = ''; $('so-video-file').value = ''; refreshPreview(); });
             $('so-img-file').addEventListener('change', async (e) => {
                 const file = e.target.files[0]; if (!file) return;
                 try {
@@ -279,7 +313,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const save = async (approve) => {
         const f = readForm();
-        const row = { title: f.title || '(nimetön)', body: f.body, image_url: f.image_url, campaign_id: f.campaign_id, link_kind: f.kind || null,
+        const row = { title: f.title || '(nimetön)', body: f.body, image_url: f.image_url, video_url: f.video_url, campaign_id: f.campaign_id, link_kind: f.kind || null,
             link_slug: (f.kind === 'kohde' || f.kind === 'referenssi') ? f.slug : null, link_url: f.link_url, scheduled_at: f.when };
         if (!cur.id) {
             const { data, error } = await sb.from('social_posts').insert([row]).select().single(); if (error) throw error; cur = data;
@@ -296,7 +330,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const p = posts.find((x) => x.id === cur.id); if (p) await openEditor(p);
         const m = $('so-msg');
         if (!j.ok) { if (m) m.textContent = ''; throw new Error('Ajastus epäonnistui: ' + j.error + '\n\nJulkaisu on hyväksytty mutta ei vielä ajastettu. Voit yrittää uudelleen.'); }
-        if (m) m.textContent = 'Ajastettu Facebookiin.';
+        if (m) m.textContent = cur.video_url ? 'Ajastettu Facebookiin Reels-videona. Facebook käsittelee videon vielä; jos käsittely epäonnistuu, tila muuttuu tilaan Epäonnistui.' : 'Ajastettu Facebookiin.';
     };
 
     // ---------- Tulokset-välilehti ----------
@@ -396,5 +430,5 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     await load();
     // Tarkista ajastetut julkaisut, joiden aika on ohi (merkitään julkaistuiksi)
-    try { if (posts.some((x) => x.status === 'SCHEDULED' && x.scheduled_at && Date.parse(x.scheduled_at) < Date.now())) { const j = await callFn('refresh'); if (j.ok && j.published) await load(); } } catch (e) {}
+    try { if (posts.some((x) => x.status === 'SCHEDULED' && (x.video_url || (x.scheduled_at && Date.parse(x.scheduled_at) < Date.now())))) { const j = await callFn('refresh'); if (j.ok && (j.published || j.failed)) await load(); } } catch (e) {}
 });

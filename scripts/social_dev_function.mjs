@@ -17,7 +17,7 @@ const env = {
   SUPABASE_URL: 'http://127.0.0.1:54321',
   SUPABASE_ANON_KEY: status.PUBLISHABLE_KEY || status.ANON_KEY,
   SUPABASE_SERVICE_ROLE_KEY: status.SECRET_KEY || status.SERVICE_ROLE_KEY,
-  META_PAGE_ID: '1234567890', META_PAGE_TOKEN: 'local-test-token', GRAPH_BASE: 'http://127.0.0.1:8789', CRON_SECRET: 'local-cron-secret',
+  META_PAGE_ID: '1234567890', META_PAGE_TOKEN: 'local-test-token', GRAPH_BASE: 'http://127.0.0.1:8789', RUPLOAD_BASE: 'http://127.0.0.1:8789/rupload', CRON_SECRET: 'local-cron-secret',
 };
 
 const calls = [];
@@ -26,6 +26,12 @@ http.createServer((req, res) => {   // Graph-jäljitelmä
     const hasToken = /access_token=local-test-token/.test(req.url + '&' + b);   // Facebook vaatii avaimen myos DELETE-kutsussa
     calls.push({ method: req.method, url: req.url.replace(/access_token=[^&]*/, 'access_token=***'), body: b.replace(/access_token=[^&]*/, 'access_token=***'), hasToken });
     res.setHeader('Content-Type', 'application/json');
+    if (req.method === 'POST' && /^\/rupload\//.test(req.url)) {   // rupload: avain Authorization-otsakkeessa, video file_url-otsakkeessa
+      const ok = req.headers.authorization === 'OAuth local-test-token' && /^https:\/\//.test(req.headers.file_url || '');
+      calls[calls.length - 1].file_url = req.headers.file_url || null;
+      if (!ok) res.statusCode = 400;
+      res.end(JSON.stringify(ok ? { success: true } : { debug_info: { message: 'Invalid file_url or token' } })); return;
+    }
     if (!hasToken) { res.statusCode = 400; res.end(JSON.stringify({ error: { message: "Unsupported delete request. Object with ID does not exist, cannot be loaded due to missing permissions, or does not support this operation" } })); return; }
     if (req.method === 'GET' && /fields=id$/.test(req.url.replace(/&access_token=[^&]*/, ''))) { res.end(JSON.stringify({ id: 'x' })); return; }
     if (req.method === 'GET' && /\/insights\?/.test(req.url)) {   // tilastot
@@ -45,6 +51,18 @@ http.createServer((req, res) => {   // Graph-jäljitelmä
       const data = [{ id: '1234567890_900', created_time: new Date(Date.now() - 5 * 86400000).toISOString(), message: 'Vanha julkaisu (ei yllapidosta)', permalink_url: 'https://www.facebook.com/x/posts/900' }];
       if (mine) data.unshift({ id: mine, created_time: new Date(Date.now() - 3600000).toISOString(), message: 'Testijulkaisu ylapidosta', permalink_url: 'https://www.facebook.com/x/posts/101' });
       res.end(JSON.stringify({ data })); return;
+    }
+    // Reels: aloitus, videon haku osoitteesta (rupload) ja ajastus
+    if (req.method === 'POST' && /\/video_reels$/.test(req.url)) {
+      if (/upload_phase=start/.test(b)) res.end(JSON.stringify({ video_id: String(7000 + calls.length), upload_url: 'http://127.0.0.1:8789/rupload/x' }));
+      else res.end(JSON.stringify({ success: /video_state=SCHEDULED/.test(b) && /scheduled_publish_time=\d+/.test(b) }));
+      return;
+    }
+    if (req.method === 'GET' && /^\/\d+\?/.test(req.url) && /fields=status/.test(req.url)) {   // videon tila
+      const id = req.url.match(/^\/(\d+)/)[1];
+      if (id === '7999') res.end(JSON.stringify({ id, status: { video_status: 'error', processing_phase: { status: 'error', error: { message: 'Video is too short' } }, publishing_phase: { status: 'not_started' } } }));
+      else res.end(JSON.stringify({ id, post_id: '88' + id, permalink_url: `/reel/${id}/`, created_time: new Date().toISOString(), status: { video_status: 'ready', publishing_phase: { status: 'complete', publish_status: 'published', publish_time: new Date(Date.now() - 600000).toISOString() } } }));
+      return;
     }
     // Kuten Facebook: ajastettu KUVA palauttaa pelkän kuvan tunnisteen (ei alaviivaa), tekstijulkaisu sivu_julkaisu-tunnisteen
     if (req.method === 'POST' && /\/photos$/.test(req.url)) res.end(JSON.stringify({ id: String(5000 + calls.length) }));
