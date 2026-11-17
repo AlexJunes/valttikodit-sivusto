@@ -134,17 +134,27 @@ export async function handle(req, env, f = fetch, now = () => Date.now()) {
     // ---- refresh (onko ajastettu julkaisu ehtinyt julkaistua) ----
     const doRefresh = async () => {
       const rows = await db('GET', `social_posts?status=eq.SCHEDULED&scheduled_at=lte.${new Date(now()).toISOString()}&select=id,fb_post_id`);
-      let published = 0;
+      let published = 0; const errors = [];
       for (const p of rows) {
         try {
-          const r = await graph('GET', p.fb_post_id, { fields: 'is_published,permalink_url' });
-          if (r.is_published === true || r.permalink_url) {
-            await db('PATCH', `social_posts?id=eq.${p.id}`, { status: 'PUBLISHED', published_at: new Date(now()).toISOString(), fb_permalink: r.permalink_url || null });
+          // Kuvajulkaisun ajastus palauttaa KUVAN tunnisteen (ei alaviivaa). Julkaisun tila luetaan sen
+          // tarinasta (page_story_id); kuvalla itsellaan ei ole is_published-kenttaa.
+          let storyId = String(p.fb_post_id || '');
+          if (!storyId) continue;
+          if (!storyId.includes('_')) {
+            const ph = await graph('GET', storyId, { fields: 'page_story_id' });
+            storyId = ph.page_story_id || '';
+            if (!storyId) continue;
+          }
+          const r = await graph('GET', storyId, { fields: 'is_published,permalink_url,created_time' });
+          if (r.is_published === true) {
+            const at = r.created_time && !isNaN(Date.parse(r.created_time)) ? new Date(Date.parse(r.created_time)).toISOString() : new Date(now()).toISOString();
+            await db('PATCH', `social_posts?id=eq.${p.id}`, { status: 'PUBLISHED', published_at: at, fb_permalink: r.permalink_url || null, fb_post_id: storyId });
             published++;
           }
-        } catch (e) { /* seuraava */ }
+        } catch (e) { errors.push(scrub(e && e.message)); }
       }
-      return { checked: rows.length, published };
+      return { checked: rows.length, published, errors };
     };
     if (body.action === 'refresh') return json(req, 200, { ok: true, ...(await doRefresh()) });
 
@@ -179,6 +189,15 @@ export async function handle(req, env, f = fetch, now = () => Date.now()) {
         fbPosts = r.data || [];
         await upsert('social_fb_posts', fbPosts.map((p) => ({ fb_post_id: p.id, created_time: p.created_time, message: (p.message || '').slice(0, 300), permalink: p.permalink_url || null, updated_at: new Date(nowMs).toISOString() })), 'fb_post_id');
         summary.posts = fbPosts.length;
+        // Facebookista poistetut julkaisut pois tilastoista (vain kun lista on varmasti kokonainen)
+        if (fbPosts.length > 0 && fbPosts.length < 50) {
+          const sinceIso = new Date(nowMs - 119 * 86400000).toISOString();
+          const have = await db('GET', `social_fb_posts?created_time=gte.${sinceIso}&select=fb_post_id`);
+          const keep = new Set(fbPosts.map((p) => p.id));
+          const gone = have.map((x) => x.fb_post_id).filter((id) => !keep.has(id));
+          for (const id of gone) await db('DELETE', `social_fb_posts?fb_post_id=eq.${encodeURIComponent(id)}`, null, 'return=minimal');
+          summary.removed = gone.length;
+        }
       } catch (e) { summary.errors.push('posts: ' + scrub(e.message)); }
       const metricRows = [];
       const one = async (p) => {

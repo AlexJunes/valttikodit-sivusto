@@ -46,10 +46,17 @@ http.createServer((req, res) => {   // Graph-jäljitelmä
       if (mine) data.unshift({ id: mine, created_time: new Date(Date.now() - 3600000).toISOString(), message: 'Testijulkaisu ylapidosta', permalink_url: 'https://www.facebook.com/x/posts/101' });
       res.end(JSON.stringify({ data })); return;
     }
-    if (req.method === 'POST') res.end(JSON.stringify({ id: '1234567890_' + (100 + calls.length) }));
+    // Kuten Facebook: ajastettu KUVA palauttaa pelkän kuvan tunnisteen (ei alaviivaa), tekstijulkaisu sivu_julkaisu-tunnisteen
+    if (req.method === 'POST' && /\/photos$/.test(req.url)) res.end(JSON.stringify({ id: String(5000 + calls.length) }));
+    else if (req.method === 'GET' && /^\/\d+\?/.test(req.url) && !/^\/1234567890\?/.test(req.url)) {   // kuvaobjekti
+      const id = req.url.match(/^\/(\d+)/)[1];
+      if (/is_published/.test(req.url)) { res.statusCode = 400; res.end(JSON.stringify({ error: { message: '(#100) Tried accessing nonexisting field (is_published)' } })); }
+      else res.end(JSON.stringify({ id, page_story_id: '1234567890_' + id }));
+    }
+    else if (req.method === 'POST') res.end(JSON.stringify({ id: '1234567890_' + (100 + calls.length) }));
     else if (req.method === 'DELETE') res.end(JSON.stringify({ success: true }));
     else if (/fields=name/.test(req.url)) res.end(JSON.stringify({ name: 'Valttikodit Oy (testi)', followers_count: 58 }));
-    else res.end(JSON.stringify({ is_published: true, permalink_url: 'https://www.facebook.com/test/posts/1' }));
+    else res.end(JSON.stringify({ is_published: true, permalink_url: 'https://www.facebook.com/test/posts/1', created_time: new Date(Date.now() - 3600000).toISOString() }));
   });
 }).listen(8789, '127.0.0.1');
 
