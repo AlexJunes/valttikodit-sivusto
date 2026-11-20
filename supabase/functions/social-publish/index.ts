@@ -115,7 +115,7 @@ export async function handle(req, env, f = fetch, now = () => Date.now()) {
   const igTick = async () => {
     const out = { ig_checked: 0, ig_published: 0, ig_failed: 0, ig_errors: [] };
     const nowIso = new Date(now()).toISOString();
-    const rows = await db('GET', `social_posts?status=eq.SCHEDULED&ig_status=in.(PENDING,PROCESSING)&scheduled_at=lte.${nowIso}&select=id,body,image_url,video_url,ig_status,ig_container_id,scheduled_at&order=scheduled_at.asc&limit=10`);
+    const rows = await db('GET', `social_posts?status=eq.SCHEDULED&ig_status=in.(PENDING,PROCESSING)&scheduled_at=lte.${nowIso}&select=id,body,ig_body,image_url,video_url,ig_status,ig_container_id,scheduled_at&order=scheduled_at.asc&limit=10`);
     out.ig_checked = rows.length;
     const failIg = async (p, msg) => { await db('PATCH', `social_posts?id=eq.${p.id}`, { ig_status: 'FAILED', ig_error: scrub(msg).slice(0, 300) }); out.ig_failed++; await finalize(p.id); };
     for (const p of rows) {
@@ -126,9 +126,10 @@ export async function handle(req, env, f = fetch, now = () => Date.now()) {
           // Varaus: vain yksi ajo kasittelee julkaisun (estaa tuplajulkaisun, jos ajastin ja yllapito osuvat samaan aikaan)
           const claimed = await db('PATCH', `social_posts?id=eq.${p.id}&ig_status=eq.PENDING`, { ig_status: 'PROCESSING' });
           if (!claimed.length) continue;
+          const caption = (p.ig_body && p.ig_body.trim()) ? p.ig_body : (p.body || '');   // oma Instagram-teksti, jos annettu
           const params = p.video_url
-            ? { media_type: 'REELS', video_url: p.video_url, caption: p.body || '', share_to_feed: 'true' }
-            : { image_url: p.image_url, caption: p.body || '' };
+            ? { media_type: 'REELS', video_url: p.video_url, caption, share_to_feed: 'true' }
+            : { image_url: p.image_url, caption };
           if (!p.video_url && !p.image_url) { await failIg(p, 'Instagram vaatii kuvan tai videon'); continue; }
           try { const c = await graph('POST', `${ig}/media`, params); container = String(c.id || ''); }
           catch (e) { await failIg(p, 'Instagram ei hyv\u00e4ksynyt kuvaa tai videota: ' + (e && e.message)); continue; }
@@ -174,6 +175,7 @@ export async function handle(req, env, f = fetch, now = () => Date.now()) {
       if (!(t >= now() + MIN_LEAD_MS)) return fail(post, 'Ajankohdan pit\u00e4\u00e4 olla v\u00e4hint\u00e4\u00e4n 11 minuutin p\u00e4\u00e4ss\u00e4');
       if (!(t <= now() + MAX_LEAD_MS)) return fail(post, 'Facebook ajastaa enint\u00e4\u00e4n 30 p\u00e4iv\u00e4\u00e4 eteenp\u00e4in');
       if (/\[LIS[\u00c4A]{1}[^\]]*\]/i.test(post.body || '') || !(post.body || '').trim()) return fail(post, 'Tekstiss\u00e4 on t\u00e4ytt\u00e4m\u00e4t\u00f6n paikanvaraaja tai teksti puuttuu');
+      if (/\[LIS[\u00c4A]{1}[^\]]*\]/i.test(post.ig_body || '')) return fail(post, 'Instagram-tekstiss\u00e4 on t\u00e4ytt\u00e4m\u00e4t\u00f6n paikanvaraaja');
 
       const unix = String(Math.floor(t / 1000));
       const c = chans(post), toFb = c.includes('facebook'), toIg = c.includes('instagram');
