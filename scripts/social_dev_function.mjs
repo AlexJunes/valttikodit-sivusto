@@ -21,6 +21,7 @@ const env = {
 };
 
 const calls = [];
+const igContainers = {}, igPublished = [];
 http.createServer((req, res) => {   // Graph-jäljitelmä
   let b = ''; req.on('data', (c) => (b += c)); req.on('end', () => {
     const hasToken = /access_token=local-test-token/.test(req.url + '&' + b);   // Facebook vaatii avaimen myos DELETE-kutsussa
@@ -33,6 +34,30 @@ http.createServer((req, res) => {   // Graph-jäljitelmä
       res.end(JSON.stringify(ok ? { success: true } : { debug_info: { message: 'Invalid file_url or token' } })); return;
     }
     if (!hasToken) { res.statusCode = 400; res.end(JSON.stringify({ error: { message: "Unsupported delete request. Object with ID does not exist, cannot be loaded due to missing permissions, or does not support this operation" } })); return; }
+    // ---- Instagram (tili 17840000000000001): kontti -> kasittely -> media_publish ----
+    const IG = '17840000000000001';
+    if (req.method === 'GET' && /^\/1234567890\?/.test(req.url) && /instagram_business_account/.test(req.url)) { res.end(JSON.stringify({ id: '1234567890', instagram_business_account: { id: IG } })); return; }
+    if (req.method === 'POST' && req.url === `/${IG}/media`) {
+      const q = new URLSearchParams(b);
+      if (/badratio/.test(q.get('image_url') || '')) { res.statusCode = 400; res.end(JSON.stringify({ error: { message: 'The aspect ratio is not supported.' } })); return; }
+      const id = '91' + (100 + calls.length); igContainers[id] = { video: q.get('media_type') === 'REELS', polls: 0, caption: q.get('caption') };
+      res.end(JSON.stringify({ id })); return;
+    }
+    if (req.method === 'GET' && /^\/91\d+\?/.test(req.url)) {   // kontin tila: video kasittelee yhden kierroksen
+      const c = igContainers[req.url.match(/^\/(\d+)/)[1]] || { video: false, polls: 0 }; c.polls++;
+      res.end(JSON.stringify({ status_code: c.video && c.polls < 2 ? 'IN_PROGRESS' : 'FINISHED' })); return;
+    }
+    if (req.method === 'POST' && req.url === `/${IG}/media_publish`) { const id = '92' + (100 + calls.length); igPublished.push({ id, creation: new URLSearchParams(b).get('creation_id') }); res.end(JSON.stringify({ id })); return; }
+    if (req.method === 'GET' && /^\/92\d+\?/.test(req.url)) { const id = req.url.match(/^\/(\d+)/)[1]; res.end(JSON.stringify({ id, permalink: `https://www.instagram.com/p/${id}/`, timestamp: new Date().toISOString() })); return; }
+    if (req.method === 'GET' && req.url.startsWith(`/${IG}?`)) { res.end(JSON.stringify({ id: IG, username: 'valttikodit_oy_testi', followers_count: 174 })); return; }
+    if (req.method === 'GET' && req.url.startsWith(`/${IG}/media?`)) {
+      const data = igPublished.map((x) => ({ id: x.id, caption: 'Testijulkaisu', media_type: 'IMAGE', permalink: `https://www.instagram.com/p/${x.id}/`, timestamp: new Date().toISOString(), like_count: 5, comments_count: 1 }));
+      data.push({ id: '9000', caption: 'Vanha julkaisu', media_type: 'VIDEO', permalink: 'https://www.instagram.com/reel/9000/', timestamp: new Date(Date.now() - 4 * 86400000).toISOString(), like_count: 20, comments_count: 3 });
+      res.end(JSON.stringify({ data })); return;
+    }
+    if (req.method === 'GET' && /^\/(92\d+|9000)\/insights/.test(req.url)) {
+      res.end(JSON.stringify({ data: [{ name: 'reach', period: 'lifetime', values: [{ value: 120 }] }, { name: 'views', period: 'lifetime', values: [{ value: 300 }] }, { name: 'saved', period: 'lifetime', values: [{ value: 4 }] }, { name: 'shares', period: 'lifetime', values: [{ value: 2 }] }] })); return;
+    }
     if (req.method === 'GET' && /fields=id$/.test(req.url.replace(/&access_token=[^&]*/, ''))) { res.end(JSON.stringify({ id: 'x' })); return; }
     if (req.method === 'GET' && /\/insights\?/.test(req.url)) {   // tilastot
       const metrics = decodeURIComponent((req.url.match(/metric=([^&]*)/) || [])[1] || '').split(',');

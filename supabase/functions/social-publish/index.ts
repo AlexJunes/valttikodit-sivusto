@@ -1,6 +1,9 @@
 // Edge Function: social-publish
 // Yllapitosivun Some-hallinnan julkaisupalvelu. Ainoa paikka, jossa Facebook-avain (META_PAGE_TOKEN) on kaytossa.
-// Toiminnot: health | schedule | cancel | refresh. Kutsuja tunnistetaan Supabase-istunnolla (vain yllapitaja + MFA).
+// Toiminnot: health | schedule | cancel | refresh | sync | tick. Kutsuja tunnistetaan Supabase-istunnolla (vain yllapitaja + MFA)
+// tai ajastimen salaisuudella (vain sync ja tick).
+// Instagram (sama sivuavain, luvat instagram_basic + instagram_content_publish): Instagramissa ei ole ajastusta, joten
+// julkaisu tehdaan ajankohtana toiminnolla tick (pg_cron 10 min valein): kontti -> kasittely -> media_publish.
 // Facebookiin tehdaan vain: ajastettu julkaisu (POST), ajastuksen peruutus (DELETE) ja luku (GET). Julkaisua ei koskaan tehda heti.
 // Salaisuudet (Supabase -> Edge Functions -> Secrets): META_PAGE_ID, META_PAGE_TOKEN. SUPABASE_* tulevat automaattisesti.
 
@@ -44,7 +47,7 @@ export async function handle(req, env, f = fetch, now = () => Date.now()) {
   const cronOk = !!env.CRON_SECRET && req.headers.get('x-cron-secret') === env.CRON_SECRET;
   let actor = 'cron';
   if (cronOk) {
-    if (body.action !== 'sync') return json(req, 403, { ok: false, error: 'Cron saa tehda vain sync-toiminnon' });
+    if (!['sync', 'tick'].includes(body.action)) return json(req, 403, { ok: false, error: 'Cron saa tehda vain sync- ja tick-toiminnot' });
   } else {
     const jwt = (req.headers.get('authorization') || '').replace(/^Bearer\s+/i, '');
     const claims = jwt ? decodeJwt(jwt) : null;
@@ -83,13 +86,83 @@ export async function handle(req, env, f = fetch, now = () => Date.now()) {
     if (!rows.length) throw new Error('Julkaisua ei l\u00f6ytynyt');
     return rows[0];
   };
+  // Instagram-tilin tunniste: salaisuus META_IG_ID tai haetaan sivulta
+  let igIdCache = env.META_IG_ID || null;
+  const igId = async () => {
+    if (igIdCache) return igIdCache;
+    const r = await graph('GET', PAGE, { fields: 'instagram_business_account' });
+    igIdCache = (r.instagram_business_account && r.instagram_business_account.id) || null;
+    if (!igIdCache) throw new Error('Facebook-sivuun ei ole liitetty Instagram-ammattilaistili\u00e4 tai avaimelta puuttuu instagram_basic-lupa');
+    return igIdCache;
+  };
+  const chans = (p) => (Array.isArray(p.channels) && p.channels.length ? p.channels : ['facebook']);
+  // Julkaisun kokonaistila: valmis, kun jokainen valittu kanava on julkaistu; virhe, jos jokin kanava epaonnistui
+  const finalize = async (id) => {
+    const rows = await db('GET', `social_posts?id=eq.${id}&select=status,channels,fb_permalink,ig_status,ig_error,published_at,ig_published_at`);
+    const p = rows[0]; if (!p || p.status !== 'SCHEDULED') return null;
+    const c = chans(p), fbDone = !c.includes('facebook') || !!p.fb_permalink, ig = c.includes('instagram');
+    if (ig && p.ig_status === 'FAILED' && fbDone) {
+      await db('PATCH', `social_posts?id=eq.${id}`, { status: 'FAILED', last_error: 'Instagram: ' + (p.ig_error || 'julkaisu ep\u00e4onnistui') + (c.includes('facebook') ? ' (Facebook-julkaisu onnistui.)' : '') });
+      return 'FAILED';
+    }
+    if (fbDone && (!ig || p.ig_status === 'PUBLISHED')) {
+      await db('PATCH', `social_posts?id=eq.${id}`, { status: 'PUBLISHED', published_at: p.published_at || p.ig_published_at || new Date(now()).toISOString() });
+      return 'PUBLISHED';
+    }
+    return null;
+  };
+  // Instagram: julkaise eraantyneet (PENDING -> kontti) ja valmistuneet (PROCESSING -> media_publish)
+  const igTick = async () => {
+    const out = { ig_checked: 0, ig_published: 0, ig_failed: 0, ig_errors: [] };
+    const nowIso = new Date(now()).toISOString();
+    const rows = await db('GET', `social_posts?status=eq.SCHEDULED&ig_status=in.(PENDING,PROCESSING)&scheduled_at=lte.${nowIso}&select=id,body,image_url,video_url,ig_status,ig_container_id,scheduled_at&order=scheduled_at.asc&limit=10`);
+    out.ig_checked = rows.length;
+    const failIg = async (p, msg) => { await db('PATCH', `social_posts?id=eq.${p.id}`, { ig_status: 'FAILED', ig_error: scrub(msg).slice(0, 300) }); out.ig_failed++; await finalize(p.id); };
+    for (const p of rows) {
+      try {
+        const ig = await igId();
+        let container = p.ig_container_id;
+        if (p.ig_status === 'PENDING') {
+          // Varaus: vain yksi ajo kasittelee julkaisun (estaa tuplajulkaisun, jos ajastin ja yllapito osuvat samaan aikaan)
+          const claimed = await db('PATCH', `social_posts?id=eq.${p.id}&ig_status=eq.PENDING`, { ig_status: 'PROCESSING' });
+          if (!claimed.length) continue;
+          const params = p.video_url
+            ? { media_type: 'REELS', video_url: p.video_url, caption: p.body || '', share_to_feed: 'true' }
+            : { image_url: p.image_url, caption: p.body || '' };
+          if (!p.video_url && !p.image_url) { await failIg(p, 'Instagram vaatii kuvan tai videon'); continue; }
+          try { const c = await graph('POST', `${ig}/media`, params); container = String(c.id || ''); }
+          catch (e) { await failIg(p, 'Instagram ei hyv\u00e4ksynyt kuvaa tai videota: ' + (e && e.message)); continue; }
+          await db('PATCH', `social_posts?id=eq.${p.id}`, { ig_container_id: container });
+        }
+        if (!container) { await failIg(p, 'Instagram-kontti puuttuu'); continue; }
+        const st = await graph('GET', container, { fields: 'status_code,status' });
+        if (st.status_code === 'ERROR' || st.status_code === 'EXPIRED') { await failIg(p, 'Instagram ei pystynyt k\u00e4sittelem\u00e4\u00e4n mediaa: ' + (st.status || st.status_code)); continue; }
+        if (st.status_code !== 'FINISHED') {
+          if (now() - Date.parse(p.scheduled_at) > 3 * 3600 * 1000) await failIg(p, 'Instagram k\u00e4sitteli videota yli 3 tuntia');
+          continue;   // kasittely kesken: seuraava ajo jatkaa
+        }
+        const pub = await graph('POST', `${ig}/media_publish`, { creation_id: container });
+        const mediaId = String(pub.id || '');
+        let link = null, at = new Date(now()).toISOString();
+        try { const m = await graph('GET', mediaId, { fields: 'permalink,timestamp' }); link = m.permalink || null; if (m.timestamp && !isNaN(Date.parse(m.timestamp))) at = new Date(Date.parse(m.timestamp)).toISOString(); } catch (e) { /* ei kriittinen */ }
+        await db('PATCH', `social_posts?id=eq.${p.id}`, { ig_status: 'PUBLISHED', ig_media_id: mediaId, ig_permalink: link, ig_published_at: at, ig_error: null });
+        out.ig_published++;
+        await finalize(p.id);
+      } catch (e) { out.ig_errors.push(scrub(e && e.message)); }
+    }
+    return out;
+  };
+
   const fail = async (post, msg) => { try { await db('PATCH', `social_posts?id=eq.${post.id}`, { last_error: msg }); } catch (e) {} return json(req, 200, { ok: false, error: msg }); };
 
   try {
     // ---- health ----
     if (body.action === 'health') {
       const r = await graph('GET', PAGE, { fields: 'name,followers_count' });
-      return json(req, 200, { ok: true, page: r.name, followers: r.followers_count ?? null });
+      let instagram = null;
+      try { const ig = await igId(); const i = await graph('GET', ig, { fields: 'username,followers_count' }); instagram = { username: i.username, followers: i.followers_count ?? null }; }
+      catch (e) { instagram = { error: scrub(e && e.message) }; }
+      return json(req, 200, { ok: true, page: r.name, followers: r.followers_count ?? null, instagram });
     }
 
     // ---- schedule ----
@@ -103,8 +176,14 @@ export async function handle(req, env, f = fetch, now = () => Date.now()) {
       if (/\[LIS[\u00c4A]{1}[^\]]*\]/i.test(post.body || '') || !(post.body || '').trim()) return fail(post, 'Tekstiss\u00e4 on t\u00e4ytt\u00e4m\u00e4t\u00f6n paikanvaraaja tai teksti puuttuu');
 
       const unix = String(Math.floor(t / 1000));
-      let r;
-      if (post.video_url) {
+      const c = chans(post), toFb = c.includes('facebook'), toIg = c.includes('instagram');
+      if (toIg) {
+        if (!post.image_url && !post.video_url) return fail(post, 'Instagram vaatii kuvan tai videon');
+        try { await igId(); } catch (e) { return fail(post, scrub(e && e.message)); }
+      }
+      let r = { id: null };
+      if (!toFb) { /* vain Instagram: julkaistaan ajankohtana toiminnolla tick */ }
+      else if (post.video_url) {
         // Reels-video: 1) aloita lataus, 2) Facebook hakee videon julkisesta osoitteesta, 3) ajasta
         if (!/^https:\/\//.test(post.video_url)) return fail(post, 'Videon osoitteen pit\u00e4\u00e4 alkaa https://');
         const description = post.link_url ? `${post.body}\n\n${post.link_url}` : post.body;
@@ -131,23 +210,27 @@ export async function handle(req, env, f = fetch, now = () => Date.now()) {
         if (post.link_url) p.link = post.link_url;
         r = await graph('POST', `${PAGE}/feed`, p);
       }
-      const fbId = r.post_id || r.id;
-      await db('PATCH', `social_posts?id=eq.${post.id}`, { status: 'SCHEDULED', fb_post_id: fbId, last_error: null });
+      const fbId = toFb ? (r.post_id || r.id) : null;
+      await db('PATCH', `social_posts?id=eq.${post.id}`, { status: 'SCHEDULED', fb_post_id: fbId, fb_permalink: null, last_error: null,
+        ig_status: toIg ? 'PENDING' : null, ig_container_id: null, ig_media_id: null, ig_permalink: null, ig_published_at: null, ig_error: null });
       return json(req, 200, { ok: true, fb_post_id: fbId, actor });
     }
 
     // ---- cancel ----
     if (body.action === 'cancel') {
       const post = await getPost(body.post_id);
-      if (post.status !== 'SCHEDULED' || !post.fb_post_id) return json(req, 200, { ok: false, error: 'Vain ajastetun julkaisun ajastuksen voi perua' });
-      try { await graph('DELETE', post.fb_post_id); }
+      if (post.status !== 'SCHEDULED') return json(req, 200, { ok: false, error: 'Vain ajastetun julkaisun ajastuksen voi perua' });
+      if (post.ig_status === 'PUBLISHED') return json(req, 200, { ok: false, error: 'Instagram-julkaisu on jo julkaistu. Poista se tarvittaessa Instagramista.' });
+      // Instagram: varataan pois ajastimelta ennen Facebook-poistoa
+      if (post.ig_status) await db('PATCH', `social_posts?id=eq.${post.id}&ig_status=in.(PENDING,PROCESSING,FAILED)`, { ig_status: null, ig_container_id: null });
+      if (post.fb_post_id) try { await graph('DELETE', post.fb_post_id); }
       catch (e) {
         // Jos poisto "epaonnistui", tarkista ettei julkaisu edelleen ole Facebookissa; vasta sitten merkitaan peruutetuksi
         let stillThere = false;
         try { await graph('GET', post.fb_post_id, { fields: 'id' }); stillThere = true; } catch (e2) { stillThere = false; }
         if (stillThere) return json(req, 200, { ok: false, error: 'Facebook ei poistanut ajastettua julkaisua: ' + scrub(e && e.message) + ' Poista se Facebookin Suunnittelutyokalusta kasin.' });
       }
-      await db('PATCH', `social_posts?id=eq.${post.id}`, { status: 'CANCELLED', fb_post_id: null, last_error: null });
+      await db('PATCH', `social_posts?id=eq.${post.id}`, { status: 'CANCELLED', fb_post_id: null, last_error: null, ig_status: null, ig_container_id: null, ig_error: null });
       return json(req, 200, { ok: true, actor });
     }
 
@@ -155,15 +238,16 @@ export async function handle(req, env, f = fetch, now = () => Date.now()) {
     const doRefresh = async () => {
       const nowIso = new Date(now()).toISOString();
       // Ajankohdan ohittaneet julkaisut + kaikki ajastetut videot (videon kasittely voi epaonnistua jo ennen julkaisuaikaa)
-      const due = await db('GET', `social_posts?status=eq.SCHEDULED&scheduled_at=lte.${nowIso}&select=id,fb_post_id,video_url`);
-      const vids = await db('GET', `social_posts?status=eq.SCHEDULED&scheduled_at=gt.${nowIso}&video_url=not.is.null&select=id,fb_post_id,video_url`);
+      const igOut = await igTick();
+      const due = await db('GET', `social_posts?status=eq.SCHEDULED&scheduled_at=lte.${nowIso}&fb_permalink=is.null&select=id,fb_post_id,video_url`);
+      const vids = await db('GET', `social_posts?status=eq.SCHEDULED&scheduled_at=gt.${nowIso}&video_url=not.is.null&fb_post_id=not.is.null&fb_permalink=is.null&select=id,fb_post_id,video_url`);
       const rows = due.concat(vids);
       let published = 0, failed = 0; const errors = [];
       const iso = (v) => (v && !isNaN(Date.parse(v)) ? new Date(Date.parse(v)).toISOString() : new Date(now()).toISOString());
       for (const p of rows) {
         try {
           let storyId = String(p.fb_post_id || '');
-          if (!storyId) continue;
+          if (!storyId) { if (await finalize(p.id) === 'PUBLISHED') published++; continue; }   // vain Instagram
           if (p.video_url && !storyId.includes('_')) {
             // Reels-video: tila luetaan videon status-kentasta
             const v = await graph('GET', storyId, { fields: 'status,post_id,permalink_url,created_time' });
@@ -177,8 +261,8 @@ export async function handle(req, env, f = fetch, now = () => Date.now()) {
               failed++;
             } else if (pub.publish_status === 'published') {
               const link = v.permalink_url ? (String(v.permalink_url).startsWith('/') ? 'https://www.facebook.com' + v.permalink_url : v.permalink_url) : null;
-              await db('PATCH', `social_posts?id=eq.${p.id}`, { status: 'PUBLISHED', published_at: iso(pub.publish_time || v.created_time), fb_permalink: link, fb_post_id: v.post_id ? `${PAGE}_${v.post_id}` : storyId });
-              published++;
+              await db('PATCH', `social_posts?id=eq.${p.id}`, { published_at: iso(pub.publish_time || v.created_time), fb_permalink: link || `https://www.facebook.com/reel/${storyId}/`, fb_post_id: v.post_id ? `${PAGE}_${v.post_id}` : storyId });
+              if (await finalize(p.id) === 'PUBLISHED') published++;
             }
             continue;
           }
@@ -191,14 +275,14 @@ export async function handle(req, env, f = fetch, now = () => Date.now()) {
           }
           const r = await graph('GET', storyId, { fields: 'is_published,permalink_url,created_time' });
           if (r.is_published === true) {
-            await db('PATCH', `social_posts?id=eq.${p.id}`, { status: 'PUBLISHED', published_at: iso(r.created_time), fb_permalink: r.permalink_url || null, fb_post_id: storyId });
-            published++;
+            await db('PATCH', `social_posts?id=eq.${p.id}`, { published_at: iso(r.created_time), fb_permalink: r.permalink_url || `https://www.facebook.com/${storyId}`, fb_post_id: storyId });
+            if (await finalize(p.id) === 'PUBLISHED') published++;
           }
         } catch (e) { errors.push(scrub(e && e.message)); }
       }
-      return { checked: rows.length, published, failed, errors };
+      return { checked: rows.length, published, failed, errors, ...igOut };
     };
-    if (body.action === 'refresh') return json(req, 200, { ok: true, ...(await doRefresh()) });
+    if (body.action === 'refresh' || body.action === 'tick') return json(req, 200, { ok: true, ...(await doRefresh()) });
 
     // ---- sync: hae Facebook-tilastot tauluihin (sivu paivittain + julkaisut) ----
     if (body.action === 'sync') {
@@ -252,6 +336,27 @@ export async function handle(req, env, f = fetch, now = () => Date.now()) {
       const list = fbPosts.slice(0, 40);
       for (let i = 0; i < list.length; i += 5) await Promise.all(list.slice(i, i + 5).map(one));
       try { await upsert('social_post_metrics', metricRows, 'fb_post_id,day'); summary.metrics = metricRows.length; } catch (e) { summary.errors.push('post_metrics: ' + scrub(e.message)); }
+      // Instagram: tilin seuraajat ja julkaisujen luvut (jos tili on liitetty)
+      try {
+        const ig = await igId();
+        const acc = await graph('GET', ig, { fields: 'followers_count' });
+        await upsert('social_page_metrics', [{ day: today, ig_followers: acc.followers_count ?? null }], 'day');
+        const ml = await graph('GET', `${ig}/media`, { fields: 'id,caption,media_type,permalink,timestamp,like_count,comments_count', limit: '30' });
+        const igRows = [];
+        for (const m of (ml.data || [])) {
+          const row = { ig_media_id: m.id, posted_at: m.timestamp, caption: (m.caption || '').slice(0, 300), permalink: m.permalink || null, media_type: m.media_type || null,
+            likes: m.like_count ?? null, comments: m.comments_count ?? null, reach: null, views: null, saves: null, shares: null, fetched_at: new Date(nowMs).toISOString() };
+          try {
+            const ins = await graph('GET', `${m.id}/insights`, { metric: 'reach,views,saved,shares' });
+            for (const d of (ins.data || [])) { const v = num(d.values && d.values[0] && d.values[0].value); if (d.name === 'reach') row.reach = v; if (d.name === 'views') row.views = v; if (d.name === 'saved') row.saves = v; if (d.name === 'shares') row.shares = v; }
+          } catch (e) {
+            try { const ins = await graph('GET', `${m.id}/insights`, { metric: 'reach' }); for (const d of (ins.data || [])) if (d.name === 'reach') row.reach = num(d.values && d.values[0] && d.values[0].value); } catch (e2) { /* vanha julkaisu: ei tilastoja */ }
+          }
+          igRows.push(row);
+        }
+        await upsert('social_ig_media', igRows, 'ig_media_id');
+        summary.ig_posts = igRows.length;
+      } catch (e) { summary.errors.push('instagram: ' + scrub(e && e.message)); }
       try { await db('POST', 'social_sync_log', [{ source: body.source || actor, summary }], 'return=minimal'); } catch (e) { /* loki ei ole kriittinen */ }
       return json(req, 200, { ok: true, ...summary });
     }

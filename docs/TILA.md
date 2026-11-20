@@ -116,6 +116,7 @@ Lueteltu tiedostot, jotka on kirjattu repoon. Tuotantoon ne ajetaan käsin Supab
 - `2026-11-14_social_cron.sql` – ==============================================================================
 - `2026-11-14_social_metrics.sql` – ==============================================================================
 - `2026-11-17_social_reels.sql` – Some: Reels-videot. Julkaisulla voi olla video (video_url); silloin se ajastetaan Facebookiin Reels-videona.
+- `2026-11-20_social_instagram.sql` – ==============================================================================
 
 ## Repon rakenne (ylin taso)
 
