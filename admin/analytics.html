@@ -7,7 +7,7 @@
     <title>Analytiikka | Valttikodit Admin</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/style.css?v=4152f429">
-    <link rel="stylesheet" href="../assets/css/admin.css?v=1c1a0819">
+    <link rel="stylesheet" href="../assets/css/admin.css?v=b5558663">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
 </head>
 
@@ -38,6 +38,8 @@
                 <p class="an-sub" id="an-period">Ladataan...</p>
             </div>
             <div class="an-filters">
+                <span class="an-sub" id="an-updated"></span>
+                <button type="button" class="btn btn-outline" id="an-refresh" title="Hakee Facebookin ja Instagramin luvut ja laskee kaiken uudelleen">Päivitä data</button>
                 <div class="an-seg" id="an-range" role="group" aria-label="Aikaväli">
                     <button type="button" data-range="7">7 pv</button>
                     <button type="button" data-range="30" class="active">30 pv</button>
@@ -65,7 +67,7 @@
 
     <div id="an-tip" class="an-tip" hidden></div>
     <script src="../assets/js/admin.js?v=60eaf7bf"></script>
-    <script src="../assets/js/admin-analytics.js?v=b5bff3dd"></script>
+    <script src="../assets/js/admin-analytics.js?v=3373ce40"></script>
 </body>
 
 </html>

@@ -95,3 +95,7 @@ Migraatio `2026-11-22_analytics_data.sql`.
 ## Analytiikka: raporttifunktio
 
 Migraatio `2026-11-22_analytics_report.sql`. `analytics_report(p_from date, p_to date)` (vain ylläpito, enintään 366 päivää) palauttaa valitun jakson (`cur`) ja edellisen samanpituisen jakson (`prev`) tunnusluvut (`analytics_period`), päiväsarjat (`daily`) sekä erittelyt: lähteet, laitteet, sivut (katselut, lukuaika, vieritys, yhteydenottoaikeet), liidien tyypit ja kanavat (kaupat mukana), kampanjat, Facebook- ja Instagram-julkaisut. Apufunktiot `analytics_source` (käynnin lähde) ja `analytics_path` (osoitteen yhtenäistys).
+
+## Analytiikka: tekoälyn vinkit (analytics_insights)
+
+Migraatiot `2026-11-23_analytics_insights.sql` ja (Vault-asennus) `2026-11-23_analytics_insights_trigger.sql`. Raportin laskenta on nyt `analytics_report_data` (ei oikeustarkistusta, ei julkinen); `analytics_report` tarkistaa ylläpidon ja kutsuu sitä. Kampanjoihin lisätty liidit (`Kampanja:`-rivin kolmas osa). `analytics_insights`: vinkkipyynnöt (PENDING → RUNNING → READY / FAILED), vinkit `tips` (1–5: title, why, action, area) ja `summary`; ylläpito lukee. `analytics_request_insights(p_from, p_to)` (ylläpito, enintään 15 / vrk, kesken oleva palautetaan) käynnistää pilviagentin Vaultin avaimilla (`insights_routine_url`, `insights_routine_token`). Agentin funktiot avaimella (`insights_agent_tokens`, sha256): `insights_agent_next` (ottaa pyynnön; `p_default` luo 30 päivän pyynnön, jos jono on tyhjä), `insights_agent_save`, `insights_agent_fail`. Yli 20 min kesken olleet merkitään epäonnistuneiksi.

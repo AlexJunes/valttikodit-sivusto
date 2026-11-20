@@ -43,3 +43,7 @@ Viikoittainen rutiini (maanantai) kirjoittaa 2–3 julkaisuluonnosta suoraan yll
 Some-suunnittelija tekee luonnokset Facebookiin ja Instagramiin (`p_channels`). Aihe ja kuva ovat samat, mutta Instagram-teksti kirjoitetaan erikseen (`p_ig_body`: lyhyt koukku, 8–15 paikallista hashtagia, "Linkki profiilissa"). Sähköpostissa on lisäksi yksi Reels-idea käsikirjoituksineen ihmisen kuvattavaksi.
 
 Markkinoinnin tavoitteet: ylläpitäjät (Pekka, Jani) asettavat ne Some-sivun Tavoitteet-välilehdellä. Agentti lukee ne ennen suunnittelua (`goals`), painottaa niiden mukaan ja kertoo sähköpostissa, mitä tavoitetta kukin luonnos palvelee. Tavoitteet eivät ohita turvasääntöjä (vastaanottajat, faktat, ei julkaisua).
+
+## Analytiikan tekoälyvinkit
+
+Rutiini `trig_018ejMs2x5yYLdK9DsKWC9fq` ("analytiikan tekoälyvinkit"): käynnistyy heti, kun Analytiikka-sivulla pyydetään vinkkejä (API-trigger Vaultista), ja joka aamu klo 5 UTC (30 päivän jakso). Lukee `insights_agent_next`-funktiolla raportin, markkinoinnin tavoitteet ja kohteiden tilat, kirjoittaa 3 vinkkiä (otsikko, miksi, mitä tehdä, osa-alue) ja tallentaa `insights_agent_save`-funktiolla. Ei sähköpostia eikä muita yhteyksiä; avain `INSIGHTS_AGENT_TOKEN` pilviympäristössä.
