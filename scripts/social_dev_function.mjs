@@ -55,6 +55,9 @@ http.createServer((req, res) => {   // Graph-jäljitelmä
       data.push({ id: '9000', caption: 'x'.repeat(299) + '\u{1F3E1} Emoji osuu katkaisukohtaan', media_type: 'VIDEO', permalink: 'https://www.instagram.com/reel/9000/', timestamp: new Date(Date.now() - 4 * 86400000).toISOString(), like_count: 20, comments_count: 3 });
       res.end(JSON.stringify({ data })); return;
     }
+    if (req.method === 'GET' && req.url.startsWith(`/${IG}/insights?`)) {   // tilitason luvut (total_value)
+      res.end(JSON.stringify({ data: ['reach', 'profile_views', 'website_clicks', 'accounts_engaged'].map((n, i) => ({ name: n, period: 'day', total_value: { value: [140, 22, 5, 30][i] } })) })); return;
+    }
     if (req.method === 'GET' && /^\/(92\d+|9000)\/insights/.test(req.url)) {
       res.end(JSON.stringify({ data: [{ name: 'reach', period: 'lifetime', values: [{ value: 120 }] }, { name: 'views', period: 'lifetime', values: [{ value: 300 }] }, { name: 'saved', period: 'lifetime', values: [{ value: 4 }] }, { name: 'shares', period: 'lifetime', values: [{ value: 2 }] }] })); return;
     }

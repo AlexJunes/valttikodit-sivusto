@@ -84,3 +84,10 @@ Migraatio `2026-11-20_social_ig_text.sql`: `social_posts.ig_body` (valinnainen I
 ## Some: markkinoinnin tavoitteet (social_goals)
 
 Migraatio `2026-11-21_social_goals.sql`. Yksi rivi (id = 1): tärkeimmät kohteet (`focus_projects`, kohteiden slugit), perustelu, painotukset (`priorities`: myynti / tontit / seuraajat / luottamus, 0–3), viikon erityisviesti, vältettävät asiat ja voimassaolo (`valid_until`). RLS: vain ylläpito. Laukaisin `social_goals_stamp` asettaa päivittäjän ja ajan palvelimella ja kirjaa muutoksen `social_audit`-lokiin (`tavoitteet paivitetty`). Some-agentti saa tavoitteet `social_agent_context`-funktion kentässä `goals` vain, kun ne ovat voimassa.
+
+## Analytiikka: lisädata (site_events, leads.outcome, Instagramin tililuvut)
+
+Migraatio `2026-11-22_analytics_data.sql`.
+- `site_events`: sivuston tapahtumat `cta_phone`, `cta_email`, `brochure` (PDF-linkki), `form_start` (lomakkeen ensimmäinen kenttä) ja `engagement` (näkyvissäoloaika `seconds` ja syvin vierityskohta `scroll_pct`, yksi rivi sivukatselua kohden). Julkinen saa vain lisätä (rajat CHECK-ehdossa, aika asetetaan palvelimella), ylläpito lukee. `session_id` vain, jos kävijä on sallinut analytiikan.
+- `leads.outcome` (`KAUPPA` / `EI_KAUPPAA` / tyhjä = avoin), `outcome_at`, `outcome_by`: ylläpito merkitsee liidin tiedoissa; laukaisin `leads_outcome_guard` estää julkista lomaketta asettamasta lopputulosta ja tallentaa merkitsijän ja ajan.
+- `social_page_metrics.ig_reach`, `ig_profile_views`, `ig_website_clicks`, `ig_accounts_engaged`: Instagramin tilitason päiväluvut (julkaisupalvelun `sync`, kolme päättynyttä päivää kerrallaan).

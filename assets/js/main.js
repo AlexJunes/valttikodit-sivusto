@@ -105,6 +105,50 @@ document.addEventListener('DOMContentLoaded', async () => {
             console.error("Pageview log failed:", e);
         }
 
+        // Tapahtumat (site_events): painallukset sekä lukuaika ja vieritys. Ei henkilötietoja;
+        // session_id vain jos analytiikka on sallittu. keepalive: lähtee myös sivulta poistuttaessa.
+        const sendEvent = (row) => {
+            try {
+                fetch(`${SUPABASE_URL}/rest/v1/site_events`, {
+                    method: 'POST', keepalive: true,
+                    headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}`, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+                    body: JSON.stringify({ path: cleanPath.slice(0, 500), session_id: sessionId, ...row }),
+                }).catch(() => {});
+            } catch (e) { /* ei kriittinen */ }
+        };
+        document.addEventListener('click', (e) => {
+            const a = e.target.closest && e.target.closest('a[href]'); if (!a) return;
+            const href = a.getAttribute('href') || '', label = (a.textContent || '').trim().slice(0, 120) || null;
+            if (/^tel:/i.test(href)) sendEvent({ event: 'cta_phone', label });
+            else if (/^mailto:/i.test(href)) sendEvent({ event: 'cta_email', label });
+            else if (/\.pdf(\?|#|$)/i.test(href)) sendEvent({ event: 'brochure', label });
+        }, true);
+        let formStarted = false;
+        document.addEventListener('focusin', (e) => {
+            const f = e.target.closest && e.target.closest('form'); if (!f || formStarted) return;
+            formStarted = true; sendEvent({ event: 'form_start', label: (f.id || f.getAttribute('name') || 'lomake').slice(0, 120) });
+        });
+        // Lukuaika (vain kun välilehti on näkyvissä) ja syvin vierityskohta
+        let activeMs = 0, visibleSince = document.visibilityState === 'visible' ? Date.now() : null, maxScroll = 0, engagementSent = false;
+        const measureScroll = () => {
+            const h = document.documentElement.scrollHeight - window.innerHeight;
+            const pct = h > 0 ? Math.round((window.scrollY / h) * 100) : 100;
+            if (pct > maxScroll) maxScroll = Math.min(100, Math.max(0, pct));
+        };
+        window.addEventListener('scroll', measureScroll, { passive: true });
+        measureScroll();
+        const flushEngagement = () => {
+            if (visibleSince) { activeMs += Date.now() - visibleSince; visibleSince = null; }
+            if (engagementSent || activeMs < 1000) return;
+            engagementSent = true;
+            sendEvent({ event: 'engagement', seconds: Math.min(7200, Math.round(activeMs / 1000)), scroll_pct: maxScroll });
+        };
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'hidden') flushEngagement();
+            else if (!engagementSent) visibleSince = Date.now();
+        });
+        window.addEventListener('pagehide', flushEngagement);
+
         // --- COOKIE BANNER UI INJECTION ---
         if (!consent) {
             // Luo tyylit suoraan JS:stä raskaiden CSS latausten välttämiseksi
