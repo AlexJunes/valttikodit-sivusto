@@ -114,7 +114,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     const openEditor = async (post) => {
-        cur = post ? { ...post } : { id: null, title: '', body: '', image_url: '', video_url: '', channels: ['facebook'], link_kind: '', link_slug: '', link_url: '', scheduled_at: null, status: 'DRAFT', campaign_id: null };
+        cur = post ? { ...post } : { id: null, title: '', body: '', image_url: '', video_url: '', channels: ['facebook'], ig_body: '', link_kind: '', link_slug: '', link_url: '', scheduled_at: null, status: 'DRAFT', campaign_id: null };
         const locked = ['SCHEDULED', 'PUBLISHED'].includes(cur.status);
         const dis = locked ? 'disabled' : '';
         const kinds = [['', 'Ei linkkiä'], ['kohde', 'Kohdesivu'], ['referenssi', 'Referenssi'], ['tontti', 'Myy tonttisi -sivu'], ['muu', 'Muu valttikodit.fi-osoite']];
@@ -140,6 +140,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                     <label class="form-label" style="margin-top:0.9rem;">Julkaisuteksti *</label>
                     <textarea id="so-body" class="form-input" rows="9" ${dis}>${esc(cur.body)}</textarea>
                     <div class="so-sub"><span id="so-count">0</span> merkkiä</div>
+                    <div id="so-igbody-wrap">
+                        <label class="form-label" style="margin-top:0.9rem;">Instagram-teksti (valinnainen)</label>
+                        <textarea id="so-igbody" class="form-input" rows="7" maxlength="2200" placeholder="Jos jätät tyhjäksi, Instagramiin menee sama teksti kuin yllä." ${dis}>${esc(cur.ig_body || '')}</textarea>
+                        <div class="so-sub"><span id="so-igcount">0</span> / 2200 merkkiä. Instagramissa linkki ei ole klikattava: käytä esim. "Linkki profiilissa".</div>
+                    </div>
                     <label class="form-label" style="margin-top:0.9rem;">Kuva</label>
                     <input id="so-img" class="form-input" placeholder="Kuvan osoite (https://…) tai lataa kuva alta" value="${esc(cur.image_url || '')}" ${dis}>
                     <input type="file" id="so-img-file" accept="image/*" style="margin-top:0.4rem;" ${dis}>
@@ -185,7 +190,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const readForm = () => {
         const kind = $('so-kind').value;
         const f = { title: $('so-title').value.trim(), campaign_id: $('so-camp').value && $('so-camp').value !== '__new' ? $('so-camp').value : null,
-            body: $('so-body').value, image_url: $('so-img').value.trim() || null, video_url: $('so-video').value.trim() || null,
+            body: $('so-body').value, ig_body: $('so-igbody').value.trim() ? $('so-igbody').value : null, image_url: $('so-img').value.trim() || null, video_url: $('so-video').value.trim() || null,
             channels: [$('so-ch-fb').checked ? 'facebook' : null, $('so-ch-ig').checked ? 'instagram' : null].filter(Boolean), kind, slug: ($('so-slug').value || '') , custom: $('so-custom').value.trim(),
             when: $('so-when').value ? new Date($('so-when').value).toISOString() : null };
         f.link_url = buildLink(f) || null;
@@ -196,6 +201,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const errs = [], warns = [];
         if (!f.title) errs.push('Sisäinen nimi puuttuu.');
         if (!f.body.trim()) errs.push('Julkaisuteksti puuttuu.');
+        if (f.channels.includes('instagram') && /\[LIS[ÄA][^\]]*\]/i.test(f.ig_body || '')) errs.push('Instagram-tekstissä on täyttämätön paikanvaraaja.');
         if (/\[LIS[ÄA][^\]]*\]/i.test(f.body)) errs.push('Tekstissä on täyttämätön paikanvaraaja (esim. [LISÄÄ NÄYTTÖAIKA]).');
         if (f.kind && !f.link_url) errs.push('Linkki ei ole kelvollinen.');
         if (f.image_url && !/^https:\/\//.test(f.image_url)) errs.push('Kuvan osoitteen pitää alkaa https://');
@@ -206,7 +212,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (ig && !f.image_url && !f.video_url) errs.push('Instagram vaatii kuvan tai videon.');
         if (ig && !f.video_url && f.image_url && imgRatio.url === f.image_url && imgRatio.r && (imgRatio.r < 0.8 || imgRatio.r > 1.91))
             errs.push(`Instagram ei hyväksy kuvan muotoa (${imgRatio.w} × ${imgRatio.h}). Kuvasuhteen pitää olla 4:5 (pysty) – 1,91:1 (vaaka). Valitse toinen kuva tai poista Instagram kanavista.`);
-        if (ig && f.link_url) warns.push('Instagramissa linkki ei ole klikattava. Lisää tekstiin esim. "Linkki profiilissa", jos ohjaat sivustolle.');
+        if (ig && f.link_url && !/profiili|bio|viesti|DM/i.test(f.ig_body || f.body)) warns.push('Instagramissa linkki ei ole klikattava. Lisää Instagram-tekstiin esim. "Linkki profiilissa", jos ohjaat sivustolle.');
         if (f.video_url && f.link_url && f.channels.includes('facebook')) warns.push('Reels-videon tekstissä linkki ei ole klikattava. Kävijöitä tulee siksi vähemmän kuin kuvajulkaisun linkistä.');
         if (!f.image_url && !f.video_url && !ig) warns.push('Kuvaton julkaisu tavoittaa yleensä huonommin.');
         if (f.body.length > 700) warns.push('Teksti on pitkä (yli 700 merkkiä).');
@@ -232,6 +238,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         const f = readForm();
         measureImg(f.image_url);
         $('so-count').textContent = f.body.length;
+        $('so-igcount').textContent = (f.ig_body || '').length;
+        $('so-igbody-wrap').style.display = f.channels.includes('instagram') ? '' : 'none';
         $('so-fb-text').textContent = f.body || '(teksti)';
         $('so-fb-when').textContent = (f.when ? fmt(f.when) : 'ajankohtaa ei asetettu') + (f.channels.length ? ' · ' + f.channels.map((c) => (c === 'instagram' ? 'Instagram' : 'Facebook')).join(' + ') : '');
         const im = $('so-fb-img'), vd = $('so-fb-video');
@@ -248,7 +256,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         fillSlugSelect();
         modal.querySelector('[data-close]').onclick = () => modal.close();
         if (!locked) {
-            ['so-title', 'so-camp', 'so-body', 'so-img', 'so-kind', 'so-slug', 'so-custom', 'so-when', 'so-ch-fb', 'so-ch-ig'].forEach((id) => $(id).addEventListener('input', refreshPreview));
+            ['so-title', 'so-camp', 'so-body', 'so-img', 'so-kind', 'so-slug', 'so-custom', 'so-when', 'so-ch-fb', 'so-ch-ig', 'so-igbody'].forEach((id) => $(id).addEventListener('input', refreshPreview));
             $('so-kind').addEventListener('change', () => { fillSlugSelect(); refreshPreview(); });
             $('so-camp').addEventListener('change', async () => {
                 if ($('so-camp').value !== '__new') return;
@@ -341,7 +349,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const save = async (approve) => {
         const f = readForm();
-        const row = { title: f.title || '(nimetön)', body: f.body, image_url: f.image_url, video_url: f.video_url, channels: f.channels.length ? f.channels : ['facebook'], campaign_id: f.campaign_id, link_kind: f.kind || null,
+        const row = { title: f.title || '(nimetön)', body: f.body, ig_body: f.channels.includes('instagram') ? f.ig_body : null, image_url: f.image_url, video_url: f.video_url, channels: f.channels.length ? f.channels : ['facebook'], campaign_id: f.campaign_id, link_kind: f.kind || null,
             link_slug: (f.kind === 'kohde' || f.kind === 'referenssi') ? f.slug : null, link_url: f.link_url, scheduled_at: f.when };
         if (!cur.id) {
             const { data, error } = await sb.from('social_posts').insert([row]).select().single(); if (error) throw error; cur = data;
