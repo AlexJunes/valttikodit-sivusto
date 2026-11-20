@@ -370,74 +370,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (m) m.textContent = cur.video_url ? 'Ajastettu Facebookiin Reels-videona. Facebook käsittelee videon vielä; jos käsittely epäonnistuu, tila muuttuu tilaan Epäonnistui.' : 'Ajastettu Facebookiin.';
     };
 
-    // ---------- Tulokset-välilehti ----------
-    const fmtN = (n) => (n == null ? '–' : Number(n).toLocaleString('fi-FI'));
-    const sum = (a) => a.reduce((x, y) => x + (Number(y) || 0), 0);
-    let resDays = 30, chartPage = [];
-    const niceMax = (m) => { const e = Math.pow(10, Math.floor(Math.log10(Math.max(m, 1)))); const f = m / e; return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 5 ? 5 : 10) * e; };
-    const dayLabel = (d) => { const [, m, dd] = d.split('-'); return Number(dd) + '.' + Number(m) + '.'; };
-    const drawChart = () => {
-        const el = $('so-chart'); const page = chartPage;
-        if (page.length < 2) { el.innerHTML = '<div class="so-sub">Ei vielä riittävästi dataa.</div>'; return; }
-        const W = Math.max(320, el.clientWidth || 700), H = 230, L = 46, R = 14, T = 12, B = 30;
-        const vals = page.map((x) => Number(x.views) || 0), top = niceMax(Math.max(...vals, 1)), n = page.length;
-        const X = (i) => L + (i / (n - 1)) * (W - L - R), Y = (v) => T + (1 - v / top) * (H - T - B);
-        const ticks = [0, 1, 2, 3, 4].map((k) => (top / 4) * k);
-        const step = Math.max(1, Math.ceil(n / Math.max(2, Math.floor((W - L - R) / 62))));
-        const grid = ticks.map((t) => `<line x1="${L}" x2="${W - R}" y1="${Y(t)}" y2="${Y(t)}" stroke="#e5e7eb"/><text x="${L - 8}" y="${Y(t) + 4}" text-anchor="end" font-size="11" fill="#6b7280">${esc(fmtN(Math.round(t * 10) / 10))}</text>`).join('');
-        const xl = page.map((x, i) => (i % step === 0 || i === n - 1) && (n - 1 - i >= step * 0.6 || i === n - 1) ? `<text x="${X(i)}" y="${H - 8}" text-anchor="${i === 0 ? 'start' : i === n - 1 ? 'end' : 'middle'}" font-size="11" fill="#6b7280">${esc(dayLabel(x.day))}</text>` : '').join('');
-        const pts = vals.map((v, i) => `${X(i)},${Y(v)}`).join(' ');
-        el.style.position = 'relative';
-        el.innerHTML = `<svg width="${W}" height="${H}" style="display:block;max-width:100%;" role="img" aria-label="Sivun näytöt päivittäin">${grid}${xl}
-            <polygon points="${L},${Y(0)} ${pts} ${X(n - 1)},${Y(0)}" fill="#1d4ed8" opacity="0.08"/>
-            <polyline fill="none" stroke="#1d4ed8" stroke-width="2" stroke-linejoin="round" points="${pts}"/>
-            <line id="so-hl" x1="0" x2="0" y1="${T}" y2="${H - B}" stroke="#9ca3af" stroke-dasharray="3 3" style="display:none;"/>
-            <circle id="so-hd" r="4" fill="#1d4ed8" stroke="#fff" stroke-width="2" style="display:none;"/>
-            <rect id="so-hover" x="${L}" y="${T}" width="${W - L - R}" height="${H - T - B}" fill="transparent"/></svg>
-            <div id="so-tip" class="so-tip" style="display:none;"></div>
-            <div class="so-sub">${esc(page[0].day)} – ${esc(page[n - 1].day)}, korkein ${fmtN(Math.max(...vals))} näyttöä/pv</div>`;
-        const svg = el.querySelector('svg'), tip = $('so-tip'), hl = $('so-hl'), hd = $('so-hd');
-        const hide = () => { tip.style.display = 'none'; hl.style.display = 'none'; hd.style.display = 'none'; };
-        const move = (e) => {
-            const r = svg.getBoundingClientRect(); const px = (e.clientX - r.left) * (W / r.width);
-            const i = Math.max(0, Math.min(n - 1, Math.round(((px - L) / (W - L - R)) * (n - 1))));
-            hl.setAttribute('x1', X(i)); hl.setAttribute('x2', X(i)); hl.style.display = '';
-            hd.setAttribute('cx', X(i)); hd.setAttribute('cy', Y(vals[i])); hd.style.display = '';
-            tip.innerHTML = `<strong>${esc(fmtN(vals[i]))}</strong> näyttöä<br>${esc(dayLabel(page[i].day))}`;
-            tip.style.display = 'block';
-            const tx = X(i) * (r.width / W);
-            tip.style.left = Math.min(Math.max(tx - tip.offsetWidth / 2, 0), r.width - tip.offsetWidth) + 'px';
-            tip.style.top = Math.max(0, Y(vals[i]) * (r.height / H) - tip.offsetHeight - 10) + 'px';
-        };
-        $('so-hover').addEventListener('mousemove', move); $('so-hover').addEventListener('mouseleave', hide);
-        $('so-hover').addEventListener('touchstart', (e) => move(e.touches[0]), { passive: true }); $('so-hover').addEventListener('touchmove', (e) => move(e.touches[0]), { passive: true });
-    };
-    let resizeT; window.addEventListener('resize', () => { clearTimeout(resizeT); resizeT = setTimeout(() => { if ($('so-tab-results').style.display !== 'none') drawChart(); }, 150); });
-    const renderResults = (d) => {
-        const allDays = d.page || [], posts = d.posts || [], camps = d.campaigns || [];
-        const page = allDays.filter((x) => x.views != null);   // Instagram-seuraajat voivat luoda paivarivin ilman Facebook-lukuja
-        const vN = sum(page.map((x) => x.views));
-        const fRow = [...allDays].reverse().find((x) => x.followers != null); const followers = fRow ? fRow.followers : null;
-        const postsN = posts.length;
-        const siteViews = sum(camps.map((c) => c.site_views)), leads = sum(camps.map((c) => c.leads));
-        const igRow = [...allDays].reverse().find((x) => x.ig_followers != null); const igFollowers = igRow ? igRow.ig_followers : null;
-        const igPosts = d.ig_posts || [];
-        $('so-res-ig').innerHTML = igPosts.length ? igPosts.map((x) => `<tr><td>${esc(new Date(x.posted_at).toLocaleDateString('fi-FI'))}</td>
-            <td style="max-width:360px;">${x.title ? `<strong>${esc(x.title)}</strong>` : esc((x.caption || '(ei tekstiä)').slice(0, 90))}${x.media_type === 'VIDEO' ? ' <span class="so-agent so-reel">Reels</span>' : ''}${x.permalink ? ` <a href="${esc(x.permalink)}" target="_blank" rel="noopener">↗</a>` : ''}</td>
-            <td>${fmtN(x.views)}</td><td>${fmtN(x.reach)}</td><td>${fmtN(x.likes)}</td><td>${fmtN(x.comments)}</td><td>${fmtN(x.saves)}</td><td>${fmtN(x.shares)}</td></tr>`).join('')
-            : '<tr><td colspan="8">Ei Instagram-julkaisuja tällä jaksolla tai Instagram-tilastoja ei ole vielä haettu.</td></tr>';
-        $('so-sync-info').textContent = d.synced_at ? 'Tilastot päivitetty ' + new Date(d.synced_at).toLocaleString('fi-FI') : 'Tilastoja ei ole vielä haettu. Paina "Päivitä tilastot nyt".';
-        $('so-cards').innerHTML = [
-            ['Seuraajat', fmtN(followers), igFollowers != null ? `Instagram: ${fmtN(igFollowers)}` : ''], [`Sivun näytöt ${resDays} pv`, fmtN(vN), ''],
-            [`Julkaisuja ${resDays} pv`, fmtN(postsN), ''], ['Kävijöitä Facebookista sivustolle', fmtN(siteViews), `${fmtN(leads)} liidiä kampanjoista`],
-        ].map(([t, v, s]) => `<div class="so-card"><div class="so-sub">${esc(t)}</div><div class="so-card-v">${esc(v)}</div><div class="so-sub">${esc(s)}</div></div>`).join('');
-        chartPage = page; drawChart();
-        $('so-res-title').textContent = `Julkaisut (${resDays} vrk)`;
-        $('so-res-posts').innerHTML = posts.length ? posts.map((x) => `<tr><td>${esc(new Date(x.created_time).toLocaleDateString('fi-FI'))}</td>
-            <td style="max-width:360px;">${x.title ? `<strong>${esc(x.title)}</strong>${x.campaign ? ` <span class="so-sub">(${esc(x.campaign)})</span>` : ''}` : esc((x.message || '(ei tekstiä)').slice(0, 90))}${x.permalink ? ` <a href="${esc(x.permalink)}" target="_blank" rel="noopener">↗</a>` : ''}</td>
-            <td>${fmtN(x.views)}</td><td>${fmtN(x.unique_views)}</td><td>${fmtN(x.clicks)}</td><td>${fmtN(x.reactions)}</td><td>${x.utm_content ? fmtN(x.site_views) : '<span class="so-sub">–</span>'}</td></tr>`).join('') : '<tr><td colspan="7">Ei julkaisuja. Paina "Päivitä tilastot nyt".</td></tr>';
-        $('so-res-camps').innerHTML = camps.length ? camps.map((c) => `<tr><td>${esc(c.campaign)}</td><td>${fmtN(c.site_views)}</td><td>${fmtN(c.leads)}</td></tr>`).join('') : '<tr><td colspan="3">Ei kampanjaliikennettä vielä. Se alkaa kertyä, kun julkaisut, joissa on seurantalinkki, menevät ulos.</td></tr>';
-    };
     // ---- Tavoitteet (some-agentti lukee) ----
     const PRIO = [['myynti', 'Myytävät kohteet (liidit ja kaupat)'], ['tontit', 'Tonttihankinta'], ['seuraajat', 'Seuraajien kasvu'], ['luottamus', 'Luottamus ja referenssit']];
     const PRIO_LV = [[0, 'Ei nyt'], [1, 'Normaali'], [2, 'Korkea'], [3, 'Tärkein']];
@@ -480,40 +412,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     };
 
-    let resLoaded = false;
-    $('so-range').addEventListener('click', async (e) => {
-        const b = e.target.closest('[data-days]'); if (!b) return;
-        resDays = Number(b.dataset.days);
-        document.querySelectorAll('#so-range [data-days]').forEach((x) => x.classList.toggle('active', x === b));
-        await loadResults();
-    });
-    const loadResults = async () => {
-        const { data, error } = await sb.rpc('social_results', { p_days: resDays });
-        if (error) { $('so-sync-info').textContent = 'Virhe: ' + error.message; return null; }
-        renderResults(data); return data;
-    };
-    const syncNow = async (silent) => {
-        const b = $('so-sync'); if (b) { b.disabled = true; b.textContent = 'Päivitetään...'; }
-        try {
-            const j = await callFn('sync');
-            if (!j.ok && !silent) alert('Päivitys epäonnistui: ' + j.error);
-            if (j.errors && j.errors.length && !silent) alert('Osa tiedoista puuttui:\n' + j.errors.slice(0, 4).join('\n'));
-        } catch (e) { if (!silent) alert('Päivitys epäonnistui: ' + e.message); }
-        await loadResults(); if (b) { b.disabled = false; b.textContent = 'Päivitä tilastot nyt'; }
-    };
-    $('so-sync').addEventListener('click', () => syncNow(false));
     $('so-tabs').addEventListener('click', async (e) => {
         const b = e.target.closest('[data-tab]'); if (!b) return;
         document.querySelectorAll('#so-tabs .so-tab').forEach((t) => t.classList.toggle('active', t === b));
         $('so-tab-posts').style.display = b.dataset.tab === 'posts' ? '' : 'none';
-        $('so-tab-results').style.display = b.dataset.tab === 'results' ? '' : 'none';
         $('so-tab-goals').style.display = b.dataset.tab === 'goals' ? '' : 'none';
         if (b.dataset.tab === 'goals') await loadGoals();
-        if (b.dataset.tab === 'results' && !resLoaded) {
-            resLoaded = true;
-            const d = await loadResults();
-            if (d && (!d.synced_at || Date.now() - Date.parse(d.synced_at) > 20 * 3600 * 1000)) await syncNow(true);   // vanhentuneet tilastot haetaan automaattisesti
-        }
     });
 
     await load();

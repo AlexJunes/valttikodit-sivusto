@@ -34,7 +34,7 @@ Jos muutos tehdään suoraan Supabasessa (käsin) ilman repomuutosta, kirjaa se 
 
 - Julkiset sivut: `index.html`, `kohteet.html`, `kohde.html` (dynaaminen, `?kohde=slug`), `tarinamme.html`, `yhteys.html`, `kiitos.html`, `tietosuojaseloste.html`.
 - Admin (`admin/`): Supabase Auth + TOTP-MFA (`aal2`-tarkistus `assets/js/admin.js`:ssä).
-- JS: `assets/js/main.js` (julkinen: CMS, kohteet, lomakkeet, evästeet, analytiikka), `admin.js`, `analytics-dashboard.js`, `config.js` (Supabase-asetukset).
+- JS: `assets/js/main.js` (julkinen: CMS, kohteet, lomakkeet, evästeet, analytiikka), `admin.js`, `admin-analytics.js` (Analytiikka-sivu), `admin-social.js` (Some-sivu), `config.js` (Supabase-asetukset).
 - CMS: elementit joilla `data-cms="Nimi"` täytetään taulusta `pages` (JSONB), välimuisti `sessionStorage` (`cms_<slug>`).
 - Tietokanta: `projects`, `pages`, `leads`, `page_views`, `admin_users`. Skeema: `supabase/schema.sql`.
 - Lomakkeet kirjoittavat sekä Supabaseen (`leads`) että Web3Forms-sähköpostiin.
