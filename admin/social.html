@@ -50,6 +50,7 @@
         <div class="so-tabs" id="so-tabs">
             <button class="so-tab active" data-tab="posts">Julkaisut</button>
             <button class="so-tab" data-tab="results">Tulokset</button>
+            <button class="so-tab" data-tab="goals">Tavoitteet</button>
         </div>
 
         <div id="so-tab-posts">
@@ -78,6 +79,18 @@
                 </tbody>
             </table>
         </div>
+        </div>
+
+        <div id="so-tab-goals" style="display:none;">
+            <p class="so-sub" style="margin-bottom:1rem;">Some-agentti lukee n&auml;m&auml; tavoitteet joka maanantai ennen viikon luonnoksia ja kertoo s&auml;hk&ouml;postissa, miten luonnokset palvelevat niit&auml;. Tavoitteet ohjaavat aiheita ja painotuksia, mutta eiv&auml;t muuta turvas&auml;&auml;nt&ouml;j&auml;: agentti ei keksi faktoja eik&auml; julkaise mit&auml;&auml;n ilman hyv&auml;ksynt&auml;&auml;.</p>
+            <div class="admin-card">
+                <div id="so-goals-form">Ladataan...</div>
+            </div>
+            <h2 style="font-size:1.0625rem;margin:1.25rem 0 0.6rem;">Muutoshistoria</h2>
+            <div class="admin-card" style="padding:0;overflow-x:auto;">
+                <table class="admin-table"><thead><tr><th>Aika</th><th>Muuttaja</th><th>Viikon viesti</th><th>Voimassa</th></tr></thead>
+                    <tbody id="so-goals-hist"><tr><td colspan="4">Ladataan...</td></tr></tbody></table>
+            </div>
         </div>
 
         <div id="so-tab-results" style="display:none;">
@@ -121,7 +134,7 @@
     </main>
 
     <script src="../assets/js/admin.js?v=e2eca4c6"></script>
-    <script src="../assets/js/admin-social.js?v=5dc6d2ae"></script>
+    <script src="../assets/js/admin-social.js?v=f5767b5a"></script>
 </body>
 
 </html>
