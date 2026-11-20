@@ -39,7 +39,9 @@ export async function handle(req, env, f = fetch, now = () => Date.now()) {
   const GRAPH = env.GRAPH_BASE || 'https://graph.facebook.com/v26.0';
   const RUPLOAD = env.RUPLOAD_BASE || 'https://rupload.facebook.com/video-upload/v26.0';
   const PAGE = env.META_PAGE_ID, TOKEN = env.META_PAGE_TOKEN;
-  const scrub = (s) => String(s == null ? '' : s).split(TOKEN || '\u0000').join('***').slice(0, 500);
+  // Katkaisu merkkeina (koodipisteina): .slice() voisi halkaista emojin, ja puolikas merkki tekee JSONista virheellisen
+  const cut = (v, n) => Array.from(String(v == null ? '' : v)).slice(0, n).join('');
+  const scrub = (s) => cut(String(s == null ? '' : s).split(TOKEN || '\u0000').join('***'), 500);
 
   // 1. Tunnistautuminen: (a) ajastettu yoajo salaisuudella (vain sync) tai (b) yllapitaja + MFA (aal2)
   let body = {};
@@ -67,7 +69,7 @@ export async function handle(req, env, f = fetch, now = () => Date.now()) {
       body: payload ? JSON.stringify(payload) : undefined,
     });
     const t = await r.text();
-    if (!r.ok) throw new Error('Tietokantavirhe: ' + t.slice(0, 200));
+    if (!r.ok) throw new Error('Tietokantavirhe: ' + cut(t, 200));
     return t ? JSON.parse(t) : [];
   };
   const graph = async (method, path, params) => {
@@ -117,7 +119,7 @@ export async function handle(req, env, f = fetch, now = () => Date.now()) {
     const nowIso = new Date(now()).toISOString();
     const rows = await db('GET', `social_posts?status=eq.SCHEDULED&ig_status=in.(PENDING,PROCESSING)&scheduled_at=lte.${nowIso}&select=id,body,ig_body,image_url,video_url,ig_status,ig_container_id,scheduled_at&order=scheduled_at.asc&limit=10`);
     out.ig_checked = rows.length;
-    const failIg = async (p, msg) => { await db('PATCH', `social_posts?id=eq.${p.id}`, { ig_status: 'FAILED', ig_error: scrub(msg).slice(0, 300) }); out.ig_failed++; await finalize(p.id); };
+    const failIg = async (p, msg) => { await db('PATCH', `social_posts?id=eq.${p.id}`, { ig_status: 'FAILED', ig_error: cut(scrub(msg), 300) }); out.ig_failed++; await finalize(p.id); };
     for (const p of rows) {
       try {
         const ig = await igId();
@@ -315,7 +317,7 @@ export async function handle(req, env, f = fetch, now = () => Date.now()) {
       try {
         const r = await graph('GET', `${PAGE}/posts`, { fields: 'id,created_time,message,permalink_url', limit: '50', since: String(Math.floor((nowMs - 120 * 86400000) / 1000)) });
         fbPosts = r.data || [];
-        await upsert('social_fb_posts', fbPosts.map((p) => ({ fb_post_id: p.id, created_time: p.created_time, message: (p.message || '').slice(0, 300), permalink: p.permalink_url || null, updated_at: new Date(nowMs).toISOString() })), 'fb_post_id');
+        await upsert('social_fb_posts', fbPosts.map((p) => ({ fb_post_id: p.id, created_time: p.created_time, message: cut(p.message, 300), permalink: p.permalink_url || null, updated_at: new Date(nowMs).toISOString() })), 'fb_post_id');
         summary.posts = fbPosts.length;
         // Facebookista poistetut julkaisut pois tilastoista (vain kun lista on varmasti kokonainen)
         if (fbPosts.length > 0 && fbPosts.length < 50) {
@@ -346,7 +348,7 @@ export async function handle(req, env, f = fetch, now = () => Date.now()) {
         const ml = await graph('GET', `${ig}/media`, { fields: 'id,caption,media_type,permalink,timestamp,like_count,comments_count', limit: '30' });
         const igRows = [];
         for (const m of (ml.data || [])) {
-          const row = { ig_media_id: m.id, posted_at: m.timestamp, caption: (m.caption || '').slice(0, 300), permalink: m.permalink || null, media_type: m.media_type || null,
+          const row = { ig_media_id: m.id, posted_at: m.timestamp, caption: cut(m.caption, 300), permalink: m.permalink || null, media_type: m.media_type || null,
             likes: m.like_count ?? null, comments: m.comments_count ?? null, reach: null, views: null, saves: null, shares: null, fetched_at: new Date(nowMs).toISOString() };
           try {
             const ins = await graph('GET', `${m.id}/insights`, { metric: 'reach,views,saved,shares' });
