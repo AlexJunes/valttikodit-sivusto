@@ -54,10 +54,10 @@
 
 | Tiedosto | Taulut (operaatiot) | RPC | Storage | local/sessionStorage-avaimet |
 |---|---|---|---|---|
+| `assets/js/admin-analytics.js` | projects (select) | analytics_report | – | – |
 | `assets/js/admin-references.js` | projects (select); reference_cases (delete, insert, select, update) | – | images | – |
-| `assets/js/admin-social.js` | reference_cases (select); social_audit (select); social_campaigns (insert, select); social_goals (select, upsert); social_posts (delete, insert, select, update) | social_results | images | – |
+| `assets/js/admin-social.js` | reference_cases (select); social_audit (select); social_campaigns (insert, select); social_goals (select, upsert); social_posts (delete, insert, select, update) | – | images | – |
 | `assets/js/admin.js` | admin_users (delete, insert, select); leads (delete, select, update); page_views (select); pages (insert, select, update); projects (delete, insert, select, update) | – | images | valtti_admin_auth, valtti_admin_login_time |
-| `assets/js/analytics-dashboard.js` | leads (select); page_views (select) | – | – | – |
 | `assets/js/config.js` | – | – | – | – |
 | `assets/js/main.js` | leads (insert); page_views (insert); pages (select); projects (select) | – | – | v_session, v_utm, valttikodit_cookie_consent |
 | `assets/js/references.js` | reference_cases (select) | – | – | – |
@@ -120,6 +120,7 @@ Lueteltu tiedostot, jotka on kirjattu repoon. Tuotantoon ne ajetaan käsin Supab
 - `2026-11-20_social_instagram.sql` – ==============================================================================
 - `2026-11-21_social_goals.sql` – ==============================================================================
 - `2026-11-22_analytics_data.sql` – ==============================================================================
+- `2026-11-22_analytics_report.sql` – ==============================================================================
 
 ## Repon rakenne (ylin taso)
 

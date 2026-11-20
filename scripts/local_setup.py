@@ -101,6 +101,7 @@ def main():
     psql(open(os.path.join(ROOT, 'supabase', 'migrations', '2026-11-20_social_ig_text.sql'), encoding='utf-8').read())
     psql(open(os.path.join(ROOT, 'supabase', 'migrations', '2026-11-21_social_goals.sql'), encoding='utf-8').read())
     psql(open(os.path.join(ROOT, 'supabase', 'migrations', '2026-11-22_analytics_data.sql'), encoding='utf-8').read())
+    psql(open(os.path.join(ROOT, 'supabase', 'migrations', '2026-11-22_analytics_report.sql'), encoding='utf-8').read())
 
     print('2b/6 Luodaan referenssitaulu ja esimerkkireferenssi...')
     for f in ('2026-10-11_reference_cases.sql', '2026-10-11_seed_sudenkorento.sql'):

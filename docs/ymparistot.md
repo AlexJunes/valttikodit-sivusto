@@ -5,7 +5,7 @@
 | **Tuotanto** | https://www.valttikodit.fi | `main`-haara (GitHub Pages) | Supabase-pilviprojekti (tuotanto) |
 | **Paikallinen testi** | http://localhost:8099 | Mikä tahansa haara Macillasi | **Paikallinen Supabase (Docker)**, erillinen ja turvallinen |
 
-Koodi valitsee tietokannan osoitteen mukaan (`IS_LOCAL_ENV` tiedostoissa `main.js`, `admin.js`, `analytics-dashboard.js`): `localhost` ja `127.0.0.1` käyttävät paikallista, kaikki muu tuotantoa. Jos paikallinen Supabase ei ole käynnissä, localhost **ei putoa tuotantoon**; data vain ei lataudu. Sivun vasemmassa alakulmassa näkyy ruskea "LOCAL – testitietokanta" -merkki. Localhostista **ei lähde oikeita sähköposteja** (Web3Forms-kutsu korvataan onnistuneella vastauksella).
+Koodi valitsee tietokannan osoitteen mukaan (`IS_LOCAL_ENV` tiedostoissa `main.js`, `admin.js`; admin-sivujen skriptit käyttävät admin.js:n arvoja): `localhost` ja `127.0.0.1` käyttävät paikallista, kaikki muu tuotantoa. Jos paikallinen Supabase ei ole käynnissä, localhost **ei putoa tuotantoon**; data vain ei lataudu. Sivun vasemmassa alakulmassa näkyy ruskea "LOCAL – testitietokanta" -merkki. Localhostista **ei lähde oikeita sähköposteja** (Web3Forms-kutsu korvataan onnistuneella vastauksella).
 
 Pilviagentit (`docs/agentit.md`) lukevat tuotantoa, eivät testiympäristöä.
 

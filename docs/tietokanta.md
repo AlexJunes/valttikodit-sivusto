@@ -91,3 +91,7 @@ Migraatio `2026-11-22_analytics_data.sql`.
 - `site_events`: sivuston tapahtumat `cta_phone`, `cta_email`, `brochure` (PDF-linkki), `form_start` (lomakkeen ensimmäinen kenttä) ja `engagement` (näkyvissäoloaika `seconds` ja syvin vierityskohta `scroll_pct`, yksi rivi sivukatselua kohden). Julkinen saa vain lisätä (rajat CHECK-ehdossa, aika asetetaan palvelimella), ylläpito lukee. `session_id` vain, jos kävijä on sallinut analytiikan.
 - `leads.outcome` (`KAUPPA` / `EI_KAUPPAA` / tyhjä = avoin), `outcome_at`, `outcome_by`: ylläpito merkitsee liidin tiedoissa; laukaisin `leads_outcome_guard` estää julkista lomaketta asettamasta lopputulosta ja tallentaa merkitsijän ja ajan.
 - `social_page_metrics.ig_reach`, `ig_profile_views`, `ig_website_clicks`, `ig_accounts_engaged`: Instagramin tilitason päiväluvut (julkaisupalvelun `sync`, kolme päättynyttä päivää kerrallaan).
+
+## Analytiikka: raporttifunktio
+
+Migraatio `2026-11-22_analytics_report.sql`. `analytics_report(p_from date, p_to date)` (vain ylläpito, enintään 366 päivää) palauttaa valitun jakson (`cur`) ja edellisen samanpituisen jakson (`prev`) tunnusluvut (`analytics_period`), päiväsarjat (`daily`) sekä erittelyt: lähteet, laitteet, sivut (katselut, lukuaika, vieritys, yhteydenottoaikeet), liidien tyypit ja kanavat (kaupat mukana), kampanjat, Facebook- ja Instagram-julkaisut. Apufunktiot `analytics_source` (käynnin lähde) ja `analytics_path` (osoitteen yhtenäistys).

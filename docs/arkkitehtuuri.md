@@ -33,11 +33,13 @@ Taulu `reference_cases` (ks. `tietokanta.md`). **Lista:** `referenssit.html` (en
 
 ## Evästeet ja analytiikka
 
-Oma toteutus ilman kolmannen osapuolen seurantaa. Suostumus: `localStorage` `valttikodit_cookie_consent`. Sallittaessa analytiikka luodaan `sessionStorage` `v_session`; `page_views` tallentaa polun, laitetyypin ja viittaajan. Jos analytiikka kielletty, `session_id` jää tyhjäksi. Admin-näkymä: `admin/analytics.html` + `analytics-dashboard.js` (Chart.js).
+Oma toteutus ilman kolmannen osapuolen seurantaa. Suostumus: `localStorage` `valttikodit_cookie_consent`. Sallittaessa analytiikka luodaan `sessionStorage` `v_session`; `page_views` tallentaa polun, laitetyypin ja viittaajan. Jos analytiikka kielletty, `session_id` jää tyhjäksi. Lisäksi `site_events` (painallukset, lomakkeen aloitus, lukuaika ja vieritys). Admin-näkymä: ks. Analytiikka-sivu alla.
+
+**Analytiikka-sivu (`admin/analytics.html`, `assets/js/admin-analytics.js`):** yksi näkymä verkkosivuille, somelle ja liideille. Luvut lasketaan tietokannassa funktiolla `analytics_report(p_from, p_to)` (valittu jakso Suomen aikaa + edellinen samanpituinen jakso vertailuun + erittelyt); selain ei lataa raakadataa. Välilehdet Yleiskuva (pääluvut, "mikä muuttui", myyntisuppilo), Verkkosivut (lähteet, sivut, lukuaika, painallukset) ja Some (Facebook ja Instagram, julkaisut). Käynti = sivukatselu, joka ei tule sivuston sisältä; lähde päätellään seurantatunnisteesta ja referreristä (`analytics_source`), osoitteet yhdistetään (`analytics_path`). Kaaviot ovat omaa SVG:tä (ei ulkoisia kirjastoja); kanavien värit: sivusto sininen, Facebook oranssi, Instagram turkoosi. Some-sivun Tulokset-linkki vie tänne. Jatkokehitys: välilehdet Kohteet ja Liidit samaan rakenteeseen (uusi `render…`-funktio ja tarvittaessa lisäkenttiä `analytics_report`-funktioon).
 
 ## Admin
 
-Kaikki tietokannasta tuleva teksti pitää escapeta ennen `innerHTML`-käyttöä (`esc()` `admin.js`:ssä ja `analytics-dashboard.js`:ssä): lomakkeiden "sanitointi" tapahtuu vain selaimessa, ja julkinen avain mahdollistaa suoran tietokantakirjoituksen.
+Kaikki tietokannasta tuleva teksti pitää escapeta ennen `innerHTML`-käyttöä (`esc()` `admin.js`:ssä; admin-sivujen skriptit käyttävät samaa funktiota): lomakkeiden "sanitointi" tapahtuu vain selaimessa, ja julkinen avain mahdollistaa suoran tietokantakirjoituksen.
 
 `admin/login.html` → salasana + TOTP (rekisteröinti QR-koodilla ensimmäisellä kerralla). Jokainen admin-sivu tarkistaa `aal2`-tason `admin.js`:ssä (selainpuolen suojaus; varsinainen suoja on RLS, ks. `tietoturva.md`). `update_nav.js` (Node) synkronoi admin-navigaation kaikkiin admin-sivuihin.
 
