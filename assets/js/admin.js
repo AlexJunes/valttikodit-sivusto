@@ -447,6 +447,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                     <dl class="lead-dl">
                         ${row('Päiväys', esc(dateStr))}
                         ${row('Tila', isNew ? '<span class="lead-badge lead-badge--new">UUSI</span>' : '<span class="lead-badge">KÄSITELTY</span>')}
+                        ${row('Lopputulos', `<select class="form-input" data-lead-outcome="${esc(lead.id)}" style="max-width:220px;padding:0.3rem 0.5rem;">
+                            <option value="" ${!lead.outcome ? 'selected' : ''}>Avoin</option>
+                            <option value="KAUPPA" ${lead.outcome === 'KAUPPA' ? 'selected' : ''}>Kauppa syntyi</option>
+                            <option value="EI_KAUPPAA" ${lead.outcome === 'EI_KAUPPAA' ? 'selected' : ''}>Ei kauppaa</option>
+                        </select>${lead.outcome_by ? `<div style="font-size:0.75rem;color:var(--text-muted);margin-top:0.25rem;">Merkitsi ${esc(lead.outcome_by)} ${esc(new Date(lead.outcome_at).toLocaleDateString('fi-FI'))}</div>` : ''}<div data-lead-outcome-msg style="font-size:0.75rem;color:var(--text-muted);"></div>`)}
                         ${row('Sähköposti', lead.email ? `<a href="mailto:${esc(lead.email)}">${esc(lead.email)}</a>` : '-')}
                         ${row('Puhelin', lead.phone ? `<a href="tel:${esc(lead.phone)}">${esc(lead.phone)}</a>` : '-')}
                         ${extras.map(([k, v]) => row(k, esc(v))).join('')}
@@ -461,6 +466,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                 m.querySelector('[data-lead-close]').onclick = closeLeadModal;
                 const h = m.querySelector('[data-lead-handle]'); if (h) h.onclick = () => window.markLeadHandled(h.getAttribute('data-lead-handle'));
                 const x = m.querySelector('[data-lead-delete]'); if (x) x.onclick = () => window.deleteLead(x.getAttribute('data-lead-delete'));
+                const oc = m.querySelector('[data-lead-outcome]');
+                if (oc) oc.onchange = async () => {
+                    const msg = m.querySelector('[data-lead-outcome-msg]'); msg.textContent = 'Tallennetaan...';
+                    const { data, error } = await supabase.from('leads').update({ outcome: oc.value || null }).eq('id', lead.id).select('outcome,outcome_at,outcome_by').single();
+                    if (error) { msg.textContent = 'Tallennus epäonnistui: ' + error.message; return; }
+                    Object.assign(lead, data); msg.textContent = 'Tallennettu. Lopputulos näkyy analytiikassa.';
+                };
                 m.showModal();
             };
 

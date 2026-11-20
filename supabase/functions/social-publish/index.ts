@@ -345,6 +345,24 @@ export async function handle(req, env, f = fetch, now = () => Date.now()) {
         const ig = await igId();
         const acc = await graph('GET', ig, { fields: 'followers_count' });
         await upsert('social_page_metrics', [{ day: today, ig_followers: acc.followers_count ?? null }], 'day');
+        // Tilitason paivaluvut (tavoittavuus, profiilikaynnit, profiilin linkin painallukset, sitoutuneet tilit) kolmelta paattyneelta paivalta
+        const igDays = [];
+        for (let k = 1; k <= 3; k++) {
+          const dayStart = Date.UTC(new Date(nowMs).getUTCFullYear(), new Date(nowMs).getUTCMonth(), new Date(nowMs).getUTCDate() - k);
+          const row = { day: dayOf(dayStart) };
+          try {
+            const ins = await graph('GET', `${ig}/insights`, { metric: 'reach,profile_views,website_clicks,accounts_engaged', metric_type: 'total_value', period: 'day',
+              since: String(Math.floor(dayStart / 1000)), until: String(Math.floor((dayStart + 86400000) / 1000)) });
+            for (const d of (ins.data || [])) {
+              const v = d.total_value ? num(d.total_value.value) : num(d.values && d.values[0] && d.values[0].value);
+              if (d.name === 'reach') row.ig_reach = v; if (d.name === 'profile_views') row.ig_profile_views = v;
+              if (d.name === 'website_clicks') row.ig_website_clicks = v; if (d.name === 'accounts_engaged') row.ig_accounts_engaged = v;
+            }
+            igDays.push(row);
+          } catch (e) { summary.errors.push('instagram-tili ' + row.day + ': ' + scrub(e && e.message)); }
+        }
+        for (const r of igDays) await upsert('social_page_metrics', [r], 'day');
+        summary.ig_days = igDays.length;
         const ml = await graph('GET', `${ig}/media`, { fields: 'id,caption,media_type,permalink,timestamp,like_count,comments_count', limit: '30' });
         const igRows = [];
         for (const m of (ml.data || [])) {

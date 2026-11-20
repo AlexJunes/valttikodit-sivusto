@@ -52,3 +52,7 @@ Agentilla on oma avain (`SOCIAL_AGENT_TOKEN`, vain pilviympäristössä; tietoka
 ### Instagram
 
 Instagram-julkaisu käyttää samaa sivuavainta (`META_PAGE_TOKEN`), jossa on Facebook-lupien lisäksi `instagram_basic`, `instagram_content_publish` ja `instagram_manage_insights`. Avainta ei ole selaimessa eikä tietokannassa. Instagramissa ei ole Facebookin kaltaista ajastusta, joten julkaisupalvelu julkaisee Instagram-julkaisut itse ajankohtana: ajastin kutsuu toimintoa `tick` salaisuudella `x-cron-secret` (sallitut vain `sync` ja `tick`). Tuplajulkaisu estetään varaamalla julkaisu (`ig_status` PENDING → PROCESSING) ennen Instagram-kutsua. Hyväksyntä ennen ajastusta koskee myös Instagramia.
+
+### Sivuston tapahtumaseuranta (site_events)
+
+Ei evästeitä eikä henkilötietoja: tallennetaan polku, tapahtuman tyyppi, painetun linkin teksti (esim. "Soita") sekä lukuaika ja vieritys. Istuntotunniste vain, jos kävijä on sallinut analytiikan. Julkinen rooli voi vain lisätä rivejä tiukoin rajoin; lukeminen vain ylläpidolle.
