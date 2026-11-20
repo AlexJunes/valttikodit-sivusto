@@ -74,3 +74,7 @@ Migraatio `2026-11-14_social_agent.sql`. Taulu `social_agent_tokens` sisältää
 ## Some: Reels-videot (social_posts.video_url)
 
 Migraatio `2026-11-17_social_reels.sql`. Sarake `video_url` (vain https). Kun se on asetettu, julkaisu ajastetaan Reels-videona. Suojalaukaisin `social_posts_guard` käsittelee videon vaihdon sisältömuutoksena (mitätöi hyväksynnän, estetty ajastetulle julkaisulle).
+
+## Some: Instagram (social_posts.channels, ig_*, social_ig_media)
+
+Migraatio `2026-11-20_social_instagram.sql`. `channels` (facebook ja/tai instagram) valitaan julkaisukohtaisesti. Instagramin tila on omissa sarakkeissaan: `ig_status` (PENDING → PROCESSING → PUBLISHED / FAILED), `ig_container_id`, `ig_media_id`, `ig_permalink`, `ig_published_at`, `ig_error`; vain julkaisupalvelu kirjoittaa niitä (`social_posts_guard`). Julkaisun kokonaistila on PUBLISHED, kun kaikki valitut kanavat on julkaistu, ja FAILED, jos Instagram epäonnistui. Taulu `social_ig_media` sisältää Instagram-tilin julkaisujen luvut (näytöt, tavoitetut, tykkäykset, kommentit, tallennukset, jaot) ja `social_page_metrics.ig_followers` seuraajamäärän; `social_results` palauttaa ne (`ig_posts`). Ajastin `social-tick` (pg_cron, 10 min välein) kutsuu funktiota `social_cron_tick()`, joka kutsuu julkaisupalvelua vain, jos ajastettuja julkaisuja on erääntymässä.

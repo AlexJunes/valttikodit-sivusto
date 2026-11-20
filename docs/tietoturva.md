@@ -48,3 +48,7 @@ Funktio `social-publish` tunnistaa kutsujan itse: joko ylläpitäjän istunto + 
 ### Some-agentti (luonnosten kirjoitus)
 
 Agentilla on oma avain (`SOCIAL_AGENT_TOKEN`, vain pilviympäristössä; tietokannassa vain sha256-tiiviste). Avaimella voi vain lukea Some-kontekstin ja luoda luonnoksia rajoitetusti (ks. `tietokanta.md`). Agentti ei saa Facebook-avainta, ei voi hyväksyä, ajastaa tai julkaista, eikä muokata tai poistaa julkaisuja. Ihminen hyväksyy kaikki luonnokset Some-sivulla (MFA). Agentin luomat luonnokset merkitään "Agentin ehdotus" ja kirjataan auditointiin toimijalla `agentti`. Avaimen vaihto: aja migraatio uudella avaimella ja päivitä ympäristömuuttuja.
+
+### Instagram
+
+Instagram-julkaisu käyttää samaa sivuavainta (`META_PAGE_TOKEN`), jossa on Facebook-lupien lisäksi `instagram_basic`, `instagram_content_publish` ja `instagram_manage_insights`. Avainta ei ole selaimessa eikä tietokannassa. Instagramissa ei ole Facebookin kaltaista ajastusta, joten julkaisupalvelu julkaisee Instagram-julkaisut itse ajankohtana: ajastin kutsuu toimintoa `tick` salaisuudella `x-cron-secret` (sallitut vain `sync` ja `tick`). Tuplajulkaisu estetään varaamalla julkaisu (`ig_status` PENDING → PROCESSING) ennen Instagram-kutsua. Hyväksyntä ennen ajastusta koskee myös Instagramia.

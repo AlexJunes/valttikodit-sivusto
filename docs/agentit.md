@@ -39,3 +39,5 @@ Uusi liidi käynnistää pilviagentin heti: tietokannan laukaisin kutsuu routine
 ## Some-suunnittelija (luonnokset Some-sivulle)
 
 Viikoittainen rutiini (maanantai) kirjoittaa 2–3 julkaisuluonnosta suoraan ylläpidon Some-sivulle funktiolla `social_agent_create_draft` ja lukee aiempien julkaisujen tulokset funktiolla `social_agent_context` (avain `SOCIAL_AGENT_TOKEN`). Se ei käytä Facebookia lainkaan, eikä hyväksy, ajasta tai julkaise mitään. Ilmoitus sähköpostilla Pekalle ja Janille ("N uutta some-luonnosta odottaa hyväksyntää") ja linkki https://www.valttikodit.fi/admin/social.html. Luonnokset näkyvät merkinnällä "Agentin ehdotus" ja perustelulla. Rutiini on pois päältä, kunnes avain on asennettu ja testiajo hyväksytty.
+
+Some-suunnittelijan luonnokset tehdään oletuksena vain Facebookiin (`channels = facebook`). Instagramin voi lisätä luonnokseen Some-sivulla ennen hyväksyntää.

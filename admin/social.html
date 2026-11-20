@@ -8,7 +8,7 @@
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/style.css?v=4152f429">
-    <link rel="stylesheet" href="../assets/css/admin.css?v=e2437f56">
+    <link rel="stylesheet" href="../assets/css/admin.css?v=02d83e3a">
     <!-- Supabase CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
 </head>
@@ -40,7 +40,7 @@
                 <p style="color: var(--text-muted); font-size: 0.9375rem;">Facebook-julkaisut: luonnos, hyväksyntä ja ajastus. Mitään ei julkaista ilman hyväksyntääsi.</p>
             </div>
             <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
-                <button class="btn btn-outline" id="so-health">Testaa Facebook-yhteys</button>
+                <button class="btn btn-outline" id="so-health">Testaa yhteys</button>
                 <button class="btn btn-primary" id="so-new">Uusi julkaisu</button>
             </div>
         </div>
@@ -102,6 +102,13 @@
                     <tbody id="so-res-posts"><tr><td colspan="7">Ladataan...</td></tr></tbody>
                 </table>
             </div>
+            <h2 style="font-size:1.0625rem;margin:1.25rem 0 0.6rem;">Instagram-julkaisut</h2>
+            <div class="admin-card" style="padding:0;overflow-x:auto;">
+                <table class="admin-table">
+                    <thead><tr><th>P&auml;iv&auml;</th><th>Julkaisu</th><th>N&auml;yt&ouml;t</th><th>Tavoitetut</th><th>Tykk&auml;ykset</th><th>Kommentit</th><th>Tallennukset</th><th>Jaot</th></tr></thead>
+                    <tbody id="so-res-ig"><tr><td colspan="8">Ladataan...</td></tr></tbody>
+                </table>
+            </div>
             <h2 style="font-size:1.0625rem;margin:1.25rem 0 0.6rem;">Kampanjat (kampanjatunnisteiden kautta)</h2>
             <div class="admin-card" style="padding:0;overflow-x:auto;">
                 <table class="admin-table">
@@ -109,12 +116,12 @@
                     <tbody id="so-res-camps"><tr><td colspan="3">Ladataan...</td></tr></tbody>
                 </table>
             </div>
-            <p class="so-sub" style="margin-top:1rem;">Facebook-luvut p&auml;ivittyv&auml;t y&ouml;llä. Sivuston k&auml;vij&auml;- ja liidiluvut kertyv&auml;t vain linkeist&auml;, joissa on seurantatunniste (Some-sivulta ajastetut julkaisut). Liidit lasketaan kampanjatasolla.</p>
+            <p class="so-sub" style="margin-top:1rem;">Facebook- ja Instagram-luvut p&auml;ivittyv&auml;t y&ouml;llä. Sivuston k&auml;vij&auml;- ja liidiluvut kertyv&auml;t vain linkeist&auml;, joissa on seurantatunniste (Some-sivulta ajastetut julkaisut). Liidit lasketaan kampanjatasolla.</p>
         </div>
     </main>
 
     <script src="../assets/js/admin.js?v=e2eca4c6"></script>
-    <script src="../assets/js/admin-social.js?v=617d45fb"></script>
+    <script src="../assets/js/admin-social.js?v=1cd629cc"></script>
 </body>
 
 </html>

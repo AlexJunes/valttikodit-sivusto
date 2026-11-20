@@ -60,16 +60,21 @@ document.addEventListener('DOMContentLoaded', async () => {
         siteImages = out;
     };
 
+    const chansOf = (x) => (Array.isArray(x.channels) && x.channels.length ? x.channels : ['facebook']);
+    const chanBadges = (x) => chansOf(x).map((c) => ` <span class="so-ch so-ch-${c === 'instagram' ? 'ig' : 'fb'}">${c === 'instagram' ? 'IG' : 'FB'}</span>`).join('');
+    const IG_ST = { PENDING: 'Instagram: odottaa ajankohtaa', PROCESSING: 'Instagram: käsitellään', PUBLISHED: 'Instagram: julkaistu', FAILED: 'Instagram: epäonnistui' };
+    const igLine = (x) => (x.ig_status && x.status === 'SCHEDULED' ? `<div class="so-sub">${esc(IG_ST[x.ig_status] || x.ig_status)}</div>` : '');
+
     const render = () => {
         const rows = posts.filter((x) => filter === 'all' || x.status === filter);
         if (!rows.length) { listEl.innerHTML = '<tr><td colspan="5">Ei julkaisuja tässä näkymässä. Paina "Uusi julkaisu".</td></tr>'; return; }
         listEl.innerHTML = rows.map((x) => {
             const camp = campaigns.find((c) => c.id === x.campaign_id);
             return `<tr data-id="${esc(x.id)}" class="so-row">
-                <td style="font-weight:500;">${esc(x.title)}${x.source === 'agent' ? ' <span class="so-agent">Agentin ehdotus</span>' : ''}${x.video_url ? ' <span class="so-agent so-reel">Reels</span>' : ''}<div class="so-sub">${esc((x.body || '').slice(0, 70))}${(x.body || '').length > 70 ? '…' : ''}</div></td>
+                <td style="font-weight:500;">${esc(x.title)}${x.source === 'agent' ? ' <span class="so-agent">Agentin ehdotus</span>' : ''}${chanBadges(x)}${x.video_url ? ' <span class="so-agent so-reel">Reels</span>' : ''}<div class="so-sub">${esc((x.body || '').slice(0, 70))}${(x.body || '').length > 70 ? '…' : ''}</div></td>
                 <td>${camp ? esc(camp.name) : '–'}</td>
                 <td>${esc(fmt(x.scheduled_at))}</td>
-                <td>${chip(x.status)}${x.last_error ? `<div class="so-sub" style="color:#b91c1c;">${esc(x.last_error)}</div>` : ''}</td>
+                <td>${chip(x.status)}${igLine(x)}${x.last_error ? `<div class="so-sub" style="color:#b91c1c;">${esc(x.last_error)}</div>` : ''}</td>
                 <td style="text-align:right;"><button class="btn btn-outline" style="padding:0.25rem 0.75rem;font-size:0.75rem;" data-open="${esc(x.id)}">Avaa</button></td></tr>`;
         }).join('');
     };
@@ -85,7 +90,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         const out = $('so-health-result'); out.style.display = 'block'; out.textContent = 'Testataan yhteyttä...';
         try {
             const j = await callFn('health');
-            out.innerHTML = j.ok ? `Yhteys toimii: <strong>${esc(j.page)}</strong>${j.followers != null ? ` (${esc(j.followers)} seuraajaa)` : ''}.` : `Yhteys ei toimi: ${esc(j.error)}`;
+            const igTxt = j.instagram ? (j.instagram.error ? ` Instagram ei toimi: ${esc(j.instagram.error)}` : ` Instagram: <strong>@${esc(j.instagram.username)}</strong>${j.instagram.followers != null ? ` (${esc(j.instagram.followers)} seuraajaa)` : ''}.`) : '';
+            out.innerHTML = j.ok ? `Yhteys toimii: <strong>${esc(j.page)}</strong>${j.followers != null ? ` (${esc(j.followers)} seuraajaa)` : ''}.${igTxt}` : `Yhteys ei toimi: ${esc(j.error)}`;
             out.className = 'so-note ' + (j.ok ? 'so-ok' : 'so-err');
         } catch (e) { out.className = 'so-note so-err'; out.textContent = 'Yhteys ei toimi: ' + e.message; }
     });
@@ -108,7 +114,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     const openEditor = async (post) => {
-        cur = post ? { ...post } : { id: null, title: '', body: '', image_url: '', video_url: '', link_kind: '', link_slug: '', link_url: '', scheduled_at: null, status: 'DRAFT', campaign_id: null };
+        cur = post ? { ...post } : { id: null, title: '', body: '', image_url: '', video_url: '', channels: ['facebook'], link_kind: '', link_slug: '', link_url: '', scheduled_at: null, status: 'DRAFT', campaign_id: null };
         const locked = ['SCHEDULED', 'PUBLISHED'].includes(cur.status);
         const dis = locked ? 'disabled' : '';
         const kinds = [['', 'Ei linkkiä'], ['kohde', 'Kohdesivu'], ['referenssi', 'Referenssi'], ['tontti', 'Myy tonttisi -sivu'], ['muu', 'Muu valttikodit.fi-osoite']];
@@ -123,6 +129,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                 <div>
                     <label class="form-label">Sisäinen nimi *</label>
                     <input id="so-title" class="form-input" value="${esc(cur.title)}" maxlength="80" ${dis}>
+                    <label class="form-label" style="margin-top:0.9rem;">Kanavat *</label>
+                    <div style="display:flex;gap:1.25rem;flex-wrap:wrap;">
+                        <label style="display:flex;align-items:center;gap:0.4rem;font-size:0.9375rem;"><input type="checkbox" id="so-ch-fb" ${chansOf(cur).includes('facebook') ? 'checked' : ''} ${dis}> Facebook</label>
+                        <label style="display:flex;align-items:center;gap:0.4rem;font-size:0.9375rem;"><input type="checkbox" id="so-ch-ig" ${chansOf(cur).includes('instagram') ? 'checked' : ''} ${dis}> Instagram</label>
+                    </div>
+                    ${cur.ig_permalink ? `<div class="so-sub"><a href="${esc(cur.ig_permalink)}" target="_blank" rel="noopener">Avaa Instagram-julkaisu ↗</a></div>` : ''}
                     <label class="form-label" style="margin-top:0.9rem;">Kampanja</label>
                     <select id="so-camp" class="form-input" ${dis}><option value="">(ei kampanjaa)</option>${campaigns.map((c) => `<option value="${esc(c.id)}" ${c.id === cur.campaign_id ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}<option value="__new">+ Uusi kampanja…</option></select>
                     <label class="form-label" style="margin-top:0.9rem;">Julkaisuteksti *</label>
@@ -173,7 +185,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const readForm = () => {
         const kind = $('so-kind').value;
         const f = { title: $('so-title').value.trim(), campaign_id: $('so-camp').value && $('so-camp').value !== '__new' ? $('so-camp').value : null,
-            body: $('so-body').value, image_url: $('so-img').value.trim() || null, video_url: $('so-video').value.trim() || null, kind, slug: ($('so-slug').value || '') , custom: $('so-custom').value.trim(),
+            body: $('so-body').value, image_url: $('so-img').value.trim() || null, video_url: $('so-video').value.trim() || null,
+            channels: [$('so-ch-fb').checked ? 'facebook' : null, $('so-ch-ig').checked ? 'instagram' : null].filter(Boolean), kind, slug: ($('so-slug').value || '') , custom: $('so-custom').value.trim(),
             when: $('so-when').value ? new Date($('so-when').value).toISOString() : null };
         f.link_url = buildLink(f) || null;
         return f;
@@ -188,8 +201,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (f.image_url && !/^https:\/\//.test(f.image_url)) errs.push('Kuvan osoitteen pitää alkaa https://');
         if (/€|\bhinta|hintaan|euro/i.test(f.body)) warns.push('Tekstissä on hintaan viittaava maininta: tarkista, että tiedot ovat oikein ja noudattavat markkinointisääntöjä.');
         if (!f.link_url) warns.push('Julkaisussa ei ole linkkiä, joten kävijöitä ei voida seurata.');
-        if (f.video_url && f.link_url) warns.push('Reels-videon tekstissä linkki ei ole klikattava. Kävijöitä tulee siksi vähemmän kuin kuvajulkaisun linkistä.');
-        if (!f.image_url && !f.video_url) warns.push('Kuvaton julkaisu tavoittaa yleensä huonommin.');
+        const ig = f.channels.includes('instagram');
+        if (!f.channels.length) errs.push('Valitse vähintään yksi kanava.');
+        if (ig && !f.image_url && !f.video_url) errs.push('Instagram vaatii kuvan tai videon.');
+        if (ig && !f.video_url && f.image_url && imgRatio.url === f.image_url && imgRatio.r && (imgRatio.r < 0.8 || imgRatio.r > 1.91))
+            errs.push(`Instagram ei hyväksy kuvan muotoa (${imgRatio.w} × ${imgRatio.h}). Kuvasuhteen pitää olla 4:5 (pysty) – 1,91:1 (vaaka). Valitse toinen kuva tai poista Instagram kanavista.`);
+        if (ig && f.link_url) warns.push('Instagramissa linkki ei ole klikattava. Lisää tekstiin esim. "Linkki profiilissa", jos ohjaat sivustolle.');
+        if (f.video_url && f.link_url && f.channels.includes('facebook')) warns.push('Reels-videon tekstissä linkki ei ole klikattava. Kävijöitä tulee siksi vähemmän kuin kuvajulkaisun linkistä.');
+        if (!f.image_url && !f.video_url && !ig) warns.push('Kuvaton julkaisu tavoittaa yleensä huonommin.');
         if (f.body.length > 700) warns.push('Teksti on pitkä (yli 700 merkkiä).');
         return { errs, warns };
     };
@@ -201,11 +220,20 @@ document.addEventListener('DOMContentLoaded', async () => {
         return '';
     };
 
+    let imgRatio = { url: null };
+    const measureImg = (url) => {
+        if (!url || imgRatio.url === url) return;
+        imgRatio = { url };
+        const im = new Image();
+        im.onload = () => { if (imgRatio.url === url) { imgRatio = { url, w: im.naturalWidth, h: im.naturalHeight, r: im.naturalWidth / im.naturalHeight }; refreshPreview(); } };
+        im.src = url;
+    };
     const refreshPreview = () => {
         const f = readForm();
+        measureImg(f.image_url);
         $('so-count').textContent = f.body.length;
         $('so-fb-text').textContent = f.body || '(teksti)';
-        $('so-fb-when').textContent = f.when ? fmt(f.when) : 'ajankohtaa ei asetettu';
+        $('so-fb-when').textContent = (f.when ? fmt(f.when) : 'ajankohtaa ei asetettu') + (f.channels.length ? ' · ' + f.channels.map((c) => (c === 'instagram' ? 'Instagram' : 'Facebook')).join(' + ') : '');
         const im = $('so-fb-img'), vd = $('so-fb-video');
         if (f.video_url) { if (vd.getAttribute('src') !== f.video_url) vd.src = f.video_url; vd.style.display = 'block'; im.style.display = 'none'; }
         else { vd.style.display = 'none'; if (vd.getAttribute('src')) vd.removeAttribute('src'); if (f.image_url) { im.src = f.image_url; im.style.display = 'block'; } else im.style.display = 'none'; }
@@ -220,7 +248,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         fillSlugSelect();
         modal.querySelector('[data-close]').onclick = () => modal.close();
         if (!locked) {
-            ['so-title', 'so-camp', 'so-body', 'so-img', 'so-kind', 'so-slug', 'so-custom', 'so-when'].forEach((id) => $(id).addEventListener('input', refreshPreview));
+            ['so-title', 'so-camp', 'so-body', 'so-img', 'so-kind', 'so-slug', 'so-custom', 'so-when', 'so-ch-fb', 'so-ch-ig'].forEach((id) => $(id).addEventListener('input', refreshPreview));
             $('so-kind').addEventListener('change', () => { fillSlugSelect(); refreshPreview(); });
             $('so-camp').addEventListener('change', async () => {
                 if ($('so-camp').value !== '__new') return;
@@ -313,7 +341,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const save = async (approve) => {
         const f = readForm();
-        const row = { title: f.title || '(nimetön)', body: f.body, image_url: f.image_url, video_url: f.video_url, campaign_id: f.campaign_id, link_kind: f.kind || null,
+        const row = { title: f.title || '(nimetön)', body: f.body, image_url: f.image_url, video_url: f.video_url, channels: f.channels.length ? f.channels : ['facebook'], campaign_id: f.campaign_id, link_kind: f.kind || null,
             link_slug: (f.kind === 'kohde' || f.kind === 'referenssi') ? f.slug : null, link_url: f.link_url, scheduled_at: f.when };
         if (!cur.id) {
             const { data, error } = await sb.from('social_posts').insert([row]).select().single(); if (error) throw error; cur = data;
@@ -330,6 +358,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const p = posts.find((x) => x.id === cur.id); if (p) await openEditor(p);
         const m = $('so-msg');
         if (!j.ok) { if (m) m.textContent = ''; throw new Error('Ajastus epäonnistui: ' + j.error + '\n\nJulkaisu on hyväksytty mutta ei vielä ajastettu. Voit yrittää uudelleen.'); }
+        if (m && chansOf(cur).includes('instagram')) { m.textContent = 'Ajastettu. Instagram-julkaisu lähtee ajankohtana (enintään noin 10 min viiveellä' + (cur.video_url ? ', video vielä käsittelyn jälkeen' : '') + ').'; return; }
         if (m) m.textContent = cur.video_url ? 'Ajastettu Facebookiin Reels-videona. Facebook käsittelee videon vielä; jos käsittely epäonnistuu, tila muuttuu tilaan Epäonnistui.' : 'Ajastettu Facebookiin.';
     };
 
@@ -377,14 +406,21 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
     let resizeT; window.addEventListener('resize', () => { clearTimeout(resizeT); resizeT = setTimeout(() => { if ($('so-tab-results').style.display !== 'none') drawChart(); }, 150); });
     const renderResults = (d) => {
-        const page = d.page || [], posts = d.posts || [], camps = d.campaigns || [];
+        const allDays = d.page || [], posts = d.posts || [], camps = d.campaigns || [];
+        const page = allDays.filter((x) => x.views != null);   // Instagram-seuraajat voivat luoda paivarivin ilman Facebook-lukuja
         const vN = sum(page.map((x) => x.views));
-        const followers = page.length ? page[page.length - 1].followers : null;
+        const fRow = [...allDays].reverse().find((x) => x.followers != null); const followers = fRow ? fRow.followers : null;
         const postsN = posts.length;
         const siteViews = sum(camps.map((c) => c.site_views)), leads = sum(camps.map((c) => c.leads));
+        const igRow = [...allDays].reverse().find((x) => x.ig_followers != null); const igFollowers = igRow ? igRow.ig_followers : null;
+        const igPosts = d.ig_posts || [];
+        $('so-res-ig').innerHTML = igPosts.length ? igPosts.map((x) => `<tr><td>${esc(new Date(x.posted_at).toLocaleDateString('fi-FI'))}</td>
+            <td style="max-width:360px;">${x.title ? `<strong>${esc(x.title)}</strong>` : esc((x.caption || '(ei tekstiä)').slice(0, 90))}${x.media_type === 'VIDEO' ? ' <span class="so-agent so-reel">Reels</span>' : ''}${x.permalink ? ` <a href="${esc(x.permalink)}" target="_blank" rel="noopener">↗</a>` : ''}</td>
+            <td>${fmtN(x.views)}</td><td>${fmtN(x.reach)}</td><td>${fmtN(x.likes)}</td><td>${fmtN(x.comments)}</td><td>${fmtN(x.saves)}</td><td>${fmtN(x.shares)}</td></tr>`).join('')
+            : '<tr><td colspan="8">Ei Instagram-julkaisuja tällä jaksolla tai Instagram-tilastoja ei ole vielä haettu.</td></tr>';
         $('so-sync-info').textContent = d.synced_at ? 'Tilastot päivitetty ' + new Date(d.synced_at).toLocaleString('fi-FI') : 'Tilastoja ei ole vielä haettu. Paina "Päivitä tilastot nyt".';
         $('so-cards').innerHTML = [
-            ['Seuraajat', fmtN(followers), ''], [`Sivun näytöt ${resDays} pv`, fmtN(vN), ''],
+            ['Seuraajat', fmtN(followers), igFollowers != null ? `Instagram: ${fmtN(igFollowers)}` : ''], [`Sivun näytöt ${resDays} pv`, fmtN(vN), ''],
             [`Julkaisuja ${resDays} pv`, fmtN(postsN), ''], ['Kävijöitä Facebookista sivustolle', fmtN(siteViews), `${fmtN(leads)} liidiä kampanjoista`],
         ].map(([t, v, s]) => `<div class="so-card"><div class="so-sub">${esc(t)}</div><div class="so-card-v">${esc(v)}</div><div class="so-sub">${esc(s)}</div></div>`).join('');
         chartPage = page; drawChart();
