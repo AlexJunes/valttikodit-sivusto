@@ -438,6 +438,48 @@ document.addEventListener('DOMContentLoaded', async () => {
             <td>${fmtN(x.views)}</td><td>${fmtN(x.unique_views)}</td><td>${fmtN(x.clicks)}</td><td>${fmtN(x.reactions)}</td><td>${x.utm_content ? fmtN(x.site_views) : '<span class="so-sub">–</span>'}</td></tr>`).join('') : '<tr><td colspan="7">Ei julkaisuja. Paina "Päivitä tilastot nyt".</td></tr>';
         $('so-res-camps').innerHTML = camps.length ? camps.map((c) => `<tr><td>${esc(c.campaign)}</td><td>${fmtN(c.site_views)}</td><td>${fmtN(c.leads)}</td></tr>`).join('') : '<tr><td colspan="3">Ei kampanjaliikennettä vielä. Se alkaa kertyä, kun julkaisut, joissa on seurantalinkki, menevät ulos.</td></tr>';
     };
+    // ---- Tavoitteet (some-agentti lukee) ----
+    const PRIO = [['myynti', 'Myytävät kohteet (liidit ja kaupat)'], ['tontit', 'Tonttihankinta'], ['seuraajat', 'Seuraajien kasvu'], ['luottamus', 'Luottamus ja referenssit']];
+    const PRIO_LV = [[0, 'Ei nyt'], [1, 'Normaali'], [2, 'Korkea'], [3, 'Tärkein']];
+    const ST_FI = { MARKETING: 'ennakkomarkkinointi', AVAILABLE: 'vapaana', CONSTRUCTION: 'rakenteilla', RESERVED: 'varattu', SOLD: 'myyty' };
+    const loadGoals = async () => {
+        const [g, hst] = await Promise.all([
+            sb.from('social_goals').select('*').eq('id', 1).maybeSingle(),
+            sb.from('social_audit').select('at,actor,details').eq('action', 'tavoitteet paivitetty').order('at', { ascending: false }).limit(8),
+        ]);
+        if (g.error) { $('so-goals-form').innerHTML = `<div class="so-note so-err">Virhe: ${esc(g.error.message)}</div>`; return; }
+        const goal = g.data || { focus_projects: [], focus_note: '', priorities: { myynti: 2, tontit: 1, seuraajat: 1, luottamus: 1 }, weekly_message: '', avoid: '', valid_until: null };
+        const expired = goal.valid_until && goal.valid_until < new Date().toISOString().slice(0, 10);
+        $('so-goals-form').innerHTML = `
+            ${g.data ? `<div class="so-note ${expired ? 'so-err' : ''}">${expired ? 'Tavoitteet ovat vanhentuneet, joten agentti ei käytä niitä. Päivitä voimassaoloaika.' : 'Voimassa' + (goal.valid_until ? ' ' + esc(new Date(goal.valid_until).toLocaleDateString('fi-FI')) + ' asti' : ' toistaiseksi')}. Päivittänyt ${esc(goal.updated_by || '–')} ${esc(new Date(goal.updated_at).toLocaleString('fi-FI'))}.</div>` : '<div class="so-note">Tavoitteita ei ole vielä asetettu. Agentti käyttää oletuspainotuksia.</div>'}
+            <label class="form-label">Tärkeimmät kohteet nyt</label>
+            <div style="display:flex;flex-direction:column;gap:0.35rem;">${projects.map((x) => `<label style="display:flex;gap:0.5rem;align-items:center;font-size:0.9375rem;"><input type="checkbox" class="so-gp" value="${esc(x.slug)}" ${(goal.focus_projects || []).includes(x.slug) ? 'checked' : ''}> ${esc(x.title)} <span class="so-sub">(${esc(ST_FI[x.status] || x.status)})</span></label>`).join('') || '<span class="so-sub">Ei julkaistuja kohteita.</span>'}</div>
+            <label class="form-label" style="margin-top:0.9rem;">Miksi nämä (agentille)</label>
+            <textarea id="so-g-note" class="form-input" rows="2" maxlength="500" placeholder="Esim. Hieroja 3 pitää saada myytyä ennen joulua, rahoitus on valmiina.">${esc(goal.focus_note || '')}</textarea>
+            <label class="form-label" style="margin-top:0.9rem;">Painotus</label>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:0.6rem;">${PRIO.map(([k, t]) => `<label style="font-size:0.875rem;">${esc(t)}<select class="form-input so-gprio" data-k="${k}" style="margin-top:0.25rem;">${PRIO_LV.map(([v, l]) => `<option value="${v}" ${Number((goal.priorities || {})[k] ?? 1) === v ? 'selected' : ''}>${l}</option>`).join('')}</select></label>`).join('')}</div>
+            <label class="form-label" style="margin-top:0.9rem;">Viikon erityisviesti</label>
+            <textarea id="so-g-week" class="form-input" rows="2" maxlength="500" placeholder="Esim. Näyttö su 29.11. klo 13–15 Hieroja 3:ssa. Agentti käyttää tätä faktana.">${esc(goal.weekly_message || '')}</textarea>
+            <label class="form-label" style="margin-top:0.9rem;">Vältettävät asiat</label>
+            <textarea id="so-g-avoid" class="form-input" rows="2" maxlength="500" placeholder="Esim. Älä mainitse Saunaranta B:n hintaa.">${esc(goal.avoid || '')}</textarea>
+            <label class="form-label" style="margin-top:0.9rem;">Voimassa asti</label>
+            <input type="date" id="so-g-until" class="form-input" style="max-width:220px;" value="${esc(goal.valid_until || '')}">
+            <div class="so-sub">Jätä tyhjäksi, jos tavoitteet ovat voimassa toistaiseksi. Vanhentuneita tavoitteita agentti ei käytä.</div>
+            <div style="margin-top:1rem;display:flex;gap:0.75rem;align-items:center;"><button type="button" class="btn btn-primary" id="so-g-save">Tallenna tavoitteet</button><span id="so-g-msg" class="so-sub"></span></div>`;
+        $('so-goals-hist').innerHTML = (hst.data || []).length ? hst.data.map((r) => `<tr><td>${esc(new Date(r.at).toLocaleString('fi-FI'))}</td><td>${esc(r.actor || '–')}</td><td>${esc(((r.details || {}).weekly_message || '–').slice(0, 80))}</td><td>${esc((r.details || {}).valid_until ? new Date(r.details.valid_until).toLocaleDateString('fi-FI') : 'toistaiseksi')}</td></tr>`).join('') : '<tr><td colspan="4">Ei muutoksia vielä.</td></tr>';
+        $('so-g-save').addEventListener('click', async () => {
+            const b = $('so-g-save'); b.disabled = true; $('so-g-msg').textContent = 'Tallennetaan...';
+            const pr = {}; document.querySelectorAll('.so-gprio').forEach((el) => { pr[el.dataset.k] = Number(el.value); });
+            const row = { id: 1, focus_projects: [...document.querySelectorAll('.so-gp:checked')].map((el) => el.value),
+                focus_note: $('so-g-note').value.trim() || null, priorities: pr, weekly_message: $('so-g-week').value.trim() || null,
+                avoid: $('so-g-avoid').value.trim() || null, valid_until: $('so-g-until').value || null };
+            const { error } = await sb.from('social_goals').upsert(row, { onConflict: 'id' });
+            b.disabled = false;
+            if (error) { $('so-g-msg').textContent = 'Tallennus epäonnistui: ' + error.message; return; }
+            await loadGoals(); $('so-g-msg').textContent = 'Tallennettu. Agentti käyttää näitä seuraavassa viikkosuunnitelmassa.';
+        });
+    };
+
     let resLoaded = false;
     $('so-range').addEventListener('click', async (e) => {
         const b = e.target.closest('[data-days]'); if (!b) return;
@@ -465,6 +507,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.querySelectorAll('#so-tabs .so-tab').forEach((t) => t.classList.toggle('active', t === b));
         $('so-tab-posts').style.display = b.dataset.tab === 'posts' ? '' : 'none';
         $('so-tab-results').style.display = b.dataset.tab === 'results' ? '' : 'none';
+        $('so-tab-goals').style.display = b.dataset.tab === 'goals' ? '' : 'none';
+        if (b.dataset.tab === 'goals') await loadGoals();
         if (b.dataset.tab === 'results' && !resLoaded) {
             resLoaded = true;
             const d = await loadResults();
