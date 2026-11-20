@@ -166,12 +166,53 @@ document.addEventListener('DOMContentLoaded', async () => {
             ${x.conv ? `<div class="an-step-c">${esc(x.conv)} <span>${esc(x.of)}</span></div>` : ''}</li>`).join('')}</ol>`;
     };
 
+    // Tekoälyn vinkit: pilviagentti kirjoittaa ne tauluun analytics_insights (pyyntö napista tai joka aamu 30 pv)
+    const ins = { row: null, pending: null, timer: null, err: '' };
+    const loadInsights = async () => {
+        const [exact, latest, pend] = await Promise.all([
+            sb.from('analytics_insights').select('*').eq('status', 'READY').eq('p_from', state.from).eq('p_to', state.to).order('created_at', { ascending: false }).limit(1),
+            sb.from('analytics_insights').select('*').eq('status', 'READY').order('created_at', { ascending: false }).limit(1),
+            sb.from('analytics_insights').select('*').in('status', ['PENDING', 'RUNNING', 'FAILED']).gte('created_at', new Date(Date.now() - 15 * 60000).toISOString()).order('created_at', { ascending: false }).limit(1),
+        ]);
+        ins.row = (exact.data && exact.data[0]) || (latest.data && latest.data[0]) || null;
+        const p = pend.data && pend.data[0];
+        ins.pending = p && p.status !== 'FAILED' && (!ins.row || Date.parse(p.created_at) > Date.parse(ins.row.created_at)) ? p : null;
+        ins.err = p && p.status === 'FAILED' && (!ins.row || Date.parse(p.created_at) > Date.parse(ins.row.created_at)) ? (p.error || 'tuntematon virhe') : '';
+        const el = $('an-ins'); if (el) el.outerHTML = insightsCard();
+        wireInsights();
+        clearTimeout(ins.timer);
+        if (ins.pending) ins.timer = setTimeout(loadInsights, 8000);
+    };
+    const insightsCard = () => {
+        const r = ins.row, same = r && r.p_from === state.from && r.p_to === state.to;
+        const meta = r ? `Luotu ${new Date(r.finished_at || r.created_at).toLocaleString('fi-FI', { day: 'numeric', month: 'numeric', hour: '2-digit', minute: '2-digit' })} jaksolle ${fiD(r.p_from)}–${fiDY(r.p_to)}${same ? '' : ' (eri jakso kuin nyt valittu)'}` : 'Vinkkejä ei ole vielä luotu.';
+        const tips = r && Array.isArray(r.tips) ? r.tips : [];
+        const status = ins.pending ? '<span class="an-ins-busy">Tekoäly analysoi lukuja… vinkit valmistuvat yleensä 1–2 minuutissa.</span>' : ins.err ? `<span class="an-down">Edellinen pyyntö epäonnistui: ${esc(ins.err)}</span>` : '';
+        return `<section class="admin-card an-card an-ins" id="an-ins">
+            <div class="an-card-h"><h2>✦ Tekoälyn vinkit: kolme tärkeintä toimenpidettä</h2>
+                <button type="button" class="btn btn-outline an-btn-sm" id="an-ins-req" ${ins.pending ? 'disabled' : ''}>${ins.pending ? 'Analysoidaan…' : same ? 'Päivitä vinkit' : 'Pyydä vinkit tälle jaksolle'}</button></div>
+            ${tips.length ? `<ol class="an-tips">${tips.slice(0, 3).map((t) => `<li><div class="an-tip-t">${esc(t.title)}${t.area ? ` <span class="an-tag">${esc(t.area)}</span>` : ''}</div>
+                <div class="an-tip-w"><b>Miksi:</b> ${esc(t.why)}</div><div class="an-tip-a"><b>Mitä tehdä:</b> ${esc(t.action)}</div></li>`).join('')}</ol>` : ''}
+            ${r && r.summary ? `<p class="an-sub" style="margin:0.6rem 0 0;">${esc(r.summary)}</p>` : ''}
+            <div class="an-ins-foot"><span class="an-sub">${esc(meta)} · Vinkit perustuvat lukuihin ja markkinoinnin tavoitteisiin; tarkista ennen toimenpiteitä.</span>${status}</div>
+        </section>`;
+    };
+    const wireInsights = () => {
+        const b = $('an-ins-req'); if (!b) return;
+        b.addEventListener('click', async () => {
+            b.disabled = true; b.textContent = 'Lähetetään…';
+            const { error } = await sb.rpc('analytics_request_insights', { p_from: state.from, p_to: state.to });
+            if (error) { b.disabled = false; b.textContent = 'Pyydä vinkit'; alert('Vinkkien pyyntö epäonnistui: ' + error.message); return; }
+            loadInsights();
+        });
+    };
+
     const renderOverview = (d) => {
         const c = d.cur, p = d.prev, days = d.daily.map((x) => x.d);
         const fol = sumOr(c.fb_followers, c.ig_followers), folP = sumOr(p.fb_followers, p.ig_followers);
         const act = sumOr(c.cta_phone, c.cta_email, c.brochure, c.form_start), actP = sumOr(p.cta_phone, p.cta_email, p.brochure, p.form_start);
         const other = d.daily.map((x) => Math.max(0, x.visits - x.fb_visits - x.ig_visits));
-        return `<div class="an-kpis">
+        return `${insightsCard()}<div class="an-kpis">
                 ${kpi('Käynnit sivustolla', c.visits, p.visits, { sub: `${fmtN(c.pageviews)} sivukatselua` })}
                 ${kpi('Käynnit somesta', c.social_visits, p.social_visits, { sub: c.visits ? `${Math.round((c.social_visits / c.visits) * 100)} % käynneistä` : '' })}
                 ${kpi('Yhteydenottoaikeet', act, actP, { sub: 'painallukset + lomakkeet' })}
@@ -219,7 +260,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 (d.pages || []).map((x) => `<tr><td><strong>${esc(pageName(x.path))}</strong><div class="an-sub an-mono">${esc(x.path)}</div></td><td>${fmtN(x.views)}</td>
                     <td>${x.avg_seconds == null ? '–' : fmtN(x.avg_seconds) + ' s'}</td><td>${x.avg_scroll == null ? '–' : x.avg_scroll + ' %'}</td><td>${fmtN(x.actions)}</td></tr>`)),
                 { desc: 'Lukuaika ja vieritys ovat keskiarvoja. Yhteydenottoaikeet = painallukset ja lomakkeen aloitukset sivulla.' })}
-            ${card('Kampanjat', table(['Kampanja', 'Lähde', 'Käynnit'], (d.campaigns || []).map((x) => `<tr><td>${esc(x.campaign)}</td><td>${esc(x.source)}</td><td>${fmtN(x.visits)}</td></tr>`), 'Ei seurantatunnisteellisia käyntejä tällä jaksolla.'))}`;
+            ${card('Kampanjat', table(['Kampanja', 'Lähde', 'Käynnit', 'Liidit'], (d.campaigns || []).map((x) => `<tr><td>${esc(x.campaign)}</td><td>${esc(x.source)}</td><td>${fmtN(x.visits)}</td><td>${fmtN(x.leads)}</td></tr>`), 'Ei seurantatunnisteellisia käyntejä tällä jaksolla.'))}`;
     };
 
     const renderSome = (d) => {
@@ -229,11 +270,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         const seg = `<div class="an-seg an-seg-sm" id="an-channel">${[['all', 'Kaikki'], ['facebook', 'Facebook'], ['instagram', 'Instagram']].map(([k, t]) => `<button type="button" data-ch="${k}" class="${ch === k ? 'active' : ''}">${t}</button>`).join('')}</div>`;
         const posts = [
             ...(fb ? (d.fb_posts || []).map((x) => ({ ch: 'Facebook', at: x.created_time, t: x.title || x.message, link: x.permalink, a: n(x.views), b: n(x.unique_views), cl: n(x.clicks), re: n(x.reactions), sv: x.title ? n(x.site_visits) : null })) : []),
-            ...(ig ? (d.ig_posts || []).map((x) => ({ ch: 'Instagram', at: x.posted_at, t: x.title || x.caption, link: x.permalink, a: n(x.views), b: n(x.reach), cl: null, re: sumOr(x.likes, x.comments), sv: null, reel: x.media_type === 'VIDEO', saves: n(x.saves) })) : []),
+            ...(ig ? (d.ig_posts || []).map((x) => ({ ch: 'Instagram', at: x.posted_at, t: x.title || x.caption, link: x.permalink, a: n(x.views), b: n(x.reach), cl: null, re: sumOr(x.likes, x.comments), sv: null, reel: x.media_type === 'VIDEO', saves: n(x.saves), shares: n(x.shares) })) : []),
         ].sort((a, b) => Date.parse(b.at) - Date.parse(a.at));
         const fbS = { label: 'Facebook-näytöt', color: C.facebook, values: d.daily.map((x) => x.fb_views) };
         const igS = { label: 'Instagram-tavoittavuus', color: C.instagram, values: d.daily.map((x) => x.ig_reach) };
-        return `<div class="an-row-between">${seg}<div class="an-sub">Somen luvut päivitetty ${esc(synced)} <button type="button" class="btn btn-outline an-btn-sm" id="an-sync">Päivitä nyt</button></div></div>
+        const postsN = (fb ? Number(c.fb_posts) || 0 : 0) + (ig ? Number(c.ig_posts) || 0 : 0), postsP = (fb ? Number(p.fb_posts) || 0 : 0) + (ig ? Number(p.ig_posts) || 0 : 0);
+        const camps = (d.campaigns || []).filter((x) => (fb && x.source === 'Facebook') || (ig && x.source === 'Instagram'));
+        return `<div class="an-row-between">${seg}<div class="an-sub">Somen luvut päivitetty ${esc(synced)}</div></div>
             <div class="an-kpis">
                 ${fb ? kpi('Facebook-näytöt', c.fb_views, p.fb_views) : ''}
                 ${fb ? kpi('Facebook-vuorovaikutukset', c.fb_engagements, p.fb_engagements) : ''}
@@ -241,6 +284,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 ${ig ? kpi('Instagram-tavoittavuus', c.ig_reach, p.ig_reach, { sub: 'tavoitetut tilit päivittäin yhteensä' }) : ''}
                 ${ig ? kpi('Profiilikäynnit', c.ig_profile_views, p.ig_profile_views, { sub: `${fmtN(c.ig_website_clicks)} painoi profiilin linkkiä` }) : ''}
                 ${ig ? kpi('Instagram-seuraajat', c.ig_followers, p.ig_followers) : ''}
+                ${kpi('Julkaisuja', postsN, postsP)}
                 ${kpi('Käynnit sivustolla somesta', ch === 'all' ? c.social_visits : sumOr(...d.daily.map((x) => (ch === 'facebook' ? x.fb_visits : x.ig_visits))), ch === 'all' ? p.social_visits : null, { noDelta: ch !== 'all' })}
             </div>
             <div class="an-grid2">
@@ -251,11 +295,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                 ...(fb ? [{ label: 'Facebook', color: C.facebook, values: d.daily.map((x) => x.fb_visits) }] : []),
                 ...(ig ? [{ label: 'Instagram', color: C.instagram, values: d.daily.map((x) => x.ig_visits) }] : []),
             ], { h: 190 }))}
-            ${card('Julkaisut', table(['Päivä', 'Kanava', 'Julkaisu', 'Näytöt', 'Tavoitetut', 'Klikit', 'Reaktiot', 'Sivustolle'],
+            ${card('Julkaisut', table(['Päivä', 'Kanava', 'Julkaisu', 'Näytöt', 'Tavoitetut', 'Klikit', 'Reaktiot', 'Tallennukset', 'Jaot', 'Sivustolle'],
                 posts.map((x) => `<tr><td>${esc(new Date(x.at).toLocaleDateString('fi-FI'))}</td><td><span class="so-ch so-ch-${x.ch === 'Instagram' ? 'ig' : 'fb'}">${x.ch === 'Instagram' ? 'IG' : 'FB'}</span>${x.reel ? ' <span class="so-agent so-reel">Reels</span>' : ''}</td>
                     <td style="max-width:340px;">${esc(String(x.t || '(ei tekstiä)').slice(0, 90))}${x.link ? ` <a href="${esc(x.link)}" target="_blank" rel="noopener">↗</a>` : ''}</td>
-                    <td>${fmtN(x.a)}</td><td>${fmtN(x.b)}</td><td>${fmtN(x.cl)}</td><td>${fmtN(x.re)}</td><td>${x.sv == null ? '–' : fmtN(x.sv)}</td></tr>`),
-                'Ei julkaisuja tällä jaksolla.'), { desc: 'Facebook: näytöt ja eri henkilöt. Instagram: näytöt ja tavoitetut tilit, reaktiot = tykkäykset + kommentit. Sivustolle = Some-sivulta ajastetun julkaisun seurantalinkin käynnit.' })}`;
+                    <td>${fmtN(x.a)}</td><td>${fmtN(x.b)}</td><td>${fmtN(x.cl)}</td><td>${fmtN(x.re)}</td><td>${fmtN(x.saves)}</td><td>${fmtN(x.shares)}</td><td>${x.sv == null ? '–' : fmtN(x.sv)}</td></tr>`),
+                'Ei julkaisuja tällä jaksolla.'), { desc: 'Facebook: näytöt ja eri henkilöt. Instagram: näytöt ja tavoitetut tilit, reaktiot = tykkäykset + kommentit. Sivustolle = Some-sivulta ajastetun julkaisun seurantalinkin käynnit.' })}
+            ${card('Kampanjat', table(['Kampanja', 'Lähde', 'Käynnit sivustolla', 'Liidit'], camps.map((x) => `<tr><td>${esc(x.campaign)}</td><td>${esc(x.source)}</td><td>${fmtN(x.visits)}</td><td>${fmtN(x.leads)}</td></tr>`), 'Ei kampanjaliikennettä tällä jaksolla.'),
+                { desc: 'Seurantatunnisteellisten linkkien käynnit ja niistä tulleet liidit kampanjoittain.' })}`;
     };
 
     const render = () => {
@@ -265,7 +311,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         view.innerHTML = state.tab === 'web' ? renderWeb(d) : state.tab === 'some' ? renderSome(d) : renderOverview(d);
         drawCharts();
         const chSeg = $('an-channel'); if (chSeg) chSeg.addEventListener('click', (e) => { const b = e.target.closest('[data-ch]'); if (!b) return; state.channel = b.dataset.ch; render(); });
-        const sync = $('an-sync'); if (sync) sync.addEventListener('click', () => syncSocial(false));
+        wireInsights();
     };
 
     // ---------- lataus ----------
@@ -285,12 +331,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         const { data, error } = await sb.rpc('analytics_report', { p_from: state.from, p_to: state.to });
         view.style.opacity = '';
         if (error) { view.innerHTML = `<div class="so-note so-err">Analytiikan lataus epäonnistui: ${esc(error.message)}</div>`; return; }
-        state.data = data; render();
+        state.data = data; render(); loadInsights();
         // Vanhentuneet somen luvut haetaan taustalla (kerran sivun avauksella)
         if (!load.synced && (!data.social_synced_at || Date.now() - Date.parse(data.social_synced_at) > 20 * 3600 * 1000)) { load.synced = true; syncSocial(true); }
     };
+    // Päivitä data: hakee somen luvut Facebookista ja Instagramista ja laskee kaikki luvut uudelleen (sivuston ja liidien data on aina ajantasaista)
     const syncSocial = async (silent) => {
-        const b = $('an-sync'); if (b) { b.disabled = true; b.textContent = 'Päivitetään...'; }
+        const b = $('an-refresh'); if (b) { b.disabled = true; b.textContent = 'Päivitetään…'; }
         try {
             const { data: { session } } = await sb.auth.getSession();
             const r = await fetch(FN_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + (session && session.access_token), apikey: SUPABASE_ANON_KEY }, body: JSON.stringify({ action: 'sync' }) });
@@ -299,8 +346,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             else if (j.errors && j.errors.length && !silent) alert('Osa tiedoista puuttui:\n' + j.errors.slice(0, 4).join('\n'));
         } catch (e) { if (!silent) alert('Päivitys epäonnistui: ' + e.message); }
         const { data } = await sb.rpc('analytics_report', { p_from: state.from, p_to: state.to });
-        if (data) { state.data = data; render(); }
+        if (data) { state.data = data; render(); loadInsights(); }
+        if (b) { b.disabled = false; b.textContent = 'Päivitä data'; }
+        $('an-updated').textContent = 'Päivitetty ' + new Date().toLocaleTimeString('fi-FI', { hour: '2-digit', minute: '2-digit' });
     };
+    $('an-refresh').addEventListener('click', () => syncSocial(false));
 
     $('an-range').addEventListener('click', (e) => {
         const b = e.target.closest('[data-range]'); if (!b) return;

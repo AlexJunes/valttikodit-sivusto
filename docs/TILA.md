@@ -54,7 +54,7 @@
 
 | Tiedosto | Taulut (operaatiot) | RPC | Storage | local/sessionStorage-avaimet |
 |---|---|---|---|---|
-| `assets/js/admin-analytics.js` | projects (select) | analytics_report | – | – |
+| `assets/js/admin-analytics.js` | analytics_insights (select); projects (select) | analytics_report, analytics_request_insights | – | – |
 | `assets/js/admin-references.js` | projects (select); reference_cases (delete, insert, select, update) | – | images | – |
 | `assets/js/admin-social.js` | reference_cases (select); social_audit (select); social_campaigns (insert, select); social_goals (select, upsert); social_posts (delete, insert, select, update) | – | images | – |
 | `assets/js/admin.js` | admin_users (delete, insert, select); leads (delete, select, update); page_views (select); pages (insert, select, update); projects (delete, insert, select, update) | – | images | valtti_admin_auth, valtti_admin_login_time |
@@ -121,6 +121,8 @@ Lueteltu tiedostot, jotka on kirjattu repoon. Tuotantoon ne ajetaan käsin Supab
 - `2026-11-21_social_goals.sql` – ==============================================================================
 - `2026-11-22_analytics_data.sql` – ==============================================================================
 - `2026-11-22_analytics_report.sql` – ==============================================================================
+- `2026-11-23_analytics_insights.sql` – ==============================================================================
+- `2026-11-23_analytics_insights_trigger.sql` – ==============================================================================
 
 ## Repon rakenne (ylin taso)
 

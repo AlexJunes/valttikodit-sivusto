@@ -81,7 +81,7 @@ def prod_public(table):
 def main():
     secret = local_keys()
     print('1/6 Poistetaan vanhat testitaulut ja luodaan rakenne...')
-    psql('DROP TABLE IF EXISTS public.admin_users, public.leads, public.page_views, public.pages, public.projects, public.report_tokens, public.reference_cases, public.agent_tokens, public.site_events, public.social_goals, public.social_ig_media, public.social_posts, public.social_campaigns, public.social_audit, public.social_fb_posts, public.social_post_metrics, public.social_page_metrics, public.social_sync_log, public.social_agent_tokens CASCADE;'
+    psql('DROP TABLE IF EXISTS public.admin_users, public.leads, public.page_views, public.pages, public.projects, public.report_tokens, public.reference_cases, public.agent_tokens, public.analytics_insights, public.insights_agent_tokens, public.site_events, public.social_goals, public.social_ig_media, public.social_posts, public.social_campaigns, public.social_audit, public.social_fb_posts, public.social_post_metrics, public.social_page_metrics, public.social_sync_log, public.social_agent_tokens CASCADE;'
          'DROP FUNCTION IF EXISTS public.is_site_admin() CASCADE; DROP FUNCTION IF EXISTS public.report_weekly(text) CASCADE; DROP FUNCTION IF EXISTS public.report_daily(text) CASCADE; DROP FUNCTION IF EXISTS public.agent_get_leads(text, integer) CASCADE; DROP FUNCTION IF EXISTS public.agent_mark_lead(text, uuid, text) CASCADE; DROP FUNCTION IF EXISTS public.notify_new_lead() CASCADE; DROP FUNCTION IF EXISTS public.social_posts_guard() CASCADE; DROP FUNCTION IF EXISTS public.social_posts_audit() CASCADE; DROP FUNCTION IF EXISTS public.social_results(integer) CASCADE; DROP FUNCTION IF EXISTS public.social_cron_sync() CASCADE; DROP FUNCTION IF EXISTS public.social_results_data(integer) CASCADE; DROP FUNCTION IF EXISTS public.social_agent_context(text) CASCADE; DROP FUNCTION IF EXISTS public.social_agent_create_draft(text, text, text, text, text, text, text, timestamptz, text, text, text) CASCADE; DROP FUNCTION IF EXISTS public.social_agent_create_draft(text, text, text, text, text, text, text, timestamptz, text, text, text, text[], text) CASCADE;'
          'DROP POLICY IF EXISTS images_public_read ON storage.objects; DROP POLICY IF EXISTS images_admin_insert ON storage.objects;'
          'DROP POLICY IF EXISTS images_admin_update ON storage.objects; DROP POLICY IF EXISTS images_admin_delete ON storage.objects;')
@@ -102,6 +102,7 @@ def main():
     psql(open(os.path.join(ROOT, 'supabase', 'migrations', '2026-11-21_social_goals.sql'), encoding='utf-8').read())
     psql(open(os.path.join(ROOT, 'supabase', 'migrations', '2026-11-22_analytics_data.sql'), encoding='utf-8').read())
     psql(open(os.path.join(ROOT, 'supabase', 'migrations', '2026-11-22_analytics_report.sql'), encoding='utf-8').read())
+    psql(open(os.path.join(ROOT, 'supabase', 'migrations', '2026-11-23_analytics_insights.sql'), encoding='utf-8').read().replace('<AVAIN>', 'local-insights-token'))
 
     print('2b/6 Luodaan referenssitaulu ja esimerkkireferenssi...')
     for f in ('2026-10-11_reference_cases.sql', '2026-10-11_seed_sudenkorento.sql'):

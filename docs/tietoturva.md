@@ -56,3 +56,7 @@ Instagram-julkaisu käyttää samaa sivuavainta (`META_PAGE_TOKEN`), jossa on Fa
 ### Sivuston tapahtumaseuranta (site_events)
 
 Ei evästeitä eikä henkilötietoja: tallennetaan polku, tapahtuman tyyppi, painetun linkin teksti (esim. "Soita") sekä lukuaika ja vieritys. Istuntotunniste vain, jos kävijä on sallinut analytiikan. Julkinen rooli voi vain lisätä rivejä tiukoin rajoin; lukeminen vain ylläpidolle.
+
+### Analytiikan vinkkiagentti
+
+Agentin avain (`INSIGHTS_AGENT_TOKEN`) antaa vain lukea koosteraportin (ei liidien henkilötietoja: raportissa liidit ovat määrinä tyypeittäin ja kanavittain) sekä tallentaa vinkit. Rutiinilla ei ole sähköposti- tai muita yhteyksiä. Käynnistysavain on Vaultissa; pyyntöjä rajoitetaan (15 / vrk).
