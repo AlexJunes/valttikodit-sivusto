@@ -16,6 +16,24 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const state = { range: '30', from: null, to: null, tab: (location.hash || '').replace('#', '') || 'overview', channel: 'all', data: null, titles: {} };
     if (!['overview', 'web', 'some'].includes(state.tab)) state.tab = 'overview';
+    state.filters = {}; state.dayBack = null;
+
+    // ---------- suodattimet (klikkaa palkkia, riviä, julkaisua tai kaavion päivää) ----------
+    const FL = { source: 'Lähde', device: 'Laite', path: 'Sivu', campaign: 'Kampanja', content: 'Julkaisu' };
+    const fKeys = () => Object.keys(state.filters);
+    const only = (...keys) => fKeys().every((k) => keys.includes(k));
+    const socialSrc = () => !state.filters.source || ['Facebook', 'Instagram'].includes(state.filters.source);
+    // Mihin dataan suodatin voi vaikuttaa (muut kortit himmennetään, jotta luvut eivät johda harhaan)
+    const FILTERABLE = {
+        web: () => true,
+        events: () => true,
+        leads: () => !state.filters.path,
+        social: () => only('source') && socialSrc(),
+        posts: () => only('source', 'content', 'campaign') && socialSrc(),
+    };
+    const dim = (kind) => kind && !FILTERABLE[kind]();
+    const fAttr = (k, v) => (v == null || v === '' ? '' : ` data-fk="${esc(k)}" data-fv="${esc(v)}"`);
+    const fCls = (k, v) => (v == null || v === '' ? '' : state.filters[k] === v ? ' an-click an-active' : ' an-click');
 
     // ---------- apufunktiot ----------
     const iso = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -54,10 +72,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             const up = d > 0, good = opts.invert ? !up : up;
             badge = d === 0 ? '<span class="an-delta">±0 %</span>' : `<span class="an-delta ${good ? 'an-up' : 'an-down'}">${up ? '▲' : '▼'} ${up ? '+' : '−'}${Math.abs(d)} %</span>`;
         } else if (!opts.noDelta && cur != null && Number(cur) > 0 && Number(prev) === 0) badge = '<span class="an-delta an-up">▲ uusi</span>';
-        return `<div class="an-kpi"><div class="an-kpi-l">${esc(label)}</div><div class="an-kpi-v">${esc(shown)}</div>
+        return `<div class="an-kpi${dim(opts.kind) ? ' an-dim' : ''}"${dim(opts.kind) ? ' title="Ei suodatettavissa valitulla rajauksella"' : ''}><div class="an-kpi-l">${esc(label)}</div><div class="an-kpi-v">${esc(shown)}</div>
             <div class="an-kpi-s">${badge}${opts.sub ? `<span>${esc(opts.sub)}</span>` : ''}</div></div>`;
     };
-    const card = (title, body, opts = {}) => `<section class="admin-card an-card ${opts.cls || ''}"><div class="an-card-h"><h2>${esc(title)}</h2>${opts.right || ''}</div>${opts.desc ? `<p class="an-sub" style="margin:-0.35rem 0 0.75rem;">${esc(opts.desc)}</p>` : ''}${body}</section>`;
+    const card = (title, body, opts = {}) => `<section class="admin-card an-card ${opts.cls || ''}${dim(opts.kind) ? ' an-dim' : ''}"><div class="an-card-h"><h2>${esc(title)}</h2>${dim(opts.kind) ? '<span class="an-dim-tag">Ei suodatettavissa tällä rajauksella</span>' : ''}${opts.right || ''}</div>${opts.desc ? `<p class="an-sub" style="margin:-0.35rem 0 0.75rem;">${esc(opts.desc)}</p>` : ''}${body}</section>`;
     const legend = (series) => (series.length > 1 ? `<div class="an-legend">${series.map((s) => `<span><i style="background:${s.color}"></i>${esc(s.label)}</span>`).join('')}</div>` : '');
 
     // Viivakaavio: sama yksikkö kaikilla sarjoilla (ei kahta y-akselia). Hover: pystyviiva + kaikkien sarjojen arvot.
@@ -106,6 +124,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const hide = () => { cross.style.display = 'none'; dots.forEach((dt) => { dt.style.display = 'none'; }); tip.hidden = true; };
         const hit = el.querySelector('.an-hit');
         hit.addEventListener('mousemove', move); hit.addEventListener('mouseleave', hide);
+        hit.addEventListener('click', (ev) => { const r = s0.getBoundingClientRect(); const i = Math.max(0, Math.min(nDays - 1, Math.round(((ev.clientX - r.left - L) / (W - L - R)) * (nDays - 1)))); tip.hidden = true; setDay(days[i]); });
         hit.addEventListener('touchstart', (e) => move(e.touches[0]), { passive: true }); hit.addEventListener('touchmove', (e) => move(e.touches[0]), { passive: true });
         hit.addEventListener('touchend', () => setTimeout(hide, 1500));
     });
@@ -115,7 +134,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const bars = (items, color, opts = {}) => {
         if (!items.length) return '<div class="an-empty">Ei dataa tällä jaksolla.</div>';
         const max = Math.max(...items.map((x) => Number(x.value) || 0), 1);
-        return `<div class="an-bars">${items.map((x) => `<div class="an-bar-row" title="${esc(x.label)}: ${fmtN(x.value)}">
+        return `<div class="an-bars">${items.map((x) => `<div class="an-bar-row${x.f ? fCls(x.f[0], x.f[1]) : ''}"${x.f ? fAttr(x.f[0], x.f[1]) : ''} title="${esc(x.label)}: ${fmtN(x.value)}${x.f ? ' (rajaa klikkaamalla)' : ''}">
             <div class="an-bar-l"><span>${esc(x.label)}</span>${x.sub ? `<small>${esc(x.sub)}</small>` : ''}</div>
             <div class="an-bar-t"><div class="an-bar-f" style="width:${Math.max(1.5, ((Number(x.value) || 0) / max) * 100)}%;background:${x.color || color}"></div></div>
             <div class="an-bar-v">${esc(opts.format ? opts.format(x.value) : fmtN(x.value))}</div></div>`).join('')}</div>`;
@@ -151,7 +170,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Suppilo vaiheina: jokaisella vaiheella oma, perusteltu vertailukohta (ei yhteistä pylväsasteikkoa,
     // koska somen näkyvyys on kertaluokkia suurempi kuin muut vaiheet)
     const funnel = (c) => {
-        const reach = sumOr(c.fb_views, c.ig_reach);
+        const reach = FILTERABLE.social() ? (state.filters.source === 'Facebook' ? n(c.fb_views) : state.filters.source === 'Instagram' ? n(c.ig_reach) : sumOr(c.fb_views, c.ig_reach)) : null;
         const actions = sumOr(c.cta_phone, c.cta_email, c.brochure, c.form_start);
         const steps = [
             { l: 'Somen näkyvyys', v: reach, s: 'Facebook-näytöt + Instagram-tavoittavuus', color: C.facebook },
@@ -194,7 +213,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             ${tips.length ? `<ol class="an-tips">${tips.slice(0, 3).map((t) => `<li><div class="an-tip-t">${esc(t.title)}${t.area ? ` <span class="an-tag">${esc(t.area)}</span>` : ''}</div>
                 <div class="an-tip-w"><b>Miksi:</b> ${esc(t.why)}</div><div class="an-tip-a"><b>Mitä tehdä:</b> ${esc(t.action)}</div></li>`).join('')}</ol>` : ''}
             ${r && r.summary ? `<p class="an-sub" style="margin:0.6rem 0 0;">${esc(r.summary)}</p>` : ''}
-            <div class="an-ins-foot"><span class="an-sub">${esc(meta)} · Vinkit perustuvat lukuihin ja markkinoinnin tavoitteisiin; tarkista ennen toimenpiteitä.</span>${status}</div>
+            <div class="an-ins-foot"><span class="an-sub">${fKeys().length ? 'Vinkit koskevat koko dataa ilman suodattimia. ' : ''}${esc(meta)} · Vinkit perustuvat lukuihin ja markkinoinnin tavoitteisiin; tarkista ennen toimenpiteitä.</span>${status}</div>
         </section>`;
     };
     const wireInsights = () => {
@@ -216,9 +235,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                 ${kpi('Käynnit sivustolla', c.visits, p.visits, { sub: `${fmtN(c.pageviews)} sivukatselua` })}
                 ${kpi('Käynnit somesta', c.social_visits, p.social_visits, { sub: c.visits ? `${Math.round((c.social_visits / c.visits) * 100)} % käynneistä` : '' })}
                 ${kpi('Yhteydenottoaikeet', act, actP, { sub: 'painallukset + lomakkeet' })}
-                ${kpi('Liidit', c.leads, p.leads, { sub: `${fmtN(c.leads_won)} kauppaa` })}
-                ${kpi('Somen näkyvyys', sumOr(c.fb_views, c.ig_reach), sumOr(p.fb_views, p.ig_reach), { sub: 'Facebook + Instagram' })}
-                ${kpi('Seuraajat', fol, folP, { sub: `FB ${fmtN(c.fb_followers)} · IG ${fmtN(c.ig_followers)}` })}
+                ${kpi('Liidit', c.leads, p.leads, { sub: `${fmtN(c.leads_won)} kauppaa`, kind: 'leads' })}
+                ${kpi('Somen näkyvyys', sumOr(c.fb_views, c.ig_reach), sumOr(p.fb_views, p.ig_reach), { sub: 'Facebook + Instagram', kind: 'social' })}
+                ${kpi('Seuraajat', fol, folP, { sub: `FB ${fmtN(c.fb_followers)} · IG ${fmtN(c.ig_followers)}`, kind: 'social' })}
             </div>
             <div class="an-grid2">
                 ${card('Mikä muuttui', insights(d), { desc: 'Verrattuna edelliseen samanpituiseen jaksoon.' })}
@@ -230,9 +249,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                 { label: 'Instagram', color: C.instagram, values: d.daily.map((x) => x.ig_visits) },
             ]))}
             <div class="an-grid2">
-                ${card('Liidit päivittäin', lineChart('ch-ov-leads', days, [{ label: 'Liidit', color: C.ink, values: d.daily.map((x) => x.leads) }], { h: 180 }))}
-                ${card('Liidit ja kaupat kanavittain', bars((d.lead_channels || []).map((x) => ({ label: x.channel === 'Ei seurantatunnistetta' ? 'Muu / ei tunnistetta' : x.channel, value: x.leads, sub: `${fmtN(x.won)} kauppaa`, color: x.channel === 'Facebook' ? C.facebook : x.channel === 'Instagram' ? C.instagram : C.site })), C.site),
-                    { desc: 'Kanava päätellään liidin seurantatunnisteesta. Kaupat merkitään liidin tietoihin.' })}
+                ${card('Liidit päivittäin', lineChart('ch-ov-leads', days, [{ label: 'Liidit', color: C.ink, values: d.daily.map((x) => x.leads) }], { h: 180 }), { kind: 'leads' })}
+                ${card('Liidit ja kaupat kanavittain', bars((d.lead_channels || []).map((x) => ({ label: x.channel === 'Ei seurantatunnistetta' ? 'Muu / ei tunnistetta' : x.channel, value: x.leads, sub: `${fmtN(x.won)} kauppaa`, color: x.channel === 'Facebook' ? C.facebook : x.channel === 'Instagram' ? C.instagram : C.site, f: x.channel === 'Ei seurantatunnistetta' ? null : ['source', x.channel] })), C.site),
+                    { desc: 'Kanava päätellään liidin seurantatunnisteesta. Kaupat merkitään liidin tietoihin.', kind: 'leads' })}
             </div>`;
     };
 
@@ -252,25 +271,26 @@ document.addEventListener('DOMContentLoaded', async () => {
                 { label: 'Käynnit', color: C.site, values: d.daily.map((x) => x.visits) },
             ]))}
             <div class="an-grid2">
-                ${card('Mistä kävijät tulevat', bars((d.sources || []).map((x) => ({ label: x.source, value: x.visits, sub: ['Facebook', 'Instagram'].includes(x.source) ? `${fmtN(x.leads)} liidiä` : '', color: srcColor(x.source) })), C.site),
+                ${card('Mistä kävijät tulevat', bars((d.sources || []).map((x) => ({ label: x.source, value: x.visits, sub: ['Facebook', 'Instagram'].includes(x.source) ? `${fmtN(x.leads)} liidiä` : '', color: srcColor(x.source), f: ['source', x.source] })), C.site),
                     { desc: 'Käynnit lähteittäin. Somesta tulleet liidit tunnistetaan seurantatunnisteesta.' })}
-                ${card('Laitteet', bars((d.devices || []).map((x) => ({ label: x.device, value: x.views })), C.site), { desc: 'Sivukatselut laitetyypeittäin.' })}
+                ${card('Laitteet', bars((d.devices || []).map((x) => ({ label: x.device, value: x.views, f: x.device === 'Tuntematon' ? null : ['device', x.device] })), C.site), { desc: 'Sivukatselut laitetyypeittäin.' })}
             </div>
             ${card('Sivut', table(['Sivu', 'Katselut', 'Lukuaika', 'Vieritys', 'Yhteydenottoaikeet'],
-                (d.pages || []).map((x) => `<tr><td><strong>${esc(pageName(x.path))}</strong><div class="an-sub an-mono">${esc(x.path)}</div></td><td>${fmtN(x.views)}</td>
+                (d.pages || []).map((x) => `<tr class="${fCls('path', x.path).trim()}"${fAttr('path', x.path)}><td><strong>${esc(pageName(x.path))}</strong><div class="an-sub an-mono">${esc(x.path)}</div></td><td>${fmtN(x.views)}</td>
                     <td>${x.avg_seconds == null ? '–' : fmtN(x.avg_seconds) + ' s'}</td><td>${x.avg_scroll == null ? '–' : x.avg_scroll + ' %'}</td><td>${fmtN(x.actions)}</td></tr>`)),
                 { desc: 'Lukuaika ja vieritys ovat keskiarvoja. Yhteydenottoaikeet = painallukset ja lomakkeen aloitukset sivulla.' })}
-            ${card('Kampanjat', table(['Kampanja', 'Lähde', 'Käynnit', 'Liidit'], (d.campaigns || []).map((x) => `<tr><td>${esc(x.campaign)}</td><td>${esc(x.source)}</td><td>${fmtN(x.visits)}</td><td>${fmtN(x.leads)}</td></tr>`), 'Ei seurantatunnisteellisia käyntejä tällä jaksolla.'))}`;
+            ${card('Kampanjat', table(['Kampanja', 'Lähde', 'Käynnit', 'Liidit'], (d.campaigns || []).map((x) => `<tr class="${fCls('campaign', x.campaign).trim()}"${fAttr('campaign', x.campaign)}><td>${esc(x.campaign)}</td><td>${esc(x.source)}</td><td>${fmtN(x.visits)}</td><td>${fmtN(x.leads)}</td></tr>`), 'Ei seurantatunnisteellisia käyntejä tällä jaksolla.'))}`;
     };
 
     const renderSome = (d) => {
-        const c = d.cur, p = d.prev, days = d.daily.map((x) => x.d), ch = state.channel;
+        const c = d.cur, p = d.prev, days = d.daily.map((x) => x.d);
+        const ch = state.filters.source === 'Facebook' ? 'facebook' : state.filters.source === 'Instagram' ? 'instagram' : state.channel;
         const fb = ch !== 'instagram', ig = ch !== 'facebook';
         const synced = d.social_synced_at ? new Date(d.social_synced_at).toLocaleString('fi-FI') : 'ei vielä';
         const seg = `<div class="an-seg an-seg-sm" id="an-channel">${[['all', 'Kaikki'], ['facebook', 'Facebook'], ['instagram', 'Instagram']].map(([k, t]) => `<button type="button" data-ch="${k}" class="${ch === k ? 'active' : ''}">${t}</button>`).join('')}</div>`;
         const posts = [
-            ...(fb ? (d.fb_posts || []).map((x) => ({ ch: 'Facebook', at: x.created_time, t: x.title || x.message, link: x.permalink, a: n(x.views), b: n(x.unique_views), cl: n(x.clicks), re: n(x.reactions), sv: x.title ? n(x.site_visits) : null })) : []),
-            ...(ig ? (d.ig_posts || []).map((x) => ({ ch: 'Instagram', at: x.posted_at, t: x.title || x.caption, link: x.permalink, a: n(x.views), b: n(x.reach), cl: null, re: sumOr(x.likes, x.comments), sv: null, reel: x.media_type === 'VIDEO', saves: n(x.saves), shares: n(x.shares) })) : []),
+            ...(fb ? (d.fb_posts || []).map((x) => ({ ch: 'Facebook', at: x.created_time, t: x.title || x.message, link: x.permalink, a: n(x.views), b: n(x.unique_views), cl: n(x.clicks), re: n(x.reactions), sv: x.title ? n(x.site_visits) : null, uc: x.utm_content })) : []),
+            ...(ig ? (d.ig_posts || []).map((x) => ({ ch: 'Instagram', at: x.posted_at, t: x.title || x.caption, link: x.permalink, a: n(x.views), b: n(x.reach), cl: null, re: sumOr(x.likes, x.comments), sv: null, reel: x.media_type === 'VIDEO', saves: n(x.saves), shares: n(x.shares), uc: x.utm_content })) : []),
         ].sort((a, b) => Date.parse(b.at) - Date.parse(a.at));
         const fbS = { label: 'Facebook-näytöt', color: C.facebook, values: d.daily.map((x) => x.fb_views) };
         const igS = { label: 'Instagram-tavoittavuus', color: C.instagram, values: d.daily.map((x) => x.ig_reach) };
@@ -278,29 +298,29 @@ document.addEventListener('DOMContentLoaded', async () => {
         const camps = (d.campaigns || []).filter((x) => (fb && x.source === 'Facebook') || (ig && x.source === 'Instagram'));
         return `<div class="an-row-between">${seg}<div class="an-sub">Somen luvut päivitetty ${esc(synced)}</div></div>
             <div class="an-kpis">
-                ${fb ? kpi('Facebook-näytöt', c.fb_views, p.fb_views) : ''}
-                ${fb ? kpi('Facebook-vuorovaikutukset', c.fb_engagements, p.fb_engagements) : ''}
-                ${fb ? kpi('Facebook-seuraajat', c.fb_followers, p.fb_followers) : ''}
-                ${ig ? kpi('Instagram-tavoittavuus', c.ig_reach, p.ig_reach, { sub: 'tavoitetut tilit päivittäin yhteensä' }) : ''}
-                ${ig ? kpi('Profiilikäynnit', c.ig_profile_views, p.ig_profile_views, { sub: `${fmtN(c.ig_website_clicks)} painoi profiilin linkkiä` }) : ''}
-                ${ig ? kpi('Instagram-seuraajat', c.ig_followers, p.ig_followers) : ''}
-                ${kpi('Julkaisuja', postsN, postsP)}
+                ${fb ? kpi('Facebook-näytöt', c.fb_views, p.fb_views, { kind: 'social' }) : ''}
+                ${fb ? kpi('Facebook-vuorovaikutukset', c.fb_engagements, p.fb_engagements, { kind: 'social' }) : ''}
+                ${fb ? kpi('Facebook-seuraajat', c.fb_followers, p.fb_followers, { kind: 'social' }) : ''}
+                ${ig ? kpi('Instagram-tavoittavuus', c.ig_reach, p.ig_reach, { sub: 'tavoitetut tilit päivittäin yhteensä', kind: 'social' }) : ''}
+                ${ig ? kpi('Profiilikäynnit', c.ig_profile_views, p.ig_profile_views, { sub: `${fmtN(c.ig_website_clicks)} painoi profiilin linkkiä`, kind: 'social' }) : ''}
+                ${ig ? kpi('Instagram-seuraajat', c.ig_followers, p.ig_followers, { kind: 'social' }) : ''}
+                ${kpi('Julkaisuja', postsN, postsP, { kind: 'social' })}
                 ${kpi('Käynnit sivustolla somesta', ch === 'all' ? c.social_visits : sumOr(...d.daily.map((x) => (ch === 'facebook' ? x.fb_visits : x.ig_visits))), ch === 'all' ? p.social_visits : null, { noDelta: ch !== 'all' })}
             </div>
             <div class="an-grid2">
-                ${fb ? card('Facebook-näytöt päivittäin', lineChart('ch-fb', days, [fbS], { h: 190 })) : ''}
-                ${ig ? card('Instagram-tavoittavuus päivittäin', lineChart('ch-ig', days, [igS], { h: 190 })) : ''}
+                ${fb ? card('Facebook-näytöt päivittäin', lineChart('ch-fb', days, [fbS], { h: 190 }), { kind: 'social' }) : ''}
+                ${ig ? card('Instagram-tavoittavuus päivittäin', lineChart('ch-ig', days, [igS], { h: 190 }), { kind: 'social' }) : ''}
             </div>
             ${card('Käynnit sivustolla somesta', lineChart('ch-sv', days, [
                 ...(fb ? [{ label: 'Facebook', color: C.facebook, values: d.daily.map((x) => x.fb_visits) }] : []),
                 ...(ig ? [{ label: 'Instagram', color: C.instagram, values: d.daily.map((x) => x.ig_visits) }] : []),
             ], { h: 190 }))}
             ${card('Julkaisut', table(['Päivä', 'Kanava', 'Julkaisu', 'Näytöt', 'Tavoitetut', 'Klikit', 'Reaktiot', 'Tallennukset', 'Jaot', 'Sivustolle'],
-                posts.map((x) => `<tr><td>${esc(new Date(x.at).toLocaleDateString('fi-FI'))}</td><td><span class="so-ch so-ch-${x.ch === 'Instagram' ? 'ig' : 'fb'}">${x.ch === 'Instagram' ? 'IG' : 'FB'}</span>${x.reel ? ' <span class="so-agent so-reel">Reels</span>' : ''}</td>
+                posts.map((x) => `<tr class="${fCls('content', x.uc).trim()}"${fAttr('content', x.uc)}${x.uc ? ' title="Rajaa sivuston luvut tähän julkaisuun"' : ''}><td>${esc(new Date(x.at).toLocaleDateString('fi-FI'))}</td><td><span class="so-ch so-ch-${x.ch === 'Instagram' ? 'ig' : 'fb'}">${x.ch === 'Instagram' ? 'IG' : 'FB'}</span>${x.reel ? ' <span class="so-agent so-reel">Reels</span>' : ''}</td>
                     <td style="max-width:340px;">${esc(String(x.t || '(ei tekstiä)').slice(0, 90))}${x.link ? ` <a href="${esc(x.link)}" target="_blank" rel="noopener">↗</a>` : ''}</td>
                     <td>${fmtN(x.a)}</td><td>${fmtN(x.b)}</td><td>${fmtN(x.cl)}</td><td>${fmtN(x.re)}</td><td>${fmtN(x.saves)}</td><td>${fmtN(x.shares)}</td><td>${x.sv == null ? '–' : fmtN(x.sv)}</td></tr>`),
-                'Ei julkaisuja tällä jaksolla.'), { desc: 'Facebook: näytöt ja eri henkilöt. Instagram: näytöt ja tavoitetut tilit, reaktiot = tykkäykset + kommentit. Sivustolle = Some-sivulta ajastetun julkaisun seurantalinkin käynnit.' })}
-            ${card('Kampanjat', table(['Kampanja', 'Lähde', 'Käynnit sivustolla', 'Liidit'], camps.map((x) => `<tr><td>${esc(x.campaign)}</td><td>${esc(x.source)}</td><td>${fmtN(x.visits)}</td><td>${fmtN(x.leads)}</td></tr>`), 'Ei kampanjaliikennettä tällä jaksolla.'),
+                'Ei julkaisuja tällä jaksolla.'), { desc: 'Facebook: näytöt ja eri henkilöt. Instagram: näytöt ja tavoitetut tilit, reaktiot = tykkäykset + kommentit. Sivustolle = Some-sivulta ajastetun julkaisun seurantalinkin käynnit. Klikkaa Some-sivulta ajastettua julkaisua rajataksesi sivuston luvut siihen.', kind: 'posts' })}
+            ${card('Kampanjat', table(['Kampanja', 'Lähde', 'Käynnit sivustolla', 'Liidit'], camps.map((x) => `<tr class="${fCls('campaign', x.campaign).trim()}"${fAttr('campaign', x.campaign)}><td>${esc(x.campaign)}</td><td>${esc(x.source)}</td><td>${fmtN(x.visits)}</td><td>${fmtN(x.leads)}</td></tr>`), 'Ei kampanjaliikennettä tällä jaksolla.'),
                 { desc: 'Seurantatunnisteellisten linkkien käynnit ja niistä tulleet liidit kampanjoittain.' })}`;
     };
 
@@ -308,6 +328,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         const d = state.data; if (!d) return;
         charts.length = 0;
         document.querySelectorAll('#an-tabs .so-tab').forEach((t) => t.classList.toggle('active', t.dataset.tab === state.tab));
+        const chips = fKeys().map((k) => `<button type="button" class="an-chip" data-rm="${esc(k)}">${esc(FL[k])}: <b>${esc(k === 'path' ? pageName(state.filters[k]) : state.filters[k])}</b> ×</button>`);
+        if (state.dayBack) chips.unshift(`<button type="button" class="an-chip" data-rm="__day">Päivä: <b>${fiDY(state.from)}</b> ×</button>`);
+        $('an-fbar').innerHTML = chips.length ? `<span class="an-sub">Rajaus:</span>${chips.join('')}<button type="button" class="an-chip an-chip-clear" data-rm="__all">Poista kaikki</button>` : '<span class="an-sub">Vinkki: klikkaa lähdettä, laitetta, sivua, kampanjaa, julkaisua tai kaavion päivää rajataksesi kaikki luvut siihen.</span>';
         view.innerHTML = state.tab === 'web' ? renderWeb(d) : state.tab === 'some' ? renderSome(d) : renderOverview(d);
         drawCharts();
         const chSeg = $('an-channel'); if (chSeg) chSeg.addEventListener('click', (e) => { const b = e.target.closest('[data-ch]'); if (!b) return; state.channel = b.dataset.ch; render(); });
@@ -328,7 +351,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const load = async () => {
         setRange(); notes();
         view.style.opacity = '0.5';
-        const { data, error } = await sb.rpc('analytics_report', { p_from: state.from, p_to: state.to });
+        const { data, error } = await sb.rpc('analytics_report', { p_from: state.from, p_to: state.to, p_filters: state.filters });
         view.style.opacity = '';
         if (error) { view.innerHTML = `<div class="so-note so-err">Analytiikan lataus epäonnistui: ${esc(error.message)}</div>`; return; }
         state.data = data; render(); loadInsights();
@@ -345,15 +368,40 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (!j.ok && !silent) alert('Päivitys epäonnistui: ' + j.error);
             else if (j.errors && j.errors.length && !silent) alert('Osa tiedoista puuttui:\n' + j.errors.slice(0, 4).join('\n'));
         } catch (e) { if (!silent) alert('Päivitys epäonnistui: ' + e.message); }
-        const { data } = await sb.rpc('analytics_report', { p_from: state.from, p_to: state.to });
+        const { data } = await sb.rpc('analytics_report', { p_from: state.from, p_to: state.to, p_filters: state.filters });
         if (data) { state.data = data; render(); loadInsights(); }
         if (b) { b.disabled = false; b.textContent = 'Päivitä data'; }
         $('an-updated').textContent = 'Päivitetty ' + new Date().toLocaleTimeString('fi-FI', { hour: '2-digit', minute: '2-digit' });
     };
     $('an-refresh').addEventListener('click', () => syncSocial(false));
 
+    const toggleFilter = (k, v) => { if (state.filters[k] === v) delete state.filters[k]; else state.filters[k] = v; load(); };
+    const setDay = (day) => {
+        if (!state.dayBack) state.dayBack = { range: state.range, from: state.from, to: state.to };
+        state.range = 'custom'; state.from = day; state.to = day;
+        document.querySelectorAll('#an-range button').forEach((x) => x.classList.remove('active'));
+        load();
+    };
+    const clearDay = () => {
+        const b = state.dayBack; if (!b) return; state.dayBack = null;
+        state.range = b.range; state.from = b.from; state.to = b.to;
+        document.querySelectorAll('#an-range button').forEach((x) => x.classList.toggle('active', x.dataset.range === b.range));
+    };
+    view.addEventListener('click', (e) => {
+        if (e.target.closest('a, button, input, select')) return;
+        const el = e.target.closest('[data-fk]'); if (!el) return;
+        toggleFilter(el.dataset.fk, el.dataset.fv);
+    });
+    $('an-fbar').addEventListener('click', (e) => {
+        const b = e.target.closest('[data-rm]'); if (!b) return;
+        const k = b.dataset.rm;
+        if (k === '__all') { state.filters = {}; clearDay(); } else if (k === '__day') clearDay(); else delete state.filters[k];
+        load();
+    });
+
     $('an-range').addEventListener('click', (e) => {
         const b = e.target.closest('[data-range]'); if (!b) return;
+        state.dayBack = null;
         document.querySelectorAll('#an-range button').forEach((x) => x.classList.toggle('active', x === b));
         state.range = b.dataset.range;
         $('an-custom').hidden = state.range !== 'custom';
