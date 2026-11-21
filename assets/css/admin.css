@@ -351,3 +351,16 @@
 .an-tag { display: inline-block; margin-left: 0.35rem; padding: 0.05rem 0.4rem; border-radius: 4px; font-size: 0.68rem; font-weight: 600; background: #ede9fe; color: #5b21b6; vertical-align: middle; }
 .an-ins-foot { margin-top: 0.75rem; display: flex; flex-direction: column; gap: 0.3rem; }
 .an-ins-busy { font-size: 0.85rem; color: #5b21b6; font-weight: 500; }
+
+.an-fbar { display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; margin: -0.5rem 0 1rem; min-height: 1.9rem; }
+.an-chip { border: 1px solid #c7d2fe; background: #eef2ff; color: #1e3a8a; border-radius: 999px; padding: 0.25rem 0.7rem; font-size: 0.8rem; cursor: pointer; font-family: inherit; }
+.an-chip:hover { background: #e0e7ff; }
+.an-chip-clear { background: #fff; border-color: var(--border); color: #374151; }
+.an-click { cursor: pointer; border-radius: 6px; }
+.an-bar-row.an-click:hover, tr.an-click:hover td { background: #f5f7fb; }
+.an-bar-row.an-active { background: #eef2ff; outline: 2px solid #c7d2fe; }
+tr.an-active td { background: #eef2ff; }
+.an-bar-row { padding: 0.15rem 0.3rem; margin: 0 -0.3rem; }
+.an-chart .an-hit { cursor: pointer; }
+.an-dim { opacity: 0.45; }
+.an-dim-tag { font-size: 0.7rem; color: #6b7280; background: #f3f4f6; border-radius: 4px; padding: 0.1rem 0.45rem; }

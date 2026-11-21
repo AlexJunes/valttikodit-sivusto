@@ -30,6 +30,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         const parts = [u.utm_source, u.utm_medium, u.utm_campaign].filter(Boolean);
         return parts.length ? `Kampanja: ${parts.join(' / ')}` : '';
     };
+    // Liidin laite ja seurantatunniste omiin kenttiinsä (analytiikan suodattimet); ei henkilötietoja
+    const leadMeta = () => {
+        const u = window.__vUtm || {}, w = window.innerWidth;
+        return { device_type: w < 768 ? 'Mobiili' : w < 1024 ? 'Tabletti' : 'Desktop',
+            utm_source: u.utm_source || null, utm_campaign: u.utm_campaign || null, utm_content: u.utm_content || null };
+    };
 
     // EVÄSTEHALLINTA JA ANALYTIIKKA
     if (typeof supabase !== 'undefined') {
@@ -112,7 +118,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 fetch(`${SUPABASE_URL}/rest/v1/site_events`, {
                     method: 'POST', keepalive: true,
                     headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}`, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
-                    body: JSON.stringify({ path: cleanPath.slice(0, 500), session_id: sessionId, ...row }),
+                    body: JSON.stringify({ path: cleanPath.slice(0, 500), session_id: sessionId, device_type: device, referrer: String(ref || '').slice(0, 300),
+                        utm_source: utm.utm_source || null, utm_campaign: utm.utm_campaign || null, utm_content: utm.utm_content || null, ...row }),
                 }).catch(() => {});
             } catch (e) { /* ei kriittinen */ }
         };
@@ -470,7 +477,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                         name: formData.get('name'),
                         email: formData.get('email'),
                         phone: formData.get('phone') || '',
-                        message: `${sourceInfo}${extraInfo}${formData.get('message') || ''}`
+                        message: `${sourceInfo}${extraInfo}${formData.get('message') || ''}`,
+                        ...leadMeta()
                     }]);
                 } catch(err) {
                     console.error('Supabase DB error:', err);
@@ -521,7 +529,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                         name: formData.get('name'),
                         email: formData.get('email'),
                         phone: formData.get('phone') || '',
-                        message: messageStr
+                        message: messageStr,
+                        ...leadMeta()
                     }]).then((res) => {
                         if (res.error) throw res.error;
                         
@@ -575,7 +584,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                         name: formData.get('name'),
                         email: formData.get('email'),
                         phone: formData.get('phone') || '',
-                        message: messageStr
+                        message: messageStr,
+                        ...leadMeta()
                     }]).then((res) => {
                         if (res.error) throw res.error;
 
@@ -626,7 +636,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                         name: 'Uutiskirjeen tilaaja',
                         email: email,
                         phone: '',
-                        message: 'LÄHDE: Uutiskirjeen tilaus (Liity sisäpiiriin)'
+                        message: 'LÄHDE: Uutiskirjeen tilaus (Liity sisäpiiriin)',
+                        ...leadMeta()
                     }]);
                 } catch(err) {
                     console.error('Supabase DB error:', err);
