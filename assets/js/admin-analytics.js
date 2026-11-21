@@ -178,7 +178,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             { l: 'Käynnit yhteensä', v: c.visits, s: 'kaikista lähteistä', conv: pct(c.social_visits, c.visits), of: 'tuli somesta', color: C.site },
             { l: 'Yhteydenottoaikeet', v: actions, s: 'soita, sähköposti, esite, lomakkeen aloitus', conv: pct(actions, c.visits), of: 'käynneistä', color: C.ink },
             { l: 'Liidit', v: c.leads, s: 'lähetetyt lomakkeet', conv: pct(c.leads, c.visits), of: 'käynneistä (konversio)', color: C.ink },
-            { l: 'Kaupat', v: c.leads_won, s: 'Janin merkitsemät', conv: pct(c.leads_won, c.leads), of: 'liideistä', color: C.ink },
+            { l: 'Kaupat', v: c.leads_won, s: 'liidin tietoihin merkityt', conv: pct(c.leads_won, c.leads), of: 'liideistä', color: C.ink },
         ];
         return `<ol class="an-steps">${steps.map((x) => `<li style="--c:${x.color}">
             <div class="an-step-v">${fmtN(x.v)}</div><div class="an-step-l">${esc(x.l)}</div><div class="an-step-s">${esc(x.s)}</div>
